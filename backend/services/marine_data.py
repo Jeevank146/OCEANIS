@@ -1,6 +1,7 @@
 import logging
 from datetime import datetime, timezone
 from typing import Any, Dict, List, Optional, Tuple
+from sqlalchemy import func
 from sqlalchemy.orm import Session
 
 from connectors.base import BaseMarineDataProvider
@@ -70,6 +71,7 @@ class MarineDataService:
         save_to_db: bool = True,
         now: Optional[datetime] = None,
         location_name: Optional[str] = None,
+        use_cache: bool = True,
     ) -> MultiSourceMarineResponse:
         """
         Queries registered marine providers for coordinates, validates physics,
@@ -102,6 +104,26 @@ class MarineDataService:
                     "Physical oceanographic parameters are blocked to prevent false marine readings."
                 ],
             )
+
+        # Step 1.5: Cache-First Serving from PostgreSQL
+        if use_cache and db is not None and len(self.providers) >= 3:
+            cached_records = self._check_database_cache(db, latitude, longitude, current_time, list(self.providers.keys()))
+            if cached_records:
+                logger.debug(f"Serving {len(cached_records)} fresh marine records from PostgreSQL cache for ({latitude}, {longitude})")
+                primary_src = cached_records[0].source
+                prov_statuses = {k: ProviderStatus.HEALTHY for k in self.providers.keys()}
+                prov_statuses["DATABASE_CACHE"] = ProviderStatus.HEALTHY
+                return MultiSourceMarineResponse(
+                    latitude=latitude,
+                    longitude=longitude,
+                    location_name=resolved_name,
+                    is_coastal=True,
+                    primary_source=f"{primary_src} (Database Cache)",
+                    records=cached_records,
+                    provider_statuses=prov_statuses,
+                    generated_at=current_iso,
+                    warnings=[],
+                )
 
         # Step 2: Query Providers
         collected_records: List[NormalizedMarineRecord] = []
@@ -168,6 +190,130 @@ class MarineDataService:
             generated_at=current_iso,
             warnings=[] if collected_records else ["No live marine telemetry available for active coordinates."],
         )
+
+    def _check_database_cache(
+        self,
+        db: Session,
+        latitude: float,
+        longitude: float,
+        current_time: datetime,
+        allowed_sources: Optional[List[str]] = None,
+    ) -> Optional[List[NormalizedMarineRecord]]:
+        """Checks PostgreSQL for fresh validated observations for coordinates."""
+        q = db.query(MarineObservation).filter(
+            func.abs(MarineObservation.latitude - latitude) < 0.08,
+            func.abs(MarineObservation.longitude - longitude) < 0.08,
+        )
+        if allowed_sources and len(allowed_sources) < 4:
+            # Match allowed provider prefixes
+            conds = [MarineObservation.source.ilike(f"%{s}%") for s in allowed_sources]
+            from sqlalchemy import or_
+            q = q.filter(or_(*conds))
+
+        cached_marine = q.order_by(MarineObservation.observed_at.desc()).first()
+
+        if not cached_marine or not cached_marine.observed_at:
+            return None
+
+        freshness_wh = evaluate_parameter_freshness(
+            timestamp=cached_marine.observed_at,
+            parameter="wave_height",
+            provider=cached_marine.source,
+            current_time=current_time,
+        )
+
+        if freshness_wh not in (DataFreshnessStatus.FRESH, DataFreshnessStatus.AGING):
+            return None
+
+        records: List[NormalizedMarineRecord] = []
+        observed_iso = cached_marine.observed_at.isoformat()
+        retrieved_iso = (cached_marine.created_at or cached_marine.observed_at).isoformat()
+        src = cached_marine.source or "OCEANIS Database Cache"
+
+        param_map = [
+            ("wave_height", cached_marine.wave_height_m, "m"),
+            ("wave_direction", cached_marine.wave_direction_deg, "deg"),
+            ("wave_period", cached_marine.wave_period_s, "s"),
+            ("swell_wave_height", cached_marine.swell_wave_height_m, "m"),
+            ("swell_wave_direction", cached_marine.swell_wave_direction_deg, "deg"),
+            ("swell_wave_period", cached_marine.swell_wave_period_s, "s"),
+            ("wind_wave_height", cached_marine.wind_wave_height_m, "m"),
+            ("ocean_current_velocity", cached_marine.ocean_current_velocity_kmh, "km/h"),
+            ("ocean_current_direction", cached_marine.ocean_current_direction_deg, "deg"),
+            ("sea_surface_temperature", cached_marine.sea_surface_temperature_c, "C"),
+            ("salinity", cached_marine.salinity_psu, "psu"),
+        ]
+
+        for param_name, val, unit in param_map:
+            if val is not None:
+                p_freshness = evaluate_parameter_freshness(
+                    timestamp=cached_marine.observed_at,
+                    parameter=param_name,
+                    provider=src,
+                    current_time=current_time,
+                )
+                records.append(
+                    NormalizedMarineRecord(
+                        parameter=param_name,
+                        value=val,
+                        unit=unit,
+                        latitude=latitude,
+                        longitude=longitude,
+                        valid_time=observed_iso,
+                        retrieved_at=retrieved_iso,
+                        source=src,
+                        data_type=MarineDataType.OBSERVED,
+                        freshness_status=p_freshness,
+                        quality_status=DataQualityStatus.VALIDATED,
+                        confidence=0.95,
+                    )
+                )
+
+        cached_wx = (
+            db.query(WeatherObservation)
+            .filter(
+                func.abs(WeatherObservation.latitude - latitude) < 0.08,
+                func.abs(WeatherObservation.longitude - longitude) < 0.08,
+            )
+            .order_by(WeatherObservation.observed_at.desc())
+            .first()
+        )
+        if cached_wx and cached_wx.observed_at:
+            wx_iso = cached_wx.observed_at.isoformat()
+            wx_src = cached_wx.source or src
+            wx_map = [
+                ("temperature", cached_wx.temperature_c, "C"),
+                ("relative_humidity", cached_wx.humidity_percent, "%"),
+                ("wind_speed", cached_wx.wind_speed_kmh, "km/h"),
+                ("wind_direction", cached_wx.wind_direction_deg, "deg"),
+                ("precipitation", cached_wx.precipitation_mm, "mm"),
+            ]
+            for param_name, val, unit in wx_map:
+                if val is not None:
+                    p_freshness = evaluate_parameter_freshness(
+                        timestamp=cached_wx.observed_at,
+                        parameter=param_name,
+                        provider=wx_src,
+                        current_time=current_time,
+                    )
+                    records.append(
+                        NormalizedMarineRecord(
+                            parameter=param_name,
+                            value=val,
+                            unit=unit,
+                            latitude=latitude,
+                            longitude=longitude,
+                            valid_time=wx_iso,
+                            retrieved_at=retrieved_iso,
+                            source=wx_src,
+                            data_type=MarineDataType.OBSERVED,
+                            freshness_status=p_freshness,
+                            quality_status=DataQualityStatus.VALIDATED,
+                            confidence=0.90,
+                        )
+                    )
+
+        return records if records else None
 
     def _persist_records(
         self,

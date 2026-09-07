@@ -3,6 +3,7 @@ import logging
 from datetime import datetime, timezone
 from typing import Any, Dict, List, Optional
 import requests
+from dotenv import load_dotenv
 
 from connectors.base import BaseMarineDataProvider
 from schemas.marine_provider import (
@@ -37,7 +38,10 @@ class IMDProvider(BaseMarineDataProvider):
         base_url: Optional[str] = None,
         timeout_seconds: int = 15,
     ):
-        self.api_key = api_key or os.getenv("IMD_API_KEY")
+        if not api_key:
+            load_dotenv()
+            api_key = os.getenv("IMD_API_KEY")
+        self.api_key = api_key
         self.base_url = base_url or os.getenv("IMD_BASE_URL", "https://mausam.imd.gov.in/api")
         self.timeout = timeout_seconds
 
@@ -118,15 +122,18 @@ class IMDProvider(BaseMarineDataProvider):
         try:
             resp = requests.get(endpoint, headers=headers, params=params, timeout=self.timeout)
             
-            if resp.status_code == 401 or resp.status_code == 403:
+            # Check for authentication / authorization failures
+            if resp.status_code in (401, 403) or (
+                resp.status_code == 400 and ("unauthor" in resp.text.lower() or "jwt" in resp.text.lower() or "invalid" in resp.text.lower())
+            ):
                 return ProviderResponse(
                     provider_name=self.provider_name,
                     status=ProviderStatus.AUTH_FAILURE,
-                    error_message=f"IMD authentication failed (HTTP {resp.status_code}). Check API credentials.",
+                    error_message=f"IMD authentication failed (HTTP {resp.status_code}): {resp.text.strip()}",
                     records=[],
                     retrieved_at=now_iso,
                 )
-            elif resp.status_code == 404 or resp.status_code == 204:
+            elif resp.status_code in (404, 204):
                 return ProviderResponse(
                     provider_name=self.provider_name,
                     status=ProviderStatus.NO_DATA,

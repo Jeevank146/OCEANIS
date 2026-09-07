@@ -183,17 +183,17 @@ def test_parameter_specific_freshness():
 # ==============================================================================
 def test_provider_failure_handling():
     # Unconfigured provider returns CONFIGURATION_REQUIRED
-    incois = INCOISProvider(api_key="")
-    resp = incois.fetch_marine_data(latitude=16.9891, longitude=82.2475)
+    imd_unconfigured = IMDProvider(api_key="   ")
+    resp = imd_unconfigured.fetch_marine_data(latitude=16.9891, longitude=82.2475)
     assert resp.status == ProviderStatus.CONFIGURATION_REQUIRED
     assert len(resp.records) == 0
 
     # Configured provider encountering 500 error returns UNAVAILABLE
-    incois_cfg = INCOISProvider(api_key="valid_token")
+    imd_cfg = IMDProvider(api_key="mock_valid_token")
     with patch("requests.get") as mock_get:
         mock_get.return_value.status_code = 502
         mock_get.return_value.raise_for_status.side_effect = requests.HTTPError("502 Bad Gateway")
-        err_resp = incois_cfg.fetch_marine_data(latitude=16.9891, longitude=82.2475)
+        err_resp = imd_cfg.fetch_marine_data(latitude=16.9891, longitude=82.2475)
         assert err_resp.status == ProviderStatus.UNAVAILABLE
         assert len(err_resp.records) == 0
 
@@ -203,10 +203,10 @@ def test_provider_failure_handling():
 # TEST 8: Missing Data Handling
 # ==============================================================================
 def test_missing_data_handling():
-    incois_cfg = INCOISProvider(api_key="valid_token")
+    imd_cfg = IMDProvider(api_key="mock_valid_token")
     with patch("requests.get") as mock_get:
         mock_get.return_value.status_code = 404
-        resp = incois_cfg.fetch_marine_data(latitude=16.9891, longitude=82.2475)
+        resp = imd_cfg.fetch_marine_data(latitude=16.9891, longitude=82.2475)
         assert resp.status == ProviderStatus.NO_DATA
         assert len(resp.records) == 0
 
@@ -215,11 +215,11 @@ def test_missing_data_handling():
 # TEST 9: Invalid Provider Response Handling
 # ==============================================================================
 def test_invalid_provider_response_handling():
-    incois_cfg = INCOISProvider(api_key="valid_token")
+    imd_cfg = IMDProvider(api_key="mock_valid_token")
     with patch("requests.get") as mock_get:
         mock_get.return_value.status_code = 200
         mock_get.return_value.json.side_effect = ValueError("Malformed JSON string")
-        resp = incois_cfg.fetch_marine_data(latitude=16.9891, longitude=82.2475)
+        resp = imd_cfg.fetch_marine_data(latitude=16.9891, longitude=82.2475)
         assert resp.status == ProviderStatus.INVALID_RESPONSE
         assert len(resp.records) == 0
 

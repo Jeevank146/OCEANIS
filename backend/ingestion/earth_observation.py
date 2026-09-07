@@ -27,10 +27,51 @@ class EarthObservationIngestionService:
         latitude: float,
         longitude: float,
         product_type: Optional[str] = None,
+        use_cache: bool = False,
     ) -> Dict[str, Any]:
         """
         Fetch, normalize, and persist Earth Observation data for given coordinates with duplicate protection.
         """
+        # Step 0: Cache-First Check from PostgreSQL
+        if use_cache and db is not None:
+            cached_eo = (
+                db.query(EarthObservation)
+                .filter(
+                    func.abs(EarthObservation.latitude - latitude) < 0.08,
+                    func.abs(EarthObservation.longitude - longitude) < 0.08,
+                )
+                .order_by(EarthObservation.observed_at.desc())
+                .first()
+            )
+            if cached_eo and cached_eo.observed_at:
+                obs_dt = cached_eo.observed_at if cached_eo.observed_at.tzinfo else cached_eo.observed_at.replace(tzinfo=timezone.utc)
+                age_hours = (datetime.now(timezone.utc) - obs_dt).total_seconds() / 3600.0
+                # EO / Sentinel satellite observations remain fresh for 24 hours
+                if age_hours <= 24.0 and (cached_eo.chlorophyll_a_mg_m3 is not None or cached_eo.sea_surface_temperature_c is not None):
+                    return {
+                        "observation_id": cached_eo.id,
+                        "location": {"latitude": cached_eo.latitude, "longitude": cached_eo.longitude},
+                        "observed_at": cached_eo.observed_at.isoformat(),
+                        "retrieved_at": (cached_eo.retrieved_at or cached_eo.observed_at).isoformat(),
+                        "source": cached_eo.source + " (Database Cache)",
+                        "product_type": cached_eo.product_type,
+                        "data_type": cached_eo.data_type,
+                        "quality_flag": cached_eo.quality_flag,
+                        "measurements": {
+                            "sea_surface_temperature_c": cached_eo.sea_surface_temperature_c,
+                            "chlorophyll_a_mg_m3": cached_eo.chlorophyll_a_mg_m3,
+                            "ocean_colour": cached_eo.ocean_colour,
+                            "cloud_cover_percent": cached_eo.cloud_cover_percent,
+                            "solar_radiation_w_m2": cached_eo.solar_radiation_w_m2,
+                        },
+                        "metadata": {
+                            "satellite_platform": cached_eo.satellite_platform,
+                            "sensor_instrument": cached_eo.sensor_instrument,
+                            "source_url": cached_eo.source_url,
+                            "source_timezone": cached_eo.source_timezone,
+                        },
+                    }
+
         raw_data = self.connector.fetch(
             latitude=latitude,
             longitude=longitude,

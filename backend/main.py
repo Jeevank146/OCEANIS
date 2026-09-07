@@ -1,6 +1,9 @@
+from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from database import test_database_connection
+from ingestion.worker import BackgroundIngestionWorker
 from api.v1.system import router as system_router
+from api.v1.ingestion import router as ingestion_router
 from api.v1.data_sources import router as data_sources_router
 from api.v1.weather import router as weather_router
 from api.v1.marine import router as marine_router
@@ -20,14 +23,27 @@ from api.v1.conversation import router as conversation_router
 from api.v1.location import router as location_router
 
 
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    # Application startup: start background ingestion worker if enabled
+    worker = BackgroundIngestionWorker.get_instance()
+    worker.start()
+    yield
+    # Application shutdown: gracefully cancel tasks
+    await worker.stop()
+
+
 app = FastAPI(
     title="OCEANIS API",
     description="Ocean Intelligence & Decision System",
     version="0.1.0",
+    lifespan=lifespan,
 )
 
 app.include_router(system_router, prefix="/api/v1")
 app.include_router(location_router, prefix="/api/v1")
+app.include_router(ingestion_router, prefix="/api/v1")
 app.include_router(data_sources_router, prefix="/api/v1")
 app.include_router(weather_router, prefix="/api/v1")
 app.include_router(marine_router, prefix="/api/v1")
