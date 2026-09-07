@@ -1,0 +1,70 @@
+/* ==========================================================================
+   WHAT-IF SIMULATION PAGE STYLES
+   ========================================================================== */
+
+.whatif-page-root {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.whatif-main-component-wrapper {
+  width: 100%;
+}
+
+.whatif-main-component-wrapper .whatif-section {
+  padding: 0;
+  background: transparent;
+  border-bottom: none;
+}
+
+.whatif-guidance-section {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.guidance-cards-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 16px;
+}
+
+.guidance-card {
+  padding: 18px;
+  background: #FFFFFF;
+  border: 1px solid #E2E8F0;
+  border-radius: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.guidance-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+.guidance-card-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.guidance-icon {
+  font-size: 1.15rem;
+}
+
+.guidance-title {
+  font-size: 0.92rem;
+  color: #0F172A;
+  font-weight: 700;
+}
+
+.guidance-desc {
+  margin: 0;
+  font-size: 0.82rem;
+  color: #475569;
+  line-height: 1.5;
+}

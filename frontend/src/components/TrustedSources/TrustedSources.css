@@ -1,0 +1,210 @@
+/* OCEANIS Trusted Sources (Institutional Design) */
+.trusted-sources-section {
+  padding: 50px 0;
+  position: relative;
+  background: var(--bg-surface);
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.trusted-header {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  margin-bottom: 28px;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.trusted-title-block {
+  max-width: 680px;
+}
+
+.trusted-main-title {
+  font-family: var(--font-heading);
+  font-size: 1.875rem;
+  font-weight: 800;
+  color: var(--primary-navy);
+  letter-spacing: -0.01em;
+  margin-top: 4px;
+  margin-bottom: 6px;
+}
+
+.trusted-subtitle {
+  font-size: 0.9375rem;
+  color: var(--text-secondary);
+  line-height: 1.5;
+}
+
+.trusted-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 14px;
+  background: var(--bg-card);
+  border: 1px solid var(--border-medium);
+  border-radius: var(--radius-full);
+}
+
+.trusted-badge-text {
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  font-weight: 700;
+  color: var(--marine-dark-teal);
+}
+
+/* Grid */
+.trusted-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+}
+
+@media (max-width: 1100px) {
+  .trusted-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 700px) {
+  .trusted-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.trusted-source-card {
+  background: #ffffff;
+  border: 1px solid var(--border-medium);
+  border-radius: var(--radius-lg);
+  padding: 22px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  transition: all var(--transition-normal);
+  box-shadow: 0 2px 6px rgba(11, 33, 55, 0.04);
+}
+
+.trusted-source-card:hover {
+  transform: translateY(-2px);
+  border-color: var(--marine-teal);
+  box-shadow: 0 8px 20px rgba(11, 33, 55, 0.08);
+}
+
+.src-card-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 14px;
+}
+
+.src-icon-box {
+  width: 40px;
+  height: 40px;
+  border-radius: var(--radius-md);
+  background: rgba(0, 168, 150, 0.1);
+  border: 1px solid rgba(0, 168, 150, 0.25);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--marine-dark-teal);
+}
+
+.src-icon-box svg {
+  width: 20px;
+  height: 20px;
+}
+
+.src-status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--font-mono);
+  font-size: 0.625rem;
+  font-weight: 700;
+  padding: 3px 8px;
+  border-radius: var(--radius-full);
+  background: rgba(16, 185, 129, 0.12);
+  color: #047857;
+  border: 1px solid rgba(16, 185, 129, 0.3);
+}
+
+.src-status-dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: #10b981;
+}
+
+.src-name {
+  font-family: var(--font-heading);
+  font-size: 1.0625rem;
+  font-weight: 700;
+  color: var(--primary-navy);
+  margin-bottom: 2px;
+}
+
+.src-agency {
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  color: var(--marine-dark-teal);
+  display: block;
+  margin-bottom: 8px;
+}
+
+.src-datatype {
+  font-size: 0.8125rem;
+  color: var(--text-secondary);
+  line-height: 1.5;
+  margin-bottom: 12px;
+}
+
+.src-parameters-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-bottom: 16px;
+}
+
+.src-param-pill {
+  font-family: var(--font-mono);
+  font-size: 0.625rem;
+  padding: 2px 8px;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  color: var(--text-secondary);
+}
+
+.src-card-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-top: 1px solid var(--border-subtle);
+  padding-top: 10px;
+  font-size: 0.75rem;
+}
+
+.src-meta-col {
+  display: flex;
+  flex-direction: column;
+}
+
+.src-meta-lbl {
+  font-family: var(--font-mono);
+  font-size: 0.625rem;
+  color: var(--text-muted);
+  text-transform: uppercase;
+}
+
+.src-meta-val {
+  color: var(--text-primary);
+  font-weight: 500;
+}
+
+.src-meta-val.highlight {
+  color: var(--marine-dark-teal);
+  font-weight: 700;
+}
+
+.text-right {
+  text-align: right;
+}

@@ -1,0 +1,250 @@
+/* ==========================================================================
+   OCEANIS GLOBAL MAIN LAYOUT SHELL
+   ========================================================================== */
+
+.oceanis-app {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background-color: var(--bg-app, #F5F9FC);
+  color: var(--text-body, #334155);
+  position: relative;
+  overflow-x: hidden;
+  width: 100%;
+}
+
+.oceanis-app.landing-mode {
+  background-color: #031322;
+}
+
+/* Operational layout wrapper offset by the left sidebar on desktop (>1199px) */
+.oceanis-layout-wrapper {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  width: calc(100% - 200px);
+  margin-left: 200px;
+  box-sizing: border-box;
+  overflow-x: hidden;
+  min-width: 0;
+  transition: margin-left var(--transition-normal, 0.25s ease);
+}
+
+/* Full-width landing mode without sidebar */
+.oceanis-layout-wrapper.is-landing {
+  width: 100% !important;
+  margin-left: 0 !important;
+}
+
+.oceanis-main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  box-sizing: border-box;
+  padding-top: 70px; /* Offset for fixed 70px top navbar */
+  min-width: 0;
+}
+
+.oceanis-main.main-landing {
+  padding-top: 70px;
+}
+
+/* Base Page Layout Template used by dedicated routes */
+.ocean-page-container {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  padding: 24px 24px 48px;
+  max-width: 1460px;
+  margin: 0 auto;
+  width: 100%;
+  box-sizing: border-box;
+  min-width: 0;
+  animation: fadeInPage 0.25s ease-out;
+}
+
+@keyframes fadeInPage {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Standard Header for Dedicated Pages */
+.page-header-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  background: #FFFFFF;
+  border: 1px solid #E2E8F0;
+  border-radius: 12px;
+  padding: 20px 24px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03);
+  box-sizing: border-box;
+  min-width: 0;
+}
+
+.page-header-main {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.page-breadcrumbs {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #64748B;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.page-breadcrumb-crumb {
+  color: #0284C7;
+  text-decoration: none;
+}
+
+.page-breadcrumb-crumb:hover {
+  text-decoration: underline;
+}
+
+.page-breadcrumb-sep {
+  color: #CBD5E1;
+}
+
+.page-breadcrumb-current {
+  color: #475569;
+}
+
+.page-title {
+  margin: 0;
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: #0F172A;
+  letter-spacing: -0.02em;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.page-title-badge {
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 3px 8px;
+  border-radius: 6px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.badge-live {
+  background: #DCFCE7;
+  color: #15803D;
+  border: 1px solid #86EFAC;
+}
+
+.badge-agent {
+  background: #E0F2FE;
+  color: #0369A1;
+  border: 1px solid #7DD3FC;
+}
+
+.badge-official {
+  background: #FEF3C7;
+  color: #B45309;
+  border: 1px solid #FDE68A;
+}
+
+.page-subtitle {
+  margin: 0;
+  font-size: 0.88rem;
+  color: #64748B;
+  line-height: 1.4;
+}
+
+.page-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-shrink: 0;
+}
+
+.btn-page-action {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-decoration: none;
+}
+
+.btn-page-action.primary {
+  background: #0284C7;
+  color: #FFFFFF;
+  border: none;
+  box-shadow: 0 2px 6px rgba(2, 132, 199, 0.25);
+}
+
+.btn-page-action.primary:hover {
+  background: #0369A1;
+  transform: translateY(-1px);
+}
+
+.btn-page-action.secondary {
+  background: #F8FAFC;
+  color: #334155;
+  border: 1px solid #CBD5E1;
+}
+
+.btn-page-action.secondary:hover {
+  background: #F1F5F9;
+  border-color: #94A3B8;
+}
+
+/* Global Responsive Layout */
+@media (max-width: 1199px) {
+  .oceanis-layout-wrapper {
+    width: 100%;
+    margin-left: 0;
+  }
+
+  .ocean-page-container {
+    padding: 18px 16px 36px;
+    gap: 18px;
+  }
+
+  .page-header-banner {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 14px;
+    padding: 16px;
+  }
+
+  .page-header-actions {
+    width: 100%;
+    justify-content: flex-start;
+    flex-wrap: wrap;
+  }
+}
+
+@media (max-width: 767px) {
+  .ocean-page-container {
+    padding: 12px 12px 28px;
+    gap: 14px;
+  }
+
+  .page-title {
+    font-size: 1.25rem;
+  }
+}

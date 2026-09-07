@@ -1,0 +1,197 @@
+/* ==========================================================================
+   GEOSPATIAL & NAVIGATION PAGE STYLES
+   ========================================================================== */
+
+.geospatial-layout-grid {
+  display: grid;
+  grid-template-columns: minmax(320px, 1.1fr) minmax(0, 1.5fr);
+  gap: 20px;
+  align-items: start;
+}
+
+.geo-calc-card,
+.geo-zones-card {
+  padding: 20px;
+  background: #FFFFFF;
+}
+
+.geo-calc-form {
+  margin-bottom: 20px;
+}
+
+.coord-inputs-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+
+.coord-field label {
+  display: block;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #334155;
+  margin-bottom: 6px;
+}
+
+.coord-input {
+  width: 100%;
+  padding: 8px 12px;
+  font-size: 0.85rem;
+  border: 1px solid #CBD5E1;
+  border-radius: 6px;
+  box-sizing: border-box;
+}
+
+.btn-compute-geo {
+  width: 100%;
+  padding: 10px;
+  background: #0284C7;
+  color: #FFFFFF;
+  font-weight: 700;
+  font-size: 0.85rem;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-compute-geo:hover {
+  background: #0369A1;
+}
+
+.clearance-result-box {
+  background: #F8FAFC;
+  border: 1px solid #E2E8F0;
+  border-radius: 8px;
+  padding: 14px;
+}
+
+.clearance-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.clearance-header strong {
+  font-size: 0.84rem;
+  color: #0F172A;
+}
+
+.clearance-tag {
+  font-size: 0.7rem;
+  font-weight: 700;
+  padding: 3px 8px;
+  border-radius: 4px;
+}
+
+.clearance-tag.valid {
+  background: #DCFCE7;
+  color: #15803D;
+}
+
+.clearance-metrics {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.c-metric {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.76rem;
+  padding-bottom: 6px;
+  border-bottom: 1px solid #F1F5F9;
+}
+
+.c-label {
+  color: #64748B;
+}
+
+.c-val {
+  font-weight: 600;
+  color: #1E293B;
+}
+
+.text-success {
+  color: #16A34A !important;
+}
+
+.zones-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.zone-card-item {
+  background: #F8FAFC;
+  border: 1px solid #E2E8F0;
+  border-radius: 8px;
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.zone-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.zone-title {
+  font-size: 0.88rem;
+  color: #0F172A;
+}
+
+.zone-status-badge {
+  font-size: 0.68rem;
+  font-weight: 700;
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+
+.status-clear {
+  background: #DCFCE7;
+  color: #15803D;
+}
+
+.status-restricted {
+  background: #FEE2E2;
+  color: #B91C1C;
+}
+
+.status-caution {
+  background: #FEF3C7;
+  color: #B45309;
+}
+
+.zone-limit-tag {
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: #0284C7;
+}
+
+.zone-sovereignty,
+.zone-activities {
+  margin: 0;
+  font-size: 0.75rem;
+  color: #475569;
+  line-height: 1.35;
+}
+
+.zone-vessel-note {
+  margin-top: 4px;
+  padding-top: 6px;
+  border-top: 1px solid #E2E8F0;
+  font-size: 0.72rem;
+  color: #16A34A;
+  font-weight: 600;
+}
+
+@media (max-width: 1199px) {
+  .geospatial-layout-grid {
+    grid-template-columns: 1fr;
+  }
+}

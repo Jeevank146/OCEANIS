@@ -1,0 +1,459 @@
+/* ==========================================================================
+   FISHING INTELLIGENCE PAGE STYLES
+   ========================================================================== */
+
+.fishing-layout-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  align-items: start;
+}
+
+.fishing-left-col,
+.fishing-right-col {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.card-top-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.card-top-header h3 {
+  margin: 0;
+  font-size: 1.05rem;
+  font-weight: 800;
+  color: #0F172A;
+}
+
+.card-desc {
+  margin: 0 0 16px;
+  font-size: 0.82rem;
+  color: #64748B;
+  line-height: 1.4;
+}
+
+.badge-source,
+.badge-provenance,
+.badge-model,
+.badge-tool {
+  font-size: 0.7rem;
+  font-weight: 700;
+  padding: 3px 8px;
+  border-radius: 6px;
+}
+
+.badge-source {
+  background: #E0F2FE;
+  color: #0369A1;
+}
+
+.badge-provenance {
+  background: #DCFCE7;
+  color: #15803D;
+}
+
+.badge-model {
+  background: #F3E8FF;
+  color: #7E22CE;
+}
+
+.badge-tool {
+  background: #FEF3C7;
+  color: #B45309;
+}
+
+.fishing-zones-card,
+.whatif-fishing-card,
+.explainability-card,
+.species-card,
+.fuel-calc-card {
+  padding: 20px;
+  background: #FFFFFF;
+}
+
+/* What-If Fishing Scenario Action Card */
+.whatif-fishing-card {
+  border: 1px solid #BAE6FD;
+  background: linear-gradient(135deg, #F0F9FF 0%, #FFFFFF 100%);
+  border-radius: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  box-shadow: 0 1px 3px rgba(2, 132, 199, 0.06);
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+}
+
+.whatif-fishing-card:hover {
+  transform: translateY(-2px);
+  border-color: #0284C7;
+  box-shadow: 0 6px 16px rgba(2, 132, 199, 0.12);
+}
+
+.whatif-fishing-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.whatif-fishing-title-group {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.whatif-fishing-icon {
+  font-size: 1.35rem;
+}
+
+.whatif-fishing-title {
+  margin: 0;
+  font-size: 0.98rem;
+  font-weight: 800;
+  color: #0F172A;
+  line-height: 1.25;
+}
+
+.whatif-badge-sim {
+  font-size: 0.65rem;
+  font-weight: 800;
+  color: #0284C7;
+  background: #E0F2FE;
+  padding: 2px 6px;
+  border-radius: 4px;
+  letter-spacing: 0.04em;
+}
+
+.whatif-fishing-desc {
+  margin: 0;
+  font-size: 0.8rem;
+  color: #475569;
+  line-height: 1.45;
+}
+
+.whatif-fishing-action {
+  margin-top: 4px;
+  padding-top: 8px;
+  border-top: 1px solid #E0F2FE;
+}
+
+.btn-run-whatif-fishing {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  padding: 9px 14px;
+  background: #0284C7;
+  color: #FFFFFF;
+  border-radius: 6px;
+  font-size: 0.82rem;
+  font-weight: 700;
+  text-decoration: none;
+  transition: all 0.2s ease;
+  box-shadow: 0 1px 3px rgba(2, 132, 199, 0.2);
+}
+
+.btn-run-whatif-fishing:hover {
+  background: #0369A1;
+  box-shadow: 0 4px 10px rgba(2, 132, 199, 0.3);
+}
+
+.btn-run-whatif-fishing svg {
+  width: 14px;
+  height: 14px;
+  transition: transform 0.2s ease;
+}
+
+.btn-run-whatif-fishing:hover svg {
+  transform: translateX(3px);
+}
+
+.zone-button-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.zone-select-btn {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 14px;
+  background: #F8FAFC;
+  border: 1px solid #E2E8F0;
+  border-radius: 8px;
+  cursor: pointer;
+  text-align: left;
+  transition: all 0.2s ease;
+}
+
+.zone-select-btn:hover {
+  background: #F1F5F9;
+  border-color: #CBD5E1;
+}
+
+.zone-select-btn.active {
+  background: #F0F9FF;
+  border-color: #0284C7;
+}
+
+.zone-btn-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.zone-badge-score {
+  font-size: 0.95rem;
+  font-weight: 800;
+  color: #16A34A;
+  background: #DCFCE7;
+  padding: 4px 8px;
+  border-radius: 6px;
+}
+
+.zone-btn-meta {
+  display: flex;
+  flex-direction: column;
+}
+
+.zone-btn-meta strong {
+  font-size: 0.88rem;
+  color: #0F172A;
+}
+
+.zone-sub {
+  font-size: 0.74rem;
+  color: #64748B;
+}
+
+.zone-chevron {
+  font-size: 1.2rem;
+  color: #94A3B8;
+}
+
+.explain-target-title {
+  margin: 0 0 16px;
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #0284C7;
+}
+
+.explain-pillars-list {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  margin-bottom: 16px;
+}
+
+.explain-pillar {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 12px;
+  background: #F8FAFC;
+  border-radius: 8px;
+  border: 1px solid #E2E8F0;
+}
+
+.pillar-num {
+  font-size: 0.85rem;
+  font-weight: 800;
+  color: #0284C7;
+  background: #E0F2FE;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.pillar-content strong {
+  display: block;
+  font-size: 0.84rem;
+  color: #0F172A;
+  margin-bottom: 2px;
+}
+
+.pillar-content p {
+  margin: 0;
+  font-size: 0.76rem;
+  color: #475569;
+  line-height: 1.4;
+}
+
+.operational-recommendation-box {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 12px;
+  background: #ECFDF5;
+  border: 1px solid #A7F3D0;
+  border-radius: 8px;
+}
+
+.rec-icon {
+  font-size: 1.1rem;
+}
+
+.rec-text {
+  font-size: 0.78rem;
+  color: #065F46;
+  line-height: 1.4;
+}
+
+.species-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.species-item {
+  padding: 12px;
+  border: 1px solid #E2E8F0;
+  border-radius: 8px;
+  background: #F8FAFC;
+}
+
+.species-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 8px;
+}
+
+.sp-name {
+  display: block;
+  font-size: 0.88rem;
+  color: #0F172A;
+}
+
+.sp-sci {
+  font-size: 0.72rem;
+  font-style: italic;
+  color: #64748B;
+}
+
+.sp-score-box {
+  text-align: right;
+}
+
+.sp-score-num {
+  font-size: 1.1rem;
+  font-weight: 800;
+  color: #16A34A;
+}
+
+.sp-score-label {
+  display: block;
+  font-size: 0.65rem;
+  color: #64748B;
+  text-transform: uppercase;
+}
+
+.sp-progress-track {
+  height: 6px;
+  background: #E2E8F0;
+  border-radius: 3px;
+  overflow: hidden;
+  margin-bottom: 8px;
+}
+
+.sp-progress-bar {
+  height: 100%;
+  border-radius: 3px;
+  transition: width 0.3s ease;
+}
+
+.sp-meta-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.72rem;
+  color: #64748B;
+  margin-bottom: 6px;
+}
+
+.conf-badge {
+  color: #0284C7;
+}
+
+.sp-habitat {
+  margin: 0;
+  font-size: 0.72rem;
+  color: #475569;
+}
+
+.calc-inputs-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.calc-field label {
+  display: block;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #334155;
+  margin-bottom: 6px;
+}
+
+.calc-select,
+.calc-slider {
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.calc-select {
+  padding: 8px 10px;
+  font-size: 0.8rem;
+  border: 1px solid #CBD5E1;
+  border-radius: 6px;
+  background: #FFFFFF;
+}
+
+.calc-results-strip {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  background: #F1F5F9;
+  padding: 12px;
+  border-radius: 8px;
+}
+
+.calc-res-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.res-label {
+  font-size: 0.68rem;
+  color: #64748B;
+  text-transform: uppercase;
+  font-weight: 600;
+}
+
+.res-val {
+  font-size: 1.1rem;
+  font-weight: 800;
+  color: #0F172A;
+}
+
+.res-val.highlight {
+  color: #16A34A;
+}
+
+@media (max-width: 1199px) {
+  .fishing-layout-grid {
+    grid-template-columns: 1fr;
+  }
+}

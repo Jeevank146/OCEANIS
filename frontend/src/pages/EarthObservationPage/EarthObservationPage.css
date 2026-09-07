@@ -1,0 +1,680 @@
+/* ==========================================================================
+   EARTH OBSERVATION PAGE STYLES
+   ========================================================================== */
+
+.eo-page-root {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+/* Status Pill in Section Header */
+.eo-status-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: #EFF6FF;
+  border: 1px solid #BFDBFE;
+  padding: 4px 10px;
+  border-radius: 9999px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: #1D4ED8;
+  letter-spacing: 0.03em;
+}
+
+/* ==========================================================================
+   SECTION 1: 7 VISUAL PRODUCTS GRID
+   ========================================================================== */
+
+.eo-product-cards-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 18px;
+}
+
+.eo-visual-card {
+  padding: 0;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  border: 1px solid #E2E8F0;
+  border-radius: 12px;
+  background: #FFFFFF;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+}
+
+.eo-visual-card:hover {
+  transform: translateY(-2px);
+  border-color: #0284C7;
+  box-shadow: 0 6px 16px rgba(2, 132, 199, 0.12);
+}
+
+/* Photographic Media Banner */
+.eo-card-media {
+  position: relative;
+  width: 100%;
+  height: 160px;
+  background-size: cover;
+  background-position: center;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 12px;
+}
+
+.eo-card-media-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(11, 33, 55, 0.4) 0%, rgba(11, 33, 55, 0.85) 100%);
+  z-index: 1;
+}
+
+.eo-media-top-badges {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.eo-badge-category {
+  background: rgba(15, 23, 42, 0.75);
+  backdrop-filter: blur(4px);
+  color: #38BDF8;
+  font-size: 0.68rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  padding: 3px 8px;
+  border-radius: 4px;
+  border: 1px solid rgba(56, 189, 248, 0.3);
+}
+
+.eo-badge-freshness {
+  background: rgba(16, 185, 129, 0.85);
+  backdrop-filter: blur(4px);
+  color: #FFFFFF;
+  font-size: 0.65rem;
+  font-weight: 800;
+  padding: 3px 7px;
+  border-radius: 4px;
+  letter-spacing: 0.02em;
+}
+
+.eo-media-metric-banner {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.eo-metric-lbl {
+  font-size: 0.65rem;
+  font-weight: 600;
+  color: #94A3B8;
+  text-transform: uppercase;
+}
+
+.eo-metric-val {
+  font-size: 1.05rem;
+  font-weight: 800;
+  color: #FFFFFF;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.6);
+}
+
+/* Card Body */
+.eo-card-body {
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  gap: 12px;
+}
+
+.eo-product-name {
+  margin: 0;
+  font-size: 1.02rem;
+  font-weight: 700;
+  color: #0F172A;
+  line-height: 1.3;
+}
+
+.eo-interpretation-text {
+  margin: 0;
+  font-size: 0.82rem;
+  color: #475569;
+  line-height: 1.45;
+  flex: 1;
+}
+
+.eo-card-meta-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding-top: 8px;
+  border-top: 1px solid #F1F5F9;
+}
+
+.eo-meta-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.74rem;
+}
+
+.meta-k {
+  color: #64748B;
+  font-weight: 500;
+}
+
+.meta-v {
+  color: #1E293B;
+  font-weight: 600;
+  text-align: right;
+  max-width: 60%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.btn-view-analysis {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  width: 100%;
+  padding: 9px 14px;
+  background: #F0F9FF;
+  border: 1px solid #BAE6FD;
+  border-radius: 6px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: #0284C7;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  margin-top: 4px;
+}
+
+.btn-view-analysis svg {
+  width: 14px;
+  height: 14px;
+  transition: transform 0.2s ease;
+}
+
+.btn-view-analysis:hover {
+  background: #0284C7;
+  color: #FFFFFF;
+  border-color: #0284C7;
+}
+
+.btn-view-analysis:hover svg {
+  transform: translateX(3px);
+}
+
+/* ==========================================================================
+   SECTION 2: PASS & RADIOMETRIC TELEMETRY GRID
+   ========================================================================== */
+
+.eo-deep-workspace-section {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.eo-layout-grid {
+  display: grid;
+  grid-template-columns: minmax(300px, 1fr) minmax(0, 1.6fr);
+  gap: 20px;
+  align-items: start;
+}
+
+.pass-list-card,
+.pass-detail-card {
+  padding: 20px;
+  background: #FFFFFF;
+  border: 1px solid #E2E8F0;
+  border-radius: 12px;
+}
+
+.pass-selector-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 12px;
+}
+
+.pass-item-btn {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 12px 14px;
+  background: #F8FAFC;
+  border: 1px solid #E2E8F0;
+  border-radius: 8px;
+  cursor: pointer;
+  text-align: left;
+  transition: all 0.2s ease;
+}
+
+.pass-item-btn:hover {
+  background: #F1F5F9;
+  border-color: #CBD5E1;
+}
+
+.pass-item-btn.active {
+  background: #F0F9FF;
+  border-color: #0284C7;
+  box-shadow: 0 1px 3px rgba(2, 132, 199, 0.15);
+}
+
+.pass-btn-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.pass-mission {
+  font-size: 0.92rem;
+  color: #0F172A;
+  font-weight: 700;
+}
+
+.pass-sensor-name {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: #0284C7;
+}
+
+.pass-meta-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.72rem;
+  color: #64748B;
+}
+
+.pass-qual-badge {
+  font-size: 0.68rem;
+  font-weight: 700;
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+
+.qual-excellent {
+  background: #DCFCE7;
+  color: #15803D;
+}
+
+.qual-good {
+  background: #E0F2FE;
+  color: #0369A1;
+}
+
+.qual-partial-cloud {
+  background: #FEF3C7;
+  color: #B45309;
+}
+
+.pass-sub-title {
+  display: block;
+  font-size: 0.8rem;
+  color: #64748B;
+  font-weight: 600;
+}
+
+.pass-specs-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+  margin: 16px 0;
+}
+
+.spec-box {
+  background: #F8FAFC;
+  border: 1px solid #E2E8F0;
+  border-radius: 8px;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.spec-label {
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: #64748B;
+  text-transform: uppercase;
+}
+
+.spec-value {
+  font-size: 0.88rem;
+  color: #0F172A;
+  font-weight: 700;
+}
+
+.pass-analysis-box {
+  background: #F0F9FF;
+  border: 1px solid #BAE6FD;
+  border-radius: 8px;
+  padding: 14px;
+  margin-bottom: 20px;
+}
+
+.pass-analysis-box h4 {
+  margin: 0 0 6px;
+  font-size: 0.86rem;
+  color: #0369A1;
+  font-weight: 700;
+}
+
+.pass-analysis-box p {
+  margin: 0;
+  font-size: 0.82rem;
+  color: #334155;
+  line-height: 1.45;
+}
+
+.spectral-bands-section h4 {
+  margin: 0 0 12px;
+  font-size: 0.88rem;
+  color: #0F172A;
+  font-weight: 700;
+}
+
+.spectral-bar-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.spectral-bar-item {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.spectral-bar-labels {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.74rem;
+  color: #475569;
+}
+
+.spectral-track {
+  height: 6px;
+  background: #E2E8F0;
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.spectral-fill {
+  height: 100%;
+  border-radius: 3px;
+}
+
+/* ==========================================================================
+   MODAL INSPECTOR DIALOG
+   ========================================================================== */
+
+.eo-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.7);
+  backdrop-filter: blur(4px);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  animation: fadeIn 0.2s ease-out;
+}
+
+.eo-modal-dialog {
+  background: #FFFFFF;
+  border-radius: 14px;
+  width: 100%;
+  max-width: 640px;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.25);
+  border: 1px solid #E2E8F0;
+  display: flex;
+  flex-direction: column;
+  animation: slideUp 0.25s ease-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideUp {
+  from { transform: translateY(16px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+.eo-modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding: 16px 20px;
+  border-bottom: 1px solid #E2E8F0;
+}
+
+.eo-modal-cat {
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: #0284C7;
+  letter-spacing: 0.04em;
+}
+
+.eo-modal-title {
+  margin: 2px 0 0;
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: #0F172A;
+}
+
+.btn-close-modal {
+  background: #F1F5F9;
+  border: none;
+  border-radius: 50%;
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: #64748B;
+  font-size: 0.9rem;
+  transition: all 0.2s ease;
+}
+
+.btn-close-modal:hover {
+  background: #E2E8F0;
+  color: #0F172A;
+}
+
+.eo-modal-img {
+  position: relative;
+  width: 100%;
+  height: 200px;
+  background-size: cover;
+  background-position: center;
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  padding: 16px;
+}
+
+.eo-modal-img-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(0, 0, 0, 0.1) 0%, rgba(15, 23, 42, 0.85) 100%);
+}
+
+.eo-modal-val-box {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+}
+
+.eo-modal-val-box span {
+  font-size: 0.7rem;
+  color: #94A3B8;
+  text-transform: uppercase;
+}
+
+.eo-modal-val-box strong {
+  font-size: 1.25rem;
+  color: #FFFFFF;
+  font-weight: 800;
+}
+
+.eo-modal-freshness-pill {
+  position: relative;
+  z-index: 2;
+  background: rgba(16, 185, 129, 0.9);
+  color: #FFFFFF;
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 4px 10px;
+  border-radius: 9999px;
+}
+
+.eo-modal-body {
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.eo-modal-interp-block,
+.eo-modal-desc-block {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.eo-modal-interp-block h4,
+.eo-modal-desc-block h4 {
+  margin: 0;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #64748B;
+  text-transform: uppercase;
+}
+
+.eo-modal-interp-block p {
+  margin: 0;
+  font-size: 0.88rem;
+  color: #0369A1;
+  font-weight: 600;
+  background: #F0F9FF;
+  border: 1px solid #BAE6FD;
+  padding: 10px 12px;
+  border-radius: 8px;
+}
+
+.eo-modal-desc-block p {
+  margin: 0;
+  font-size: 0.84rem;
+  color: #334155;
+  line-height: 1.5;
+}
+
+.eo-modal-specs-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+}
+
+.spec-card {
+  background: #F8FAFC;
+  border: 1px solid #E2E8F0;
+  border-radius: 8px;
+  padding: 10px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.spec-title {
+  font-size: 0.68rem;
+  font-weight: 600;
+  color: #64748B;
+  text-transform: uppercase;
+}
+
+.spec-detail {
+  font-size: 0.82rem;
+  color: #0F172A;
+  font-weight: 600;
+}
+
+.eo-modal-footer {
+  padding: 14px 20px;
+  border-top: 1px solid #E2E8F0;
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  background: #F8FAFC;
+}
+
+.btn-modal-close {
+  padding: 8px 16px;
+  background: #FFFFFF;
+  border: 1px solid #CBD5E1;
+  border-radius: 6px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: #475569;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-modal-close:hover {
+  background: #F1F5F9;
+  color: #0F172A;
+}
+
+.btn-modal-query {
+  padding: 8px 16px;
+  background: #0284C7;
+  border: 1px solid #0284C7;
+  border-radius: 6px;
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: #FFFFFF;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-modal-query:hover {
+  background: #0369A1;
+  border-color: #0369A1;
+}
+
+/* ==========================================================================
+   RESPONSIVE
+   ========================================================================== */
+
+@media (max-width: 1024px) {
+  .eo-layout-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 640px) {
+  .eo-product-cards-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .pass-specs-grid,
+  .eo-modal-specs-grid {
+    grid-template-columns: 1fr;
+  }
+}

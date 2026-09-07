@@ -1,0 +1,595 @@
+/* ==========================================================================
+   OCEANIS LOCATION SELECTOR & INTELLIGENCE FOUNDATION STYLES
+   ========================================================================== */
+
+.location-selector-root {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  color: #0f172a;
+  font-family: inherit;
+}
+
+/* Header */
+.loc-sel-header {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.loc-sel-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #0284c7;
+}
+
+.loc-sel-eyebrow .pulse-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #0284c7;
+  box-shadow: 0 0 8px rgba(2, 132, 199, 0.6);
+  animation: beaconPulse 2s infinite ease-in-out;
+}
+
+.loc-sel-title {
+  font-size: 20px;
+  font-weight: 700;
+  color: #0f2744;
+  margin: 0;
+  letter-spacing: -0.01em;
+}
+
+.loc-sel-subtitle {
+  font-size: 13px;
+  color: #64748b;
+  margin: 0;
+  line-height: 1.4;
+}
+
+/* Search Bar Container */
+.loc-search-container {
+  position: relative;
+  width: 100%;
+}
+
+.loc-search-input-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+  background: #ffffff;
+  border: 1.5px solid #cbd5e1;
+  border-radius: 10px;
+  transition: all 0.2s ease;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04);
+}
+
+.loc-search-input-wrap:focus-within {
+  border-color: #0284c7;
+  box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.15), 0 2px 6px rgba(15, 23, 42, 0.06);
+}
+
+.loc-search-icon {
+  position: absolute;
+  left: 14px;
+  width: 18px;
+  height: 18px;
+  color: #64748b;
+  pointer-events: none;
+}
+
+.loc-search-input {
+  width: 100%;
+  padding: 12px 42px 12px 42px;
+  font-size: 14px;
+  font-weight: 500;
+  color: #0f172a;
+  background: transparent;
+  border: none;
+  outline: none;
+}
+
+.loc-search-input::placeholder {
+  color: #94a3b8;
+  font-weight: 400;
+}
+
+.loc-btn-clear {
+  position: absolute;
+  right: 12px;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: #f1f5f9;
+  border: none;
+  color: #64748b;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.loc-btn-clear:hover {
+  background: #e2e8f0;
+  color: #0f172a;
+}
+
+/* Autocomplete Dropdown */
+.loc-search-dropdown {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  right: 0;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  box-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.15), 0 8px 10px -6px rgba(15, 23, 42, 0.1);
+  max-height: 280px;
+  overflow-y: auto;
+  z-index: 50;
+}
+
+.loc-dropdown-item {
+  width: 100%;
+  padding: 11px 14px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid #f8fafc;
+  text-align: left;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.loc-dropdown-item:last-child {
+  border-bottom: none;
+}
+
+.loc-dropdown-item:hover,
+.loc-dropdown-item:focus {
+  background: #f0fdfa;
+  outline: none;
+}
+
+.loc-dropdown-icon {
+  font-size: 16px;
+  flex-shrink: 0;
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  background: #f1f5f9;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.loc-dropdown-item.is-coastal .loc-dropdown-icon {
+  background: #e0f2fe;
+  color: #0284c7;
+}
+
+.loc-dropdown-item.is-inland .loc-dropdown-icon {
+  background: #fef3c7;
+  color: #d97706;
+}
+
+.loc-dropdown-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  overflow: hidden;
+  flex: 1;
+}
+
+.loc-dropdown-line1 {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.loc-dropdown-title {
+  font-size: 13.5px;
+  font-weight: 600;
+  color: #0f2744;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.loc-type-tag {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  padding: 2px 6px;
+  border-radius: 4px;
+  letter-spacing: 0.04em;
+  flex-shrink: 0;
+}
+
+.tag-coastal {
+  background: #dcfce7;
+  color: #15803d;
+}
+
+.tag-inland {
+  background: #fef3c7;
+  color: #b45309;
+}
+
+.loc-dropdown-sub {
+  font-size: 11.5px;
+  color: #64748b;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.loc-dropdown-loading {
+  padding: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  font-size: 13px;
+  color: #64748b;
+}
+
+.loc-dropdown-spinner {
+  width: 14px;
+  height: 14px;
+  border: 2px solid #cbd5e1;
+  border-top-color: #0284c7;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+.loc-dropdown-empty {
+  padding: 16px;
+  text-align: center;
+  font-size: 12.5px;
+  color: #64748b;
+  line-height: 1.4;
+}
+
+/* Action Buttons Row */
+.loc-action-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.loc-action-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px 14px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #334155;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.loc-action-btn:hover:not(:disabled) {
+  background: #f1f5f9;
+  border-color: #cbd5e1;
+  color: #0f172a;
+}
+
+.loc-action-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.loc-action-btn.active {
+  background: #e0f2fe;
+  border-color: #0284c7;
+  color: #0369a1;
+}
+
+.loc-action-btn svg {
+  width: 16px;
+  height: 16px;
+  color: #0284c7;
+  flex-shrink: 0;
+}
+
+.loc-spinner-icon {
+  animation: spin 1s linear infinite;
+}
+
+/* ==========================================================================
+   VALIDATION RESULTS PANELS (COASTAL vs INLAND vs UNRESOLVED)
+   ========================================================================== */
+
+.loc-validation-panel {
+  margin-top: 4px;
+  border-radius: 10px;
+  padding: 14px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  animation: fadeIn 0.25s ease-out;
+}
+
+/* 1. Coastal / Marine Valid Panel */
+.loc-validation-panel.valid-coastal,
+.loc-validation-panel.valid-marine {
+  background: #f0fdf4;
+  border: 1.5px solid #86efac;
+}
+
+.loc-val-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+}
+
+.loc-val-icon {
+  font-size: 18px;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+.loc-val-title-box {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex: 1;
+}
+
+.loc-val-name {
+  font-size: 15px;
+  font-weight: 700;
+  color: #14532d;
+}
+
+.loc-val-status-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #16a34a;
+}
+
+.loc-val-desc {
+  font-size: 12px;
+  color: #166534;
+  margin: 0;
+  line-height: 1.4;
+}
+
+.loc-val-meta-pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.loc-val-pill {
+  font-size: 11px;
+  font-weight: 600;
+  padding: 3px 8px;
+  border-radius: 4px;
+  background: rgba(22, 163, 74, 0.12);
+  color: #166534;
+}
+
+.loc-btn-continue {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  padding: 11px 18px;
+  background: linear-gradient(135deg, #00a896 0%, #0284c7 100%);
+  color: #ffffff;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 3px 10px rgba(0, 168, 150, 0.3);
+}
+
+.loc-btn-continue:hover {
+  background: linear-gradient(135deg, #008f80 0%, #0369a1 100%);
+  box-shadow: 0 4px 14px rgba(0, 168, 150, 0.4);
+  transform: translateY(-1px);
+}
+
+.loc-btn-continue svg {
+  width: 16px;
+  height: 16px;
+}
+
+/* 2. Inland Location Panel (Strict Block) */
+.loc-validation-panel.inland-block {
+  background: #fffbeb;
+  border: 1.5px solid #fcd34d;
+}
+
+.loc-validation-panel.inland-block .loc-val-name {
+  color: #92400e;
+}
+
+.loc-validation-panel.inland-block .loc-val-status-row {
+  color: #b45309;
+}
+
+.loc-validation-panel.inland-block .loc-val-desc {
+  color: #78350f;
+}
+
+.loc-inland-guide {
+  font-size: 12px;
+  color: #92400e;
+  background: #fef3c7;
+  border-radius: 6px;
+  padding: 8px 10px;
+  border-left: 3px solid #f59e0b;
+}
+
+.loc-btn-change-location {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  padding: 10px 16px;
+  background: #d97706;
+  color: #ffffff;
+  border: none;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.loc-btn-change-location:hover {
+  background: #b45309;
+}
+
+/* 3. Unresolved / Error Panel */
+.loc-validation-panel.unresolved-block {
+  background: #fef2f2;
+  border: 1.5px solid #fecaca;
+}
+
+.loc-validation-panel.unresolved-block .loc-val-name {
+  color: #991b1b;
+}
+
+.loc-validation-panel.unresolved-block .loc-val-desc {
+  color: #b91c1c;
+}
+
+.loc-btn-retry {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  padding: 9px 16px;
+  background: #dc2626;
+  color: #ffffff;
+  border: none;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.loc-btn-retry:hover {
+  background: #b91c1c;
+}
+
+/* Modal Specific Styles */
+.loc-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(11, 33, 55, 0.7);
+  backdrop-filter: blur(4px);
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  animation: fadeIn 0.2s ease-out;
+}
+
+.loc-modal-dialog {
+  background: #ffffff;
+  border-radius: 14px;
+  width: 100%;
+  max-width: 520px;
+  box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.25);
+  border: 1px solid #e2e8f0;
+  overflow: hidden;
+  animation: slideUp 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.loc-modal-topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px;
+  border-bottom: 1px solid #f1f5f9;
+  background: #f8fafc;
+}
+
+.loc-modal-topbar-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 15px;
+  font-weight: 700;
+  color: #0f2744;
+}
+
+.loc-modal-close-btn {
+  background: transparent;
+  border: none;
+  font-size: 18px;
+  color: #64748b;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 6px;
+  transition: all 0.15s ease;
+}
+
+.loc-modal-close-btn:hover {
+  background: #e2e8f0;
+  color: #0f172a;
+}
+
+.loc-modal-body {
+  padding: 20px;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(16px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+@keyframes beaconPulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.4; transform: scale(1.3); }
+}

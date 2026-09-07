@@ -1,0 +1,134 @@
+/* ==========================================================================
+   DATA SOURCES PAGE STYLES
+   ========================================================================== */
+
+.trusted-sources-component-wrapper {
+  width: 100%;
+}
+
+.sources-tech-card {
+  padding: 20px;
+  background: #FFFFFF;
+}
+
+.sources-detailed-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.source-detailed-box {
+  background: #F8FAFC;
+  border: 1px solid #E2E8F0;
+  border-radius: 8px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.src-header-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.src-title-group {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 2px;
+}
+
+.src-acronym {
+  font-size: 1.1rem;
+  font-weight: 800;
+  color: #0284C7;
+}
+
+.src-full-name {
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: #0F172A;
+}
+
+.src-agency-type {
+  font-size: 0.74rem;
+  color: #64748B;
+}
+
+.src-status-box {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 2px;
+}
+
+.src-sync-badge {
+  font-size: 0.68rem;
+  font-weight: 800;
+  background: #DCFCE7;
+  color: #15803D;
+  padding: 2px 8px;
+  border-radius: 4px;
+}
+
+.src-uptime {
+  font-size: 0.7rem;
+  color: #64748B;
+}
+
+.src-tech-meta-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  background: #FFFFFF;
+  border: 1px solid #E2E8F0;
+  border-radius: 6px;
+  padding: 10px;
+  font-size: 0.75rem;
+}
+
+.src-meta-col {
+  display: flex;
+  gap: 6px;
+}
+
+.meta-lbl {
+  color: #64748B;
+  font-weight: 600;
+}
+
+.src-params-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.src-params-list ul {
+  margin: 0;
+  padding-left: 18px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4px;
+}
+
+.src-params-list li {
+  font-size: 0.74rem;
+  color: #334155;
+}
+
+.src-attribution {
+  padding-top: 8px;
+  border-top: 1px solid #E2E8F0;
+  font-size: 0.72rem;
+  color: #64748B;
+  font-style: italic;
+}
+
+@media (max-width: 1199px) {
+  .src-params-list ul {
+    grid-template-columns: 1fr;
+  }
+}

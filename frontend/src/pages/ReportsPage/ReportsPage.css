@@ -1,0 +1,178 @@
+/* ==========================================================================
+   REPORTS GENERATOR PAGE STYLES
+   ========================================================================== */
+
+.reports-layout-grid {
+  display: grid;
+  grid-template-columns: minmax(320px, 1.1fr) minmax(0, 1.5fr);
+  gap: 20px;
+  align-items: start;
+}
+
+.report-config-card,
+.report-preview-card {
+  padding: 20px;
+  background: #FFFFFF;
+}
+
+.report-form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.form-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.form-field label {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #334155;
+}
+
+.report-select {
+  padding: 8px 12px;
+  font-size: 0.82rem;
+  border: 1px solid #CBD5E1;
+  border-radius: 6px;
+  background: #FFFFFF;
+}
+
+.checkbox-field {
+  flex-direction: row;
+  align-items: flex-start;
+}
+
+.checkbox-label {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  font-size: 0.75rem;
+  color: #475569;
+  cursor: pointer;
+}
+
+.btn-generate-report {
+  padding: 10px;
+  font-size: 0.85rem;
+  font-weight: 700;
+  background: #0284C7;
+  color: #FFFFFF;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-generate-report:hover:not(:disabled) {
+  background: #0369A1;
+}
+
+.btn-generate-report:disabled {
+  opacity: 0.6;
+}
+
+.report-success-box {
+  background: #ECFDF5;
+  border: 1px solid #A7F3D0;
+  border-radius: 6px;
+  padding: 10px;
+  font-size: 0.75rem;
+  color: #065F46;
+}
+
+.dossier-paper {
+  background: #F8FAFC;
+  border: 1px solid #CBD5E1;
+  border-radius: 6px;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.dossier-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.dossier-brand strong {
+  display: block;
+  font-size: 0.85rem;
+  color: #0F172A;
+  letter-spacing: 0.04em;
+}
+
+.dossier-brand span {
+  font-size: 0.7rem;
+  color: #64748B;
+}
+
+.dossier-meta {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  font-size: 0.72rem;
+  color: #475569;
+}
+
+.dossier-rule {
+  border: none;
+  border-top: 1px solid #CBD5E1;
+  margin: 0;
+}
+
+.dossier-title {
+  margin: 0;
+  font-size: 0.95rem;
+  font-weight: 800;
+  color: #0284C7;
+  text-align: center;
+  letter-spacing: 0.03em;
+}
+
+.dossier-section {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.dossier-section strong {
+  font-size: 0.76rem;
+  color: #1E293B;
+}
+
+.dossier-section p {
+  margin: 0;
+  font-size: 0.74rem;
+  color: #475569;
+  line-height: 1.4;
+}
+
+.dossier-section.provenance {
+  background: #FFFFFF;
+  border: 1px solid #E2E8F0;
+  padding: 8px 10px;
+  border-radius: 4px;
+}
+
+.dossier-footer {
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px dashed #CBD5E1;
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.68rem;
+  color: #64748B;
+}
+
+@media (max-width: 1199px) {
+  .reports-layout-grid {
+    grid-template-columns: 1fr;
+  }
+}

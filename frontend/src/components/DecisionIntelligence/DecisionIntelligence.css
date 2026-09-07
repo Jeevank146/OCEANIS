@@ -1,0 +1,298 @@
+/* OCEANIS Decision Intelligence (Institutional Design) */
+.decision-intelligence-section {
+  padding: 50px 0;
+  position: relative;
+  background: var(--bg-surface);
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.decision-header {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  margin-bottom: 28px;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.decision-title-block {
+  max-width: 680px;
+}
+
+.decision-main-title {
+  font-family: var(--font-heading);
+  font-size: 1.875rem;
+  font-weight: 800;
+  color: var(--primary-navy);
+  letter-spacing: -0.01em;
+  margin-top: 4px;
+  margin-bottom: 6px;
+}
+
+.decision-subtitle {
+  font-size: 0.9375rem;
+  color: var(--text-secondary);
+  line-height: 1.5;
+}
+
+.decision-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 14px;
+  background: var(--bg-card);
+  border: 1px solid var(--border-medium);
+  border-radius: var(--radius-full);
+}
+
+.badge-text {
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  font-weight: 700;
+  color: var(--marine-dark-teal);
+}
+
+/* Pipeline Communication Flow Ribbon */
+.pipeline-flow-banner {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  background: var(--bg-card, #FFFFFF);
+  border: 1px solid var(--border-subtle, #E2E8F0);
+  border-radius: var(--radius-full, 9999px);
+  padding: 8px 18px;
+  margin-bottom: 24px;
+  box-shadow: 0 1px 3px rgba(11, 33, 55, 0.04);
+  flex-wrap: wrap;
+}
+
+.flow-step-tag {
+  font-family: var(--font-body, sans-serif);
+  font-size: 0.6875rem;
+  font-weight: 700;
+  color: var(--primary-navy, #0b2137);
+  letter-spacing: 0.05em;
+  padding: 2px 8px;
+  border-radius: 4px;
+  background: #F1F5F9;
+}
+
+.flow-step-tag.highlight {
+  background: #EFF6FF;
+  color: #1D4ED8;
+  border: 1px solid #BFDBFE;
+}
+
+.flow-arrow {
+  color: var(--primary-blue, #0284c7);
+  font-weight: 800;
+  font-size: 0.8125rem;
+}
+
+/* 6 Flow Steps Grid */
+.decision-flow-grid {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 14px;
+  margin-bottom: 32px;
+}
+
+.decision-step-card {
+  background: #ffffff;
+  border: 1px solid var(--border-medium);
+  border-radius: var(--radius-lg);
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  transition: all var(--transition-normal);
+  box-shadow: 0 2px 6px rgba(11, 33, 55, 0.04);
+}
+
+.decision-step-card:hover {
+  transform: translateY(-3px);
+  border-color: var(--marine-teal);
+  box-shadow: 0 8px 20px rgba(11, 33, 55, 0.08);
+}
+
+.step-card-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+
+.step-badge {
+  font-family: var(--font-mono);
+  font-size: 0.625rem;
+  font-weight: 700;
+  padding: 2px 6px;
+  background: rgba(0, 168, 150, 0.08);
+  border: 1px solid rgba(0, 168, 150, 0.25);
+  border-radius: var(--radius-sm);
+  color: var(--marine-dark-teal);
+}
+
+.step-num {
+  font-family: var(--font-mono);
+  font-size: 0.8125rem;
+  font-weight: 800;
+  color: var(--text-muted);
+}
+
+.step-title {
+  font-family: var(--font-heading);
+  font-size: 0.9375rem;
+  font-weight: 700;
+  color: var(--primary-navy);
+  margin-bottom: 2px;
+}
+
+.step-subtitle {
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  color: var(--marine-dark-teal);
+  text-transform: uppercase;
+  margin-bottom: 6px;
+}
+
+.step-desc {
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+  line-height: 1.45;
+  flex: 1;
+}
+
+/* Evidence Showcase */
+.evidence-showcase-container {
+  background: #ffffff;
+  border: 1px solid var(--border-medium);
+  border-radius: var(--radius-xl);
+  padding: 24px;
+  box-shadow: 0 4px 16px rgba(11, 33, 55, 0.05);
+}
+
+.evidence-showcase-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 18px;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.showcase-title {
+  font-family: var(--font-heading);
+  font-size: 1.125rem;
+  font-weight: 800;
+  color: var(--primary-navy);
+}
+
+.showcase-tag {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  color: var(--marine-dark-teal);
+  font-weight: 600;
+}
+
+.evidence-cards-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+}
+
+.evidence-provenance-card {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  transition: all var(--transition-fast);
+}
+
+.evidence-provenance-card:hover {
+  border-color: var(--marine-teal);
+  box-shadow: 0 4px 12px rgba(11, 33, 55, 0.06);
+}
+
+.ev-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.ev-factor {
+  font-family: var(--font-mono);
+  font-size: 0.8125rem;
+  font-weight: 700;
+  color: var(--primary-navy);
+}
+
+.ev-agent-pill {
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  font-weight: 600;
+  padding: 2px 8px;
+  background: rgba(0, 168, 150, 0.08);
+  border: 1px solid rgba(0, 168, 150, 0.25);
+  border-radius: var(--radius-sm);
+  color: var(--marine-dark-teal);
+}
+
+.ev-val-row {
+  font-family: var(--font-heading);
+  font-size: 1.125rem;
+  font-weight: 800;
+  color: var(--marine-teal);
+  margin-bottom: 2px;
+}
+
+.ev-specs-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+  border-top: 1px solid var(--border-subtle);
+  padding-top: 8px;
+}
+
+.ev-spec {
+  display: flex;
+  flex-direction: column;
+}
+
+.ev-spec-lbl {
+  font-family: var(--font-mono);
+  font-size: 0.625rem;
+  color: var(--text-muted);
+  text-transform: uppercase;
+}
+
+.ev-spec-val {
+  font-size: 0.75rem;
+  color: var(--text-primary);
+  font-weight: 500;
+}
+
+.ev-spec-val.highlight {
+  color: var(--marine-dark-teal);
+  font-weight: 600;
+}
+
+/* Responsive */
+@media (max-width: 1200px) {
+  .decision-flow-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (max-width: 768px) {
+  .decision-flow-grid {
+    grid-template-columns: 1fr;
+  }
+  .evidence-cards-grid {
+    grid-template-columns: 1fr;
+  }
+}

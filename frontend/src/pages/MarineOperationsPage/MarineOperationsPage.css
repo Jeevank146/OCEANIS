@@ -1,0 +1,264 @@
+/* ==========================================================================
+   MARINE OPERATIONS PAGE STYLES
+   ========================================================================== */
+
+.ops-layout-grid {
+  display: grid;
+  grid-template-columns: minmax(320px, 1.2fr) minmax(0, 1.4fr);
+  gap: 20px;
+  align-items: start;
+}
+
+.ops-left-col,
+.ops-right-col {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.voyage-calc-card,
+.scenario-planning-card,
+.port-readiness-card {
+  padding: 20px;
+  background: #FFFFFF;
+}
+
+/* Scenario Planning Action Card */
+.scenario-planning-card {
+  border: 1px solid #BAE6FD;
+  background: linear-gradient(135deg, #F0F9FF 0%, #FFFFFF 100%);
+  border-radius: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  box-shadow: 0 1px 3px rgba(2, 132, 199, 0.06);
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+}
+
+.scenario-planning-card:hover {
+  transform: translateY(-2px);
+  border-color: #0284C7;
+  box-shadow: 0 6px 16px rgba(2, 132, 199, 0.12);
+}
+
+.scenario-planning-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.scenario-planning-title-group {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.scenario-planning-icon {
+  font-size: 1.35rem;
+}
+
+.scenario-planning-title {
+  margin: 0;
+  font-size: 0.98rem;
+  font-weight: 800;
+  color: #0F172A;
+  line-height: 1.25;
+}
+
+.scenario-badge-sim {
+  font-size: 0.65rem;
+  font-weight: 800;
+  color: #0284C7;
+  background: #E0F2FE;
+  padding: 2px 6px;
+  border-radius: 4px;
+  letter-spacing: 0.04em;
+}
+
+.scenario-planning-desc {
+  margin: 0;
+  font-size: 0.8rem;
+  color: #475569;
+  line-height: 1.45;
+}
+
+.scenario-planning-action {
+  margin-top: 4px;
+  padding-top: 8px;
+  border-top: 1px solid #E0F2FE;
+}
+
+.btn-ops-whatif {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  padding: 9px 14px;
+  background: #0284C7;
+  color: #FFFFFF;
+  border-radius: 6px;
+  font-size: 0.82rem;
+  font-weight: 700;
+  text-decoration: none;
+  transition: all 0.2s ease;
+  box-shadow: 0 1px 3px rgba(2, 132, 199, 0.2);
+}
+
+.btn-ops-whatif:hover {
+  background: #0369A1;
+  box-shadow: 0 4px 10px rgba(2, 132, 199, 0.3);
+}
+
+.btn-ops-whatif svg {
+  width: 14px;
+  height: 14px;
+  transition: transform 0.2s ease;
+}
+
+.btn-ops-whatif:hover svg {
+  transform: translateX(3px);
+}
+
+.route-select-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.route-field label {
+  display: block;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #334155;
+  margin-bottom: 6px;
+}
+
+.ops-select {
+  width: 100%;
+  padding: 8px 10px;
+  font-size: 0.82rem;
+  border: 1px solid #CBD5E1;
+  border-radius: 6px;
+  background: #FFFFFF;
+}
+
+.speed-slider-field {
+  margin-bottom: 20px;
+}
+
+.speed-labels {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.8rem;
+  color: #334155;
+  margin-bottom: 6px;
+}
+
+.ops-slider {
+  width: 100%;
+  accent-color: #0284C7;
+  cursor: pointer;
+}
+
+.passage-summary-box {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+  background: #F8FAFC;
+  border: 1px solid #E2E8F0;
+  border-radius: 8px;
+  padding: 16px;
+}
+
+.summary-stat {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.stat-name {
+  font-size: 0.7rem;
+  color: #64748B;
+  text-transform: uppercase;
+  font-weight: 600;
+}
+
+.stat-val {
+  font-size: 1.15rem;
+  color: #0F172A;
+}
+
+.port-status-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+.port-status-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px;
+  background: #F8FAFC;
+  border: 1px solid #E2E8F0;
+  border-radius: 8px;
+}
+
+.port-info-main strong {
+  display: block;
+  font-size: 0.85rem;
+  color: #0F172A;
+}
+
+.port-info-main span {
+  font-size: 0.74rem;
+  color: #64748B;
+}
+
+.badge-port-open {
+  font-size: 0.7rem;
+  font-weight: 800;
+  background: #DCFCE7;
+  color: #15803D;
+  padding: 3px 8px;
+  border-radius: 4px;
+}
+
+.badge-port-caution {
+  font-size: 0.7rem;
+  font-weight: 800;
+  background: #FEF3C7;
+  color: #B45309;
+  padding: 3px 8px;
+  border-radius: 4px;
+}
+
+.berthing-guidance-box {
+  background: #EFF6FF;
+  border: 1px solid #BFDBFE;
+  border-radius: 8px;
+  padding: 12px;
+}
+
+.berthing-guidance-box strong {
+  display: block;
+  font-size: 0.78rem;
+  color: #1E40AF;
+  margin-bottom: 2px;
+}
+
+.berthing-guidance-box p {
+  margin: 0;
+  font-size: 0.75rem;
+  color: #3B82F6;
+  line-height: 1.4;
+}
+
+@media (max-width: 1199px) {
+  .ops-layout-grid {
+    grid-template-columns: 1fr;
+  }
+}

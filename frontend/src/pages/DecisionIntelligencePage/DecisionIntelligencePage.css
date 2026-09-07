@@ -1,0 +1,103 @@
+/* ==========================================================================
+   DECISION INTELLIGENCE PAGE STYLES
+   ========================================================================== */
+
+.decision-pipeline-wrapper {
+  width: 100%;
+}
+
+.audit-matrix-card {
+  padding: 20px;
+  background: #FFFFFF;
+}
+
+.audit-rules-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+}
+
+.audit-rule-box {
+  background: #F8FAFC;
+  border: 1px solid #E2E8F0;
+  border-radius: 8px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.audit-rule-box:hover {
+  background: #F1F5F9;
+  border-color: #CBD5E1;
+}
+
+.audit-rule-box.active {
+  background: #F0F9FF;
+  border-color: #0284C7;
+  box-shadow: 0 2px 6px rgba(2, 132, 199, 0.15);
+}
+
+.rule-header {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.rule-header strong {
+  font-size: 0.88rem;
+  color: #0F172A;
+}
+
+.rule-badge {
+  font-size: 0.68rem;
+  font-weight: 800;
+  color: #991B1B;
+  background: #FEE2E2;
+  padding: 2px 6px;
+  border-radius: 4px;
+  align-self: flex-start;
+}
+
+.rule-scenario {
+  margin: 0;
+  font-size: 0.76rem;
+  color: #475569;
+}
+
+.rule-outcome {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #FFFFFF;
+  padding: 8px 10px;
+  border-radius: 6px;
+  border: 1px solid #E2E8F0;
+}
+
+.outcome-label {
+  font-size: 0.72rem;
+  color: #64748B;
+  font-weight: 600;
+}
+
+.outcome-val {
+  font-size: 0.78rem;
+  font-weight: 800;
+  color: #BE123C;
+}
+
+.rule-rationale {
+  margin: 0;
+  font-size: 0.74rem;
+  color: #334155;
+  line-height: 1.4;
+}
+
+@media (max-width: 1199px) {
+  .audit-rules-grid {
+    grid-template-columns: 1fr;
+  }
+}

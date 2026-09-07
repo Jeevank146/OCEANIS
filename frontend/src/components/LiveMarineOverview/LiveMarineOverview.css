@@ -1,0 +1,197 @@
+/* ===================================================================
+   OCEANIS LIVE MARINE CONDITIONS (COMPACT WHITE CARD DESIGN)
+   =================================================================== */
+
+.marine-overview-card {
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  height: 100%;
+}
+
+.card-header-row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 10px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.card-header-left {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.card-main-title {
+  font-family: var(--font-heading);
+  font-size: 1.125rem;
+  font-weight: 800;
+  color: var(--primary-navy);
+  letter-spacing: -0.01em;
+}
+
+.card-subtitle {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+
+.card-subtitle strong {
+  color: var(--primary-blue);
+}
+
+.live-pill-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 8px;
+  background: var(--status-safe-bg);
+  border: 1px solid var(--status-safe-border);
+  border-radius: var(--radius-full);
+  font-size: 0.625rem;
+  font-weight: 700;
+  color: var(--status-safe);
+  font-family: var(--font-body);
+}
+
+/* 6 Grid Metric Cards */
+.metric-cards-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+}
+
+.metric-box {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  transition: all var(--transition-fast);
+}
+
+.metric-box:hover {
+  background: #ffffff;
+  border-color: var(--primary-blue);
+  box-shadow: 0 4px 12px rgba(11, 33, 55, 0.06);
+  transform: translateY(-1px);
+}
+
+.metric-box-top {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.metric-icon-box {
+  width: 26px;
+  height: 26px;
+  border-radius: var(--radius-xs);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.metric-icon-box svg {
+  width: 14px;
+  height: 14px;
+}
+
+.bg-blue-tint { background: rgba(2, 132, 199, 0.12); color: #0284c7; }
+.bg-cyan-tint { background: rgba(6, 182, 212, 0.12); color: #06b6d4; }
+.bg-teal-tint { background: rgba(0, 168, 150, 0.12); color: #00a896; }
+.bg-amber-tint { background: rgba(217, 119, 6, 0.12); color: #d97706; }
+.bg-sky-tint { background: rgba(56, 189, 248, 0.12); color: #0284c7; }
+.bg-purple-tint { background: rgba(147, 51, 234, 0.12); color: #9333ea; }
+
+.metric-label {
+  font-size: 0.6875rem;
+  font-weight: 700;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.metric-value-row {
+  display: flex;
+  align-items: baseline;
+  gap: 4px;
+  margin: 2px 0;
+}
+
+.metric-value-text {
+  font-family: var(--font-heading);
+  font-size: 1.25rem;
+  font-weight: 800;
+  color: var(--primary-navy);
+  line-height: 1.1;
+}
+
+.metric-unit-text {
+  font-family: var(--font-body);
+  font-size: 0.75rem;
+  color: var(--primary-blue);
+  font-weight: 700;
+}
+
+.metric-support-info {
+  font-size: 0.6875rem;
+  color: var(--text-secondary);
+  line-height: 1.3;
+}
+
+.metric-footer-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-top: 1px solid var(--border-subtle);
+  padding-top: 6px;
+  margin-top: 4px;
+  font-size: 0.625rem;
+}
+
+.metric-source {
+  color: var(--text-muted);
+  font-weight: 600;
+}
+
+.metric-time {
+  color: var(--text-muted);
+}
+
+.overview-loading-skeleton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 2rem;
+  color: var(--text-muted);
+  font-size: 0.8125rem;
+}
+
+.overview-spinner {
+  width: 18px;
+  height: 18px;
+  border: 2px solid rgba(2, 132, 199, 0.2);
+  border-top-color: var(--primary-blue);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+@media (max-width: 600px) {
+  .metric-cards-grid {
+    grid-template-columns: 1fr;
+  }
+}

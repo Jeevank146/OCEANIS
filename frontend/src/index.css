@@ -1,0 +1,224 @@
+/* ===================================================================
+   OCEANIS DESIGN SYSTEM — LIGHT INSTITUTIONAL MARINE THEME
+   Professional Ocean Intelligence & Decision Platform
+   =================================================================== */
+
+:root {
+  /* Surface & Background Colors */
+  --bg-app: #F5F9FC;
+  --bg-card: #FFFFFF;
+  --bg-card-hover: #F8FAFC;
+  --bg-surface: #EDF3F8;
+  --bg-sidebar: #0b2137;
+  --bg-sidebar-hover: #132f4c;
+  --bg-sidebar-active: #0284c7;
+
+  /* Primary Ocean Palette */
+  --primary-navy: #0b2137;
+  --primary-navy-dark: #071524;
+  --primary-blue: #0284c7;
+  --primary-blue-hover: #0369a1;
+  --marine-teal: #00a896;
+  --marine-dark-teal: #007f71;
+  --sky-blue: #38bdf8;
+  --cyan-accent: #06b6d4;
+
+  /* Typography Colors */
+  --text-primary: #0f172a;
+  --text-secondary: #334155;
+  --text-muted: #64748b;
+  --text-light: #94a3b8;
+  --text-white: #ffffff;
+
+  /* Restrained Operational Status Palette */
+  --status-safe: #16a34a;
+  --status-safe-bg: rgba(22, 163, 74, 0.08);
+  --status-safe-border: rgba(22, 163, 74, 0.25);
+
+  --status-advisory: #d97706;
+  --status-advisory-bg: rgba(217, 119, 6, 0.08);
+  --status-advisory-border: rgba(217, 119, 6, 0.25);
+
+  --status-warning: #ea580c;
+  --status-warning-bg: rgba(234, 88, 12, 0.08);
+  --status-warning-border: rgba(234, 88, 12, 0.25);
+
+  --status-critical: #dc2626;
+  --status-critical-bg: rgba(220, 38, 38, 0.1);
+  --status-critical-border: rgba(220, 38, 38, 0.3);
+
+  --status-info: #0284c7;
+  --status-info-bg: rgba(2, 132, 199, 0.08);
+  --status-info-border: rgba(2, 132, 199, 0.25);
+
+  /* Borders & Shadows */
+  --border-subtle: #E2E8F0;
+  --border-medium: #CBD5E1;
+  --border-strong: #94A3B8;
+  
+  --shadow-sm: 0 1px 2px rgba(11, 33, 55, 0.04);
+  --shadow-md: 0 4px 12px rgba(11, 33, 55, 0.06);
+  --shadow-lg: 0 10px 25px rgba(11, 33, 55, 0.08);
+  --shadow-xl: 0 20px 40px rgba(11, 33, 55, 0.12);
+
+  /* Typography Fonts */
+  --font-heading: 'Outfit', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-body: 'Plus Jakarta Sans', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+
+  /* Spacing Scale */
+  --space-2xs: 0.125rem;
+  --space-xs: 0.25rem;
+  --space-sm: 0.5rem;
+  --space-md: 1rem;
+  --space-lg: 1.5rem;
+  --space-xl: 2rem;
+  --space-2xl: 2.5rem;
+  --space-3xl: 3.5rem;
+
+  /* Border Radius */
+  --radius-xs: 4px;
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 14px;
+  --radius-xl: 18px;
+  --radius-full: 9999px;
+
+  /* Transitions */
+  --transition-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-normal: 250ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Base Styles */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  scroll-behavior: smooth;
+  font-family: var(--font-body);
+  background-color: var(--bg-app);
+  color: var(--text-primary);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  min-height: 100vh;
+  line-height: 1.5;
+  background-color: var(--bg-app);
+  color: var(--text-primary);
+  overflow-x: hidden;
+}
+
+/* Typography Defaults */
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-heading);
+  font-weight: 700;
+  line-height: 1.25;
+  color: var(--primary-navy);
+}
+
+p {
+  color: var(--text-secondary);
+}
+
+a {
+  color: var(--primary-blue);
+  text-decoration: none;
+  transition: color var(--transition-fast);
+}
+
+a:hover {
+  color: var(--primary-blue-hover);
+}
+
+button {
+  font-family: inherit;
+  cursor: pointer;
+}
+
+/* Container */
+.container {
+  width: 100%;
+  max-width: 1420px;
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: var(--space-lg);
+  padding-right: var(--space-lg);
+}
+
+@media (max-width: 768px) {
+  .container {
+    padding-left: var(--space-md);
+    padding-right: var(--space-md);
+  }
+}
+
+/* Section Header Shared Pattern */
+.section-header {
+  margin-bottom: var(--space-xl);
+  max-width: 750px;
+}
+
+.section-tag {
+  display: inline-block;
+  font-family: var(--font-body);
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--primary-blue);
+  margin-bottom: var(--space-xs);
+}
+
+.section-title {
+  font-size: clamp(1.5rem, 2.5vw, 2rem);
+  font-weight: 800;
+  color: var(--primary-navy);
+  letter-spacing: -0.01em;
+  margin-bottom: var(--space-xs);
+}
+
+.section-subtitle {
+  font-size: 0.9375rem;
+  color: var(--text-secondary);
+  line-height: 1.55;
+}
+
+/* Status Indicator Dots */
+.live-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background-color: var(--status-safe);
+  display: inline-block;
+  flex-shrink: 0;
+}
+
+.live-dot.pulse {
+  box-shadow: 0 0 0 0 rgba(22, 163, 74, 0.7);
+  animation: pulseGreen 2s infinite;
+}
+
+@keyframes pulseGreen {
+  0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(22, 163, 74, 0.7); }
+  70% { transform: scale(1); box-shadow: 0 0 0 6px rgba(22, 163, 74, 0); }
+  100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(22, 163, 74, 0); }
+}
+
+/* Card Surface Standard */
+.ocean-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+  transition: all var(--transition-normal);
+}
+
+.ocean-card:hover {
+  box-shadow: var(--shadow-md);
+  border-color: var(--border-medium);
+}

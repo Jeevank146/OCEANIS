@@ -1,0 +1,136 @@
+/* ==========================================================================
+   SETTINGS PAGE STYLES
+   ========================================================================== */
+
+.settings-layout-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.5fr) minmax(320px, 1fr);
+  gap: 20px;
+  align-items: start;
+}
+
+.settings-card,
+.system-diag-card {
+  padding: 20px;
+  background: #FFFFFF;
+}
+
+.settings-form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.settings-section {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid #F1F5F9;
+}
+
+.settings-section-title {
+  font-size: 0.82rem;
+  font-weight: 800;
+  color: #0F172A;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.settings-fields-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+}
+
+.settings-input,
+.settings-select {
+  width: 100%;
+  padding: 8px 12px;
+  font-size: 0.84rem;
+  border: 1px solid #CBD5E1;
+  border-radius: 6px;
+  background: #FFFFFF;
+  box-sizing: border-box;
+}
+
+.settings-checkboxes-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.settings-actions-row {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-top: 6px;
+}
+
+.btn-save-settings {
+  padding: 10px 20px;
+  font-size: 0.85rem;
+  font-weight: 700;
+  background: #0284C7;
+  color: #FFFFFF;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-save-settings:hover {
+  background: #0369A1;
+}
+
+.save-success-tag {
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: #16A34A;
+}
+
+.diag-item-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.diag-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px;
+  background: #F8FAFC;
+  border: 1px solid #E2E8F0;
+  border-radius: 8px;
+}
+
+.diag-main strong {
+  display: block;
+  font-size: 0.84rem;
+  color: #0F172A;
+}
+
+.diag-main span {
+  font-size: 0.72rem;
+  color: #64748B;
+}
+
+.badge-diag-green {
+  font-size: 0.68rem;
+  font-weight: 800;
+  background: #DCFCE7;
+  color: #15803D;
+  padding: 3px 8px;
+  border-radius: 4px;
+}
+
+@media (max-width: 1199px) {
+  .settings-layout-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .settings-fields-grid {
+    grid-template-columns: 1fr;
+  }
+}

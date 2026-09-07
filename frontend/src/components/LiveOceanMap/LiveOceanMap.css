@@ -1,0 +1,446 @@
+/* ===================================================================
+   OCEANIS LIVE OCEAN INTELLIGENCE GIS MAP (REAL GIS INTERFACE)
+   =================================================================== */
+
+.live-ocean-map-card {
+  padding: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  height: 100%;
+}
+
+.map-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.map-header-left {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.map-title-text {
+  font-family: var(--font-heading);
+  font-size: 1.125rem;
+  font-weight: 800;
+  color: var(--primary-navy);
+}
+
+.map-crs-tag {
+  font-family: var(--font-mono);
+  font-size: 0.625rem;
+  color: var(--text-muted);
+}
+
+.btn-map-fullscreen {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  color: var(--text-secondary);
+  font-size: 0.75rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.btn-map-fullscreen:hover {
+  background: #e2e8f0;
+  color: var(--primary-navy);
+}
+
+.btn-map-fullscreen svg {
+  width: 14px;
+  height: 14px;
+}
+
+/* Layer Pills */
+.map-layer-pills-bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  overflow-x: auto;
+  padding-bottom: 4px;
+}
+
+.layer-pills-label {
+  font-size: 0.6875rem;
+  font-weight: 700;
+  color: var(--text-muted);
+  letter-spacing: 0.04em;
+  flex-shrink: 0;
+}
+
+.layer-pills-scroll {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.layer-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 10px;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-full);
+  color: var(--text-secondary);
+  font-size: 0.6875rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  white-space: nowrap;
+}
+
+.layer-pill:hover {
+  background: #e2e8f0;
+  color: var(--primary-navy);
+}
+
+.layer-pill.active {
+  background: rgba(2, 132, 199, 0.12);
+  border-color: var(--primary-blue);
+  color: var(--primary-blue);
+  font-weight: 700;
+}
+
+.layer-dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background-color: currentColor;
+}
+
+/* Viewport Canvas */
+.map-viewport-container {
+  position: relative;
+  height: 380px;
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  border: 1px solid var(--border-medium);
+  background: #07192d;
+  cursor: crosshair;
+}
+
+.map-gis-canvas {
+  position: absolute;
+  inset: 0;
+  transition: background 0.5s ease;
+}
+
+/* Dynamic Raster Simulated Gradients */
+.layer-mode-sst {
+  background: radial-gradient(circle at 70% 35%, #9a3412 0%, #0284c7 45%, #071e3d 85%);
+  opacity: 0.9;
+}
+
+.layer-mode-chlorophyll {
+  background: radial-gradient(circle at 45% 55%, #15803d 0%, #00a896 35%, #082f49 85%);
+  opacity: 0.9;
+}
+
+.layer-mode-waves {
+  background: radial-gradient(circle at 65% 50%, #0369a1 0%, #075985 40%, #0b2137 80%);
+}
+
+.layer-mode-wind {
+  background: radial-gradient(circle at 50% 50%, #0e7490 0%, #155e75 45%, #082f49 85%);
+}
+
+.layer-mode-currents {
+  background: radial-gradient(circle at 60% 45%, #0284c7 0%, #0369a1 40%, #082f49 80%);
+}
+
+.layer-mode-fishing_zones {
+  background: radial-gradient(circle at 55% 45%, #0f766e 0%, #115e59 40%, #0b2137 85%);
+}
+
+.layer-mode-hazard_zones {
+  background: radial-gradient(circle at 50% 40%, #450a0a 0%, #1e1b4b 50%, #071524 90%);
+}
+
+.layer-mode-ports {
+  background: radial-gradient(circle at 60% 40%, #075985 0%, #0c4a6e 50%, #07192d 90%);
+}
+
+/* SVG GIS Vectors */
+.map-gis-svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 2;
+}
+
+.landmass-polygon {
+  fill: #0b2137;
+  stroke: #1e3a5f;
+  stroke-width: 1.5;
+}
+
+.coastline-vector {
+  fill: none;
+  stroke: #38bdf8;
+  stroke-width: 2;
+  filter: drop-shadow(0 0 4px rgba(56, 189, 248, 0.6));
+}
+
+.bathymetry-line {
+  fill: none;
+  stroke-dasharray: 4 4;
+}
+
+.bathymetry-line.shallow { stroke: rgba(56, 189, 248, 0.3); stroke-width: 1; }
+.bathymetry-line.mid { stroke: rgba(2, 132, 199, 0.25); stroke-width: 1; }
+.bathymetry-line.deep { stroke: rgba(14, 165, 233, 0.2); stroke-width: 1; }
+
+.boundary-12nm {
+  fill: none;
+  stroke: rgba(22, 163, 74, 0.7);
+  stroke-width: 1.5;
+  stroke-dasharray: 6 3;
+}
+
+.boundary-eez {
+  fill: none;
+  stroke: rgba(56, 189, 248, 0.5);
+  stroke-width: 1.5;
+  stroke-dasharray: 8 5;
+}
+
+.pfz-ellipse {
+  fill: rgba(22, 163, 74, 0.25);
+  stroke: #16a34a;
+  stroke-width: 1.5;
+  stroke-dasharray: 4 2;
+}
+
+.hazard-zone-polygon {
+  fill: rgba(220, 38, 38, 0.3);
+  stroke: #dc2626;
+  stroke-width: 1.5;
+  stroke-dasharray: 6 3;
+}
+
+/* Ports Overlay */
+.ports-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+}
+
+.map-port-marker {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  background: rgba(11, 33, 55, 0.9);
+  border: 1px solid rgba(56, 189, 248, 0.4);
+  padding: 3px 8px;
+  border-radius: var(--radius-full);
+  color: #ffffff;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.map-port-marker:hover,
+.map-port-marker.active {
+  background: var(--primary-blue);
+  border-color: #ffffff;
+  transform: translate(-50%, -50%) scale(1.08);
+}
+
+.port-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background-color: #38bdf8;
+}
+
+/* HUD Top Left */
+.map-hud-coords {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  display: flex;
+  gap: 8px;
+  z-index: 10;
+}
+
+.hud-coord-item {
+  padding: 3px 8px;
+  background: rgba(11, 33, 55, 0.85);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: var(--radius-xs);
+  color: #ffffff;
+  font-family: var(--font-mono);
+  font-size: 0.625rem;
+}
+
+.hud-coord-item strong {
+  color: #38bdf8;
+}
+
+/* HUD Top Right */
+.map-hud-zoom-controls {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  z-index: 10;
+}
+
+.btn-zoom {
+  width: 28px;
+  height: 28px;
+  background: rgba(11, 33, 55, 0.9);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: var(--radius-xs);
+  color: #ffffff;
+  font-size: 1rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.btn-zoom:hover {
+  background: var(--primary-blue);
+}
+
+/* HUD Bottom Right: Dynamic Legend */
+.map-hud-legend-card {
+  position: absolute;
+  bottom: 10px;
+  right: 10px;
+  background: rgba(11, 33, 55, 0.9);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: var(--radius-sm);
+  padding: 6px 10px;
+  z-index: 10;
+  min-width: 180px;
+}
+
+.legend-title-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 0.625rem;
+  font-weight: 700;
+  color: #ffffff;
+  margin-bottom: 4px;
+}
+
+.legend-unit {
+  color: #38bdf8;
+}
+
+.legend-color-bar {
+  height: 6px;
+  border-radius: 3px;
+  background: linear-gradient(90deg, #0284c7 0%, #00a896 40%, #d97706 75%, #dc2626 100%);
+  margin-bottom: 3px;
+}
+
+.legend-scale-steps {
+  display: flex;
+  justify-content: space-between;
+  font-family: var(--font-mono);
+  font-size: 0.5625rem;
+  color: #94a3b8;
+}
+
+/* HUD Bottom Left: Selected Port Refuge Card */
+.map-hud-port-refuge-card {
+  position: absolute;
+  bottom: 10px;
+  left: 10px;
+  background: rgba(11, 33, 55, 0.92);
+  border: 1px solid rgba(56, 189, 248, 0.35);
+  border-radius: var(--radius-sm);
+  padding: 8px 10px;
+  z-index: 10;
+  max-width: 220px;
+}
+
+.port-refuge-lead {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 4px;
+}
+
+.port-refuge-icon {
+  font-size: 1rem;
+}
+
+.port-refuge-name {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #ffffff;
+  line-height: 1.2;
+}
+
+.port-refuge-coords {
+  font-family: var(--font-mono);
+  font-size: 0.5625rem;
+  color: #38bdf8;
+}
+
+.port-refuge-meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 0.625rem;
+  color: #cbd5e1;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  padding-top: 3px;
+}
+
+.port-refuge-meta strong {
+  color: #ffffff;
+}
+
+.refuge-status-tag {
+  font-weight: 700;
+  padding: 1px 4px;
+  border-radius: 2px;
+}
+
+.refuge-status-tag.status-refuge {
+  background: rgba(22, 163, 74, 0.25);
+  color: #4ade80;
+}
+
+.refuge-status-tag.status-open {
+  background: rgba(2, 132, 199, 0.25);
+  color: #38bdf8;
+}
+
+/* Fullscreen Mode */
+.live-ocean-map-card.fullscreen-map {
+  position: fixed;
+  inset: 20px;
+  z-index: 2000;
+  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.5);
+}
+
+.live-ocean-map-card.fullscreen-map .map-viewport-container {
+  height: calc(100vh - 160px);
+}

@@ -1,0 +1,146 @@
+from datetime import datetime
+from typing import Any, Dict, List, Optional
+from pydantic import BaseModel, ConfigDict, Field
+
+
+class OrchestrationQuery(BaseModel):
+    """
+    Natural-language or structured input query submitted to the OCEANIS Agent Orchestrator.
+    """
+    query: str = Field(..., min_length=2, description="Natural-language question or operational request from user")
+    latitude: Optional[float] = Field(None, ge=-90.0, le=90.0, description="Optional explicit origin latitude")
+    longitude: Optional[float] = Field(None, ge=-180.0, le=180.0, description="Optional explicit origin longitude")
+    destination_latitude: Optional[float] = Field(None, ge=-90.0, le=90.0, description="Optional destination latitude")
+    destination_longitude: Optional[float] = Field(None, ge=-180.0, le=180.0, description="Optional destination longitude")
+    target_datetime: Optional[str] = Field(None, description="Optional target date or ISO timestamp")
+    vessel_type: Optional[str] = Field(None, description="Optional vessel classification")
+    operation_type: Optional[str] = Field(None, description="Optional operation category (e.g. FISHING, TRANSIT)")
+    target_species: Optional[str] = Field(None, description="Optional target fish species")
+    language: Optional[str] = Field("en", description="Output language code")
+    context: Optional[Dict[str, Any]] = Field(default_factory=dict, description="Optional session or conversational context")
+
+
+class LocationContext(BaseModel):
+    """
+    Geographic coordinate and port context extracted from natural language or query payload.
+    """
+    name: Optional[str] = None
+    latitude: float
+    longitude: float
+    is_port: bool = False
+    port_name: Optional[str] = None
+
+
+class QueryUnderstanding(BaseModel):
+    """
+    Normalized structured understanding derived from query analysis.
+    """
+    intent: str
+    primary_location: Optional[LocationContext] = None
+    destination_location: Optional[LocationContext] = None
+    comparison_locations: List[LocationContext] = Field(default_factory=list)
+    target_date: Optional[str] = None
+    target_time: Optional[str] = None
+    target_species: Optional[str] = None
+    vessel_type: Optional[str] = None
+    operation_type: Optional[str] = None
+    is_comparison: bool = False
+
+
+class AgentSelection(BaseModel):
+    """
+    Domain agent selected by the dynamic planner with explainable reasoning.
+    """
+    agent_id: str = Field(..., description="Unique agent identifier")
+    agent_name: str = Field(..., description="Human-readable agent name")
+    domain: str = Field(..., description="Primary domain responsibility")
+    selection_reason: str = Field(..., description="Justification explaining why agent was selected")
+    priority: int = Field(..., description="Execution priority order")
+    execution_order: int = Field(..., description="Sequential position in execution plan")
+
+
+class AgentExecutionResult(BaseModel):
+    """
+    Structured outcome of an individual domain agent execution.
+    """
+    agent_id: str
+    agent_name: str
+    status: str = Field("SUCCESS", description="SUCCESS, FAILED, SKIPPED")
+    result: Optional[Dict[str, Any]] = None
+    confidence: float = Field(1.0, ge=0.0, le=1.0)
+    freshness: str = "FRESH"
+    warnings: List[str] = Field(default_factory=list)
+    execution_time_ms: float = 0.0
+    error: Optional[str] = None
+
+
+class AgentContribution(BaseModel):
+    """
+    Synthesized domain contribution for client-facing decision transparency.
+    """
+    agent_id: str
+    agent_name: str
+    domain: str
+    status: str
+    summary: str
+    key_findings: List[str] = Field(default_factory=list)
+    confidence: float = 1.0
+    freshness: str = "FRESH"
+
+
+class FusedEvidenceItem(BaseModel):
+    """
+    Standardized multi-agent evidence item preserving complete source provenance.
+    """
+    factor: str
+    title: Optional[str] = None
+    value: Optional[Any] = None
+    unit: Optional[str] = None
+    source: str
+    source_category: str = "OFFICIAL"
+    data_type: str = "OBSERVED"
+    observed_at: Optional[str] = None
+    latitude: Optional[float] = None
+    longitude: Optional[float] = None
+    distance_km: Optional[float] = None
+    confidence: float = Field(1.0, ge=0.0, le=1.0)
+    freshness: str = "FRESH"
+    severity: str = "NORMAL"
+    originating_agent: str
+    notes: Optional[str] = None
+
+
+class ExecutionMetadata(BaseModel):
+    """
+    Diagnostic telemetry on the orchestration plan execution.
+    """
+    selected_agents: List[str] = Field(default_factory=list)
+    execution_order: List[str] = Field(default_factory=list)
+    execution_duration_ms: float = 0.0
+    successful_agents: List[str] = Field(default_factory=list)
+    failed_agents: List[str] = Field(default_factory=list)
+    evidence_count: int = 0
+
+
+class OrchestrationResponse(BaseModel):
+    """
+    Unified, explainable decision-oriented response generated by the Agent Orchestrator.
+    """
+    query: str = Field(..., description="Original natural-language user query")
+    intent: str = Field(..., description="Classified intent")
+    location: Optional[Dict[str, Any]] = Field(None, description="Primary location context")
+    target_time: Optional[str] = Field(None, description="Operational target datetime")
+    selected_agents: List[AgentSelection] = Field(default_factory=list, description="Selected domain agents")
+    decision: str = Field(..., description="Synthesized decision: FAVORABLE, CLEAR, CAUTION, WARNING, BLOCKED, INSUFFICIENT_DATA")
+    risk_level: str = Field(..., description="Evaluated risk: LOW, MODERATE, HIGH, CRITICAL, UNKNOWN")
+    confidence: str = Field(..., description="Composite confidence: HIGH, MEDIUM, LOW, INSUFFICIENT_DATA")
+    freshness: str = Field(..., description="Aggregated freshness: FRESH, AGING, STALE, UNAVAILABLE")
+    evidence: List[FusedEvidenceItem] = Field(default_factory=list, description="Consolidated multi-agent evidence items with provenance")
+    warnings: List[str] = Field(default_factory=list, description="Consolidated safety warnings, exclusion notices, or data caveats")
+    reasoning_summary: str = Field(..., description="Comprehensive explainable synthesis narrative")
+    agent_contributions: List[AgentContribution] = Field(default_factory=list, description="Per-agent synthesized findings")
+    execution_metadata: ExecutionMetadata = Field(..., description="Execution telemetry and latency")
+    comparison_results: Optional[List[Dict[str, Any]]] = Field(None, description="Optional comparative results if multi-location comparison")
+    generated_at: datetime = Field(..., description="UTC timestamp of response generation")
+
+    model_config = ConfigDict(from_attributes=True)

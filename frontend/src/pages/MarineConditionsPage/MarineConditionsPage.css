@@ -1,0 +1,288 @@
+/* ==========================================================================
+   MARINE CONDITIONS PAGE STYLES
+   ========================================================================== */
+
+.sector-filter-bar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: #FFFFFF;
+  padding: 12px 16px;
+  border-radius: 10px;
+  border: 1px solid #E2E8F0;
+  overflow-x: auto;
+}
+
+.sector-label {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: #475569;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+}
+
+.sector-pill-list {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.sector-pill-btn {
+  padding: 6px 14px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #334155;
+  background: #F8FAFC;
+  border: 1px solid #CBD5E1;
+  border-radius: 20px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.sector-pill-btn:hover {
+  background: #F1F5F9;
+  border-color: #94A3B8;
+}
+
+.sector-pill-btn.active {
+  background: #0284C7;
+  color: #FFFFFF;
+  border-color: #0284C7;
+  box-shadow: 0 2px 4px rgba(2, 132, 199, 0.2);
+}
+
+.forecast-timeline-card {
+  padding: 20px;
+  background: #FFFFFF;
+}
+
+.timeline-sector-name {
+  display: block;
+  font-size: 0.78rem;
+  color: #0284C7;
+  font-weight: 600;
+}
+
+.timeline-slider-wrapper {
+  margin: 16px 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.slider-header {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.82rem;
+  color: #334155;
+}
+
+.slider-hint {
+  font-size: 0.74rem;
+  color: #64748B;
+}
+
+.forecast-range-slider {
+  width: 100%;
+  accent-color: #0284C7;
+  cursor: pointer;
+}
+
+.hourly-forecast-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 10px;
+  overflow-x: auto;
+}
+
+.hourly-card {
+  background: #F8FAFC;
+  border: 1px solid #E2E8F0;
+  border-radius: 8px;
+  padding: 10px 8px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 90px;
+}
+
+.hf-hour {
+  font-size: 0.8rem;
+  font-weight: 800;
+  color: #0F172A;
+}
+
+.hf-metrics {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  font-size: 0.72rem;
+}
+
+.hf-val-row {
+  display: flex;
+  justify-content: space-between;
+}
+
+.hf-label {
+  color: #64748B;
+}
+
+.hf-val {
+  color: #1E293B;
+}
+
+.hf-state-badge {
+  font-size: 0.68rem;
+  font-weight: 700;
+  background: #E0F2FE;
+  color: #0369A1;
+  padding: 2px 4px;
+  border-radius: 4px;
+}
+
+.marine-params-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+}
+
+.param-metric-card {
+  padding: 16px;
+  background: #FFFFFF;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.param-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 8px;
+}
+
+.param-title {
+  font-size: 0.86rem;
+  font-weight: 700;
+  color: #0F172A;
+}
+
+.param-badges {
+  display: flex;
+  gap: 4px;
+  flex-shrink: 0;
+}
+
+.badge-status,
+.badge-freshness {
+  font-size: 0.65rem;
+  font-weight: 700;
+  padding: 2px 5px;
+  border-radius: 4px;
+}
+
+.status-observed {
+  background: #DCFCE7;
+  color: #15803D;
+}
+
+.status-forecast {
+  background: #E0F2FE;
+  color: #0369A1;
+}
+
+.status-calculated {
+  background: #F3E8FF;
+  color: #7E22CE;
+}
+
+.badge-freshness {
+  background: #F1F5F9;
+  color: #475569;
+}
+
+.param-body {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+}
+
+.param-value-box {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+}
+
+.param-num {
+  font-size: 1.6rem;
+  font-weight: 800;
+  color: #0F172A;
+  letter-spacing: -0.03em;
+}
+
+.param-unit {
+  font-size: 0.78rem;
+  color: #64748B;
+  font-weight: 600;
+}
+
+.trend-tag {
+  font-size: 0.72rem;
+  font-weight: 600;
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+
+.trend-rising {
+  background: #FEF3C7;
+  color: #B45309;
+}
+
+.trend-falling {
+  background: #E0F2FE;
+  color: #0369A1;
+}
+
+.trend-steady {
+  background: #F1F5F9;
+  color: #475569;
+}
+
+.param-description {
+  margin: 0;
+  font-size: 0.76rem;
+  color: #475569;
+  line-height: 1.4;
+  flex: 1;
+}
+
+.param-footer {
+  border-top: 1px solid #F1F5F9;
+  padding-top: 8px;
+  font-size: 0.7rem;
+  color: #64748B;
+}
+
+@media (max-width: 1199px) {
+  .marine-params-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .hourly-forecast-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+@media (max-width: 767px) {
+  .marine-params-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .hourly-forecast-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}

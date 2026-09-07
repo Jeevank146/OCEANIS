@@ -1,0 +1,949 @@
+/* ==========================================================================
+   OCEANIS OPERATIONAL INTELLIGENCE WORKSPACE (/dashboard)
+   Clean, institutional, professional WHITE / LIGHT theme
+   Pixel-perfect grid alignment & balanced card heights
+   ========================================================================== */
+
+.oceanis-dashboard-root {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  min-height: 100%;
+  background: #F8FAFC; /* Clean light page background */
+  color: #0F172A;
+  padding-bottom: 60px;
+}
+
+.dash-container {
+  width: 100%;
+  max-width: 1440px;
+  margin: 0 auto;
+  padding: 0 24px;
+  box-sizing: border-box;
+}
+
+/* ==========================================================================
+   1. Compact Operational Header (Light)
+   ========================================================================== */
+.oceanis-dash-header {
+  background: #FFFFFF;
+  border-bottom: 1px solid #E2E8F0;
+  padding: 18px 0;
+  box-shadow: 0 1px 4px rgba(11, 33, 55, 0.04);
+  position: relative;
+  z-index: 20;
+}
+
+.header-layout-flex {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  flex-wrap: wrap;
+}
+
+.header-title-block {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.dash-pretag-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+}
+
+.dash-org-tag {
+  color: #0284C7;
+  font-weight: 800;
+}
+
+.dash-dot-sep {
+  color: #94A3B8;
+}
+
+.dash-area-tag {
+  color: #64748B;
+}
+
+.dash-primary-heading {
+  margin: 0;
+  font-size: 1.45rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: #0F2744;
+  line-height: 1.2;
+}
+
+/* Header Meta Cluster */
+.header-meta-cluster {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+/* Location Selector Card */
+.location-control-card {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  background: #F1F5F9;
+  border: 1px solid #CBD5E1;
+  border-radius: 8px;
+  padding: 8px 14px;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
+}
+
+.loc-info-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.loc-header-line {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.loc-marker-icon {
+  font-size: 0.88rem;
+}
+
+.loc-name-display {
+  font-size: 0.88rem;
+  font-weight: 800;
+  color: #0F2744;
+  letter-spacing: 0.02em;
+}
+
+.loc-coords-line {
+  font-size: 0.7rem;
+  color: #64748B;
+  font-family: monospace;
+}
+
+.loc-sea-tag {
+  color: #0284C7;
+  font-family: inherit;
+  font-weight: 600;
+}
+
+.loc-dropdown-anchor {
+  position: relative;
+}
+
+.btn-change-loc {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 10px;
+  background: #FFFFFF;
+  border: 1px solid #0284C7;
+  border-radius: 6px;
+  color: #0284C7;
+  font-size: 0.75rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 1px 2px rgba(2, 132, 199, 0.08);
+}
+
+.btn-change-loc:hover {
+  background: #EFF6FF;
+  border-color: #0369A1;
+  color: #0369A1;
+}
+
+.chevron-icon {
+  width: 12px;
+  height: 12px;
+  transition: transform 0.2s ease;
+}
+
+.chevron-icon.open {
+  transform: rotate(180deg);
+}
+
+.loc-picker-menu {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  background: #FFFFFF;
+  border: 1px solid #CBD5E1;
+  border-radius: 8px;
+  box-shadow: 0 12px 28px rgba(15, 39, 68, 0.15);
+  min-width: 280px;
+  max-height: 320px;
+  overflow-y: auto;
+  z-index: 100;
+  padding: 6px;
+}
+
+.loc-menu-title {
+  font-size: 0.68rem;
+  font-weight: 800;
+  color: #64748B;
+  letter-spacing: 0.08em;
+  padding: 8px 10px 6px 10px;
+  border-bottom: 1px solid #E2E8F0;
+  margin-bottom: 4px;
+}
+
+.loc-menu-btn {
+  width: 100%;
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 8px 10px;
+  border: none;
+  background: transparent;
+  color: #334155;
+  border-radius: 6px;
+  cursor: pointer;
+  text-align: left;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.loc-menu-btn:hover {
+  background: #F1F5F9;
+  color: #0F2744;
+}
+
+.loc-menu-btn.active {
+  background: #EFF6FF;
+  color: #0284C7;
+  font-weight: 700;
+}
+
+.loc-pin-glyph {
+  font-size: 0.95rem;
+  margin-top: 2px;
+}
+
+.loc-btn-text {
+  display: flex;
+  flex-direction: column;
+}
+
+.loc-btn-label {
+  font-size: 0.82rem;
+  font-weight: 700;
+}
+
+.loc-btn-sea {
+  font-size: 0.68rem;
+  color: #64748B;
+}
+
+/* Telemetry Pill */
+.telemetry-status-pill {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  background: #F8FAFC;
+  border: 1px solid #E2E8F0;
+  border-radius: 8px;
+  padding: 8px 14px;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
+}
+
+.telemetry-live-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.live-indicator-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #16A34A;
+  box-shadow: 0 0 6px #16A34A;
+}
+
+.live-indicator-dot.pulse {
+  animation: dotPulse 2s infinite;
+}
+
+@keyframes dotPulse {
+  0% { transform: scale(0.95); opacity: 0.8; }
+  50% { transform: scale(1.2); opacity: 1; }
+  100% { transform: scale(0.95); opacity: 0.8; }
+}
+
+.live-text-tag {
+  font-size: 0.72rem;
+  font-weight: 800;
+  color: #15803D;
+  letter-spacing: 0.05em;
+}
+
+.telemetry-time-text {
+  font-size: 0.72rem;
+  color: #334155;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+.telemetry-sources-text {
+  font-size: 0.64rem;
+  color: #64748B;
+  font-weight: 500;
+}
+
+/* ==========================================================================
+   2. Main Dashboard Grid Body (Balanced Whitespace & Gaps)
+   ========================================================================== */
+.dash-main-grid-body {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  padding-top: 24px;
+}
+
+/* Card Section Frame - Clean White Institutional Card */
+.dash-card-section {
+  background: #FFFFFF;
+  border: 1px solid #E2E8F0;
+  border-radius: 10px;
+  padding: 18px 20px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04), 0 4px 12px rgba(15, 39, 68, 0.02);
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  box-sizing: border-box;
+}
+
+/* Card Header Bar */
+.dash-card-header-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  border-bottom: 1px solid #F1F5F9;
+  padding-bottom: 12px;
+}
+
+.card-title-group {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.dash-section-title {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  color: #0F2744;
+}
+
+.card-subtitle-badge {
+  font-size: 0.68rem;
+  font-weight: 700;
+  color: #0284C7;
+  background: #EFF6FF;
+  border: 1px solid #BFDBFE;
+  padding: 2px 8px;
+  border-radius: 4px;
+  letter-spacing: 0.04em;
+}
+
+.dash-action-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  color: #0284C7;
+  font-size: 0.8rem;
+  font-weight: 700;
+  text-decoration: none;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+}
+
+.dash-action-link:hover {
+  color: #0369A1;
+  transform: translateX(2px);
+}
+
+.dash-action-link svg {
+  width: 14px;
+  height: 14px;
+}
+
+.dash-action-link.primary-cta {
+  background: #0284C7;
+  color: #FFFFFF;
+  padding: 5px 12px;
+  border-radius: 6px;
+  box-shadow: 0 2px 6px rgba(2, 132, 199, 0.2);
+}
+
+.dash-action-link.primary-cta:hover {
+  background: #0369A1;
+  color: #FFFFFF;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 10px rgba(2, 132, 199, 0.3);
+}
+
+/* ==========================================================================
+   3. Marine Conditions Metrics Grid (Light Card Design)
+   ========================================================================== */
+.marine-metrics-grid {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 14px;
+}
+
+.metric-box {
+  background: #F8FAFC;
+  border: 1px solid #E2E8F0;
+  border-radius: 8px;
+  padding: 12px 14px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 8px;
+  transition: all 0.2s ease;
+}
+
+.metric-box:hover {
+  border-color: #0284C7;
+  background: #FFFFFF;
+  box-shadow: 0 4px 12px rgba(2, 132, 199, 0.08);
+  transform: translateY(-2px);
+}
+
+.metric-label {
+  font-size: 0.65rem;
+  font-weight: 800;
+  color: #64748B;
+  letter-spacing: 0.06em;
+}
+
+.metric-value-row {
+  display: flex;
+  align-items: baseline;
+  gap: 4px;
+}
+
+.metric-main-val {
+  font-size: 1.28rem;
+  font-weight: 800;
+  color: #0F2744;
+  line-height: 1.1;
+}
+
+.metric-unit {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #64748B;
+}
+
+.metric-meta-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+  font-size: 0.66rem;
+  border-top: 1px solid #E2E8F0;
+  padding-top: 5px;
+}
+
+.metric-status-tag {
+  font-weight: 700;
+  color: #64748B;
+}
+
+.metric-status-tag.safe {
+  color: #16A34A;
+}
+
+.metric-status-tag.normal {
+  color: #0284C7;
+}
+
+.metric-source {
+  color: #94A3B8;
+  font-weight: 600;
+}
+
+/* ==========================================================================
+   4. Two-Column Layout Rows (Map + Safety, Fishing + Decision)
+   ========================================================================== */
+.dash-two-col-grid {
+  display: grid;
+  gap: 24px;
+  align-items: start;
+}
+
+.row-2-split {
+  grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr);
+}
+
+.row-3-split {
+  grid-template-columns: 1fr 1fr;
+}
+
+/* Live Ocean Map Preview Card Frame */
+.map-preview-card {
+  display: flex;
+  flex-direction: column;
+}
+
+.map-embed-wrapper {
+  border-radius: 8px;
+  overflow: hidden;
+  border: 1px solid #E2E8F0;
+  background: #0B1728; /* GIS canvas */
+}
+
+/* Clean up embedded map outer shell to fit preview card cleanly */
+.map-preview-card .live-ocean-map-card {
+  padding: 0;
+  background: transparent;
+  border: none;
+  box-shadow: none;
+  gap: 8px;
+}
+
+.map-preview-card .map-viewport-container {
+  height: 270px; /* Perfectly balanced with Safety Status card */
+  border-radius: 6px;
+}
+
+.map-preview-card .live-ocean-map-header {
+  padding: 6px 8px 0 8px;
+}
+
+.map-preview-card .map-legend-bar {
+  padding: 4px 8px 8px 8px;
+}
+
+/* Safety Summary Card & Content - Natural Fit */
+.safety-summary-card {
+  display: flex;
+  flex-direction: column;
+  height: auto;
+}
+
+.safety-card-content {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.safety-risk-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 14px;
+  border-radius: 8px;
+  background: #FEF3C7;
+  border: 1px solid #FCD34D;
+}
+
+.risk-banner-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.risk-icon {
+  font-size: 1.35rem;
+}
+
+.risk-text-block {
+  display: flex;
+  flex-direction: column;
+}
+
+.risk-level-tag {
+  font-size: 0.62rem;
+  font-weight: 700;
+  color: #92400E;
+  letter-spacing: 0.06em;
+}
+
+.risk-level-title {
+  font-size: 1.05rem;
+  font-weight: 800;
+  color: #B45309;
+}
+
+.active-alerts-pill {
+  background: #F59E0B;
+  color: #FFFFFF;
+  font-size: 0.72rem;
+  font-weight: 800;
+  padding: 3px 8px;
+  border-radius: 20px;
+  box-shadow: 0 1px 3px rgba(245, 158, 11, 0.25);
+}
+
+.safety-detail-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.hazard-highlight-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  background: #F8FAFC;
+  border: 1px solid #E2E8F0;
+  border-radius: 6px;
+  padding: 8px 10px;
+}
+
+.hazard-bullet {
+  font-size: 0.75rem;
+  margin-top: 2px;
+}
+
+.hazard-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.hazard-title {
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: #0F2744;
+}
+
+.hazard-desc {
+  margin: 0;
+  font-size: 0.74rem;
+  color: #475569;
+  line-height: 1.35;
+}
+
+.safety-sources-footer {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.7rem;
+  border-top: 1px solid #F1F5F9;
+  padding-top: 8px;
+}
+
+.safety-src-label {
+  color: #64748B;
+  font-weight: 700;
+}
+
+.safety-src-list {
+  color: #334155;
+  font-weight: 600;
+}
+
+/* ==========================================================================
+   5. Fishing & AI Decision Summary Cards (Light Theme - Equal Heights)
+   ========================================================================= */
+.fishing-summary-card,
+.decision-summary-card {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.fishing-card-content,
+.decision-card-content {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  height: 100%;
+  justify-content: space-between;
+}
+
+.fishing-kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+}
+
+.fishing-kpi-box {
+  background: #F8FAFC;
+  border: 1px solid #E2E8F0;
+  border-radius: 8px;
+  padding: 10px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.kpi-label {
+  font-size: 0.62rem;
+  font-weight: 800;
+  color: #64748B;
+  letter-spacing: 0.05em;
+}
+
+.kpi-val-badge.success {
+  color: #16A34A;
+  font-size: 0.88rem;
+  font-weight: 800;
+}
+
+.kpi-val-text {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #0F2744;
+}
+
+.kpi-val-text.highlight {
+  color: #0284C7;
+}
+
+.fishing-brief-note {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  background: #EFF6FF;
+  border: 1px solid #BFDBFE;
+  border-radius: 8px;
+  padding: 10px 12px;
+}
+
+.fishing-icon {
+  font-size: 1.1rem;
+}
+
+.fishing-brief-note p {
+  margin: 0;
+  font-size: 0.78rem;
+  color: #1E3A8A;
+  line-height: 1.4;
+}
+
+/* Decision Card */
+.decision-kpi-row {
+  display: grid;
+  grid-template-columns: 1.3fr 1fr 1fr;
+  gap: 10px;
+}
+
+.decision-pill-item {
+  background: #F8FAFC;
+  border: 1px solid #E2E8F0;
+  border-radius: 8px;
+  padding: 8px 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.decision-lbl {
+  font-size: 0.62rem;
+  font-weight: 800;
+  color: #64748B;
+  letter-spacing: 0.05em;
+}
+
+.decision-status-chip.warning {
+  color: #D97706;
+  font-size: 0.78rem;
+  font-weight: 800;
+}
+
+.decision-status-chip.moderate {
+  color: #B45309;
+  font-size: 0.78rem;
+  font-weight: 800;
+}
+
+.decision-val-strong {
+  font-size: 0.9rem;
+  font-weight: 800;
+  color: #0284C7;
+}
+
+.decision-explanation-box {
+  background: #F8FAFC;
+  border-left: 3px solid #0284C7;
+  border-radius: 0 8px 8px 0;
+  padding: 10px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.why-tag {
+  font-size: 0.65rem;
+  font-weight: 800;
+  color: #0284C7;
+  letter-spacing: 0.06em;
+}
+
+.why-text {
+  margin: 0;
+  font-size: 0.78rem;
+  color: #334155;
+  line-height: 1.4;
+}
+
+.decision-footer-consensus {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.7rem;
+  color: #64748B;
+  border-top: 1px solid #F1F5F9;
+  padding-top: 8px;
+}
+
+.consensus-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #16A34A;
+}
+
+/* ==========================================================================
+   6. Bottom Data & System Status Card (Light Theme)
+   ========================================================================== */
+.system-status-content {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.providers-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+}
+
+.provider-status-item {
+  background: #F8FAFC;
+  border: 1px solid #E2E8F0;
+  border-radius: 8px;
+  padding: 10px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  position: relative;
+  transition: all 0.2s ease;
+}
+
+.provider-status-item:hover {
+  background: #FFFFFF;
+  border-color: #CBD5E1;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
+}
+
+.prov-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  position: absolute;
+  top: 10px;
+  right: 10px;
+}
+
+.prov-dot.connected {
+  background: #16A34A;
+  box-shadow: 0 0 4px #16A34A;
+}
+
+.prov-name {
+  font-size: 0.84rem;
+  font-weight: 800;
+  color: #0F2744;
+}
+
+.prov-desc {
+  font-size: 0.7rem;
+  color: #64748B;
+}
+
+.prov-badge {
+  font-size: 0.62rem;
+  font-weight: 700;
+  color: #16A34A;
+  margin-top: 2px;
+}
+
+.pipeline-meta-bar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  background: #F1F5F9;
+  border: 1px solid #CBD5E1;
+  border-radius: 8px;
+  padding: 8px 14px;
+  font-size: 0.75rem;
+  color: #334155;
+  flex-wrap: wrap;
+}
+
+.meta-indicator {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.meta-icon {
+  font-size: 0.85rem;
+}
+
+.meta-sep {
+  color: #CBD5E1;
+}
+
+/* ==========================================================================
+   Responsive Adaptations
+   ========================================================================== */
+@media (max-width: 1200px) {
+  .marine-metrics-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+  .dash-two-col-grid {
+    grid-template-columns: 1fr;
+  }
+  .providers-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 768px) {
+  .dash-container {
+    padding: 0 16px;
+  }
+  .header-layout-flex {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 14px;
+  }
+  .header-meta-cluster {
+    width: 100%;
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .location-control-card,
+  .telemetry-status-pill {
+    width: 100%;
+    box-sizing: border-box;
+  }
+  .marine-metrics-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .fishing-kpi-grid,
+  .decision-kpi-row {
+    grid-template-columns: 1fr;
+  }
+  .providers-grid {
+    grid-template-columns: 1fr;
+  }
+}
