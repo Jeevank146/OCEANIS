@@ -262,10 +262,13 @@ class OrchestratorPlanner:
                     return primary_loc, dest_loc, comparison_locs, is_inland, loc_missing
 
         # 4. Check preposition patterns ("near X", "around X", "offshore X", etc.)
+        relative_loc_words = {"here", "there", "this", "my location", "current location", "this location", "this place", "selected location"}
         for pattern in self.LOCATION_PREPOSITIONS:
             m = re.search(pattern, lower_text)
             if m:
                 cand = self._clean_location_string(m.group(1))
+                if cand.lower() in relative_loc_words:
+                    continue
                 val_res = self.location_service.validate_location(query=cand)
                 if val_res.status != "UNRESOLVED" and val_res.latitude is not None and val_res.longitude is not None:
                     is_inland = (val_res.status == "INLAND")
