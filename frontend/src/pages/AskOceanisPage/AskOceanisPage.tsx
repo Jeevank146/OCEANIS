@@ -16,6 +16,8 @@ import type {
 import {
   synthesizeMultilingualResponse,
   sanitizeEvidenceText,
+  sanitizeEvidenceValue,
+  getNormalizedUnit,
   FOLLOW_UP_SUGGESTIONS,
 } from '../../utils/multilingualSynthesizer';
 import './AskOceanisPage.css';
@@ -32,9 +34,8 @@ export const AskOceanisPage: React.FC = () => {
   const { selectedLocation } = useLocationContext();
   const { language, t } = useLanguage();
 
-  const [queryInput, setQueryInput] = useState<string>(
-    selectedLocation ? `What are the current ocean conditions for ${selectedLocation.city || selectedLocation.name}?` : 'What are the current ocean conditions?'
-  );
+  // Strictly neutral initial state - NO hardcoded city query
+  const [queryInput, setQueryInput] = useState<string>('');
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [decisionData, setDecisionData] = useState<FinalDecisionObjectContract | null>(null);
@@ -55,14 +56,12 @@ export const AskOceanisPage: React.FC = () => {
   const [isSpeaking, setIsSpeaking] = useState<boolean>(false);
   const recognitionRef = useRef<any>(null);
 
-  // Auto-run if query passed from navigation
+  // Only run if an explicit initial query was passed via route navigation
   useEffect(() => {
     if (location.state && (location.state as any).initialQuery) {
       const q = (location.state as any).initialQuery;
       setQueryInput(q);
       executeDecisionQuery(q);
-    } else if (!decisionData && queryInput) {
-      executeDecisionQuery(queryInput);
     }
   }, [location.state]);
 
@@ -107,7 +106,7 @@ export const AskOceanisPage: React.FC = () => {
         setWhatIfResult(res.what_if_comparison);
       }
 
-      // Add to conversation history without duplicating immediate identical queries
+      // Add to conversation history without duplicate consecutive entries
       const trimmedQuery = queryText.trim();
       setConversationHistory((prev) => {
         if (prev.length > 0 && prev[0].query.toLowerCase() === trimmedQuery.toLowerCase()) {
@@ -135,7 +134,7 @@ export const AskOceanisPage: React.FC = () => {
     setIsSimulatingWhatIf(true);
     try {
       const res = await runWhatIfSimulation({
-        query: queryInput,
+        query: queryInput || 'What if departure is modified?',
         latitude: decisionData.location?.latitude,
         longitude: decisionData.location?.longitude,
         what_if_time: whatIfTime,
@@ -280,45 +279,31 @@ export const AskOceanisPage: React.FC = () => {
     }
   };
 
-  // Safe normalized unit helper
-  const getNormalizedUnit = (item: EvidenceItemContract): string => {
-    if (item.unit) return item.unit;
-    const p = item.parameter.toLowerCase();
-    if (p.includes('sst') || p.includes('sea_surface_temp')) return '°C';
-    if (p.includes('chlorophyll')) return 'mg/m³';
-    if (p.includes('wave') || p.includes('swell')) return 'm';
-    if (p.includes('wind') || p.includes('current')) return 'km/h';
-    if (p.includes('distance')) return 'km';
-    return '';
-  };
-
-    // Location Mismatch Detection
+  // Location Mismatch Detection
   const currentLocName = (selectedLocation?.city || selectedLocation?.name || '').toLowerCase();
   const resultLocName = (decisionData?.location?.name || '').toLowerCase();
   const isLocationMismatch = Boolean(
     decisionData &&
     selectedLocation &&
-    selectedLocation.lat !== undefined &&
-    decisionData.location?.latitude !== undefined &&
-    Math.abs(selectedLocation.lat - decisionData.location.latitude) > 0.4 &&
-    !resultLocName.includes(currentLocName.slice(0, 4)) &&
-    !currentLocName.includes(resultLocName.slice(0, 4))
+    resultLocName &&
+    currentLocName &&
+    !resultLocName.includes(currentLocName) &&
+    !currentLocName.includes(resultLocName) &&
+    !decisionData.entities_extracted?.is_inland
   );
 
   const queryIntent = decisionData?.query_intent || 'DECISION';
-  const isDecisionQuery = queryIntent === 'DECISION';
-  const isComparisonQuery = queryIntent === 'COMPARISON';
+  const isDecisionQuery = queryIntent === 'DECISION' || queryIntent === 'SAFETY';
+  const isComparisonQuery = queryIntent === 'COMPARISON' || Boolean(decisionData?.comparison_data);
+
   const agentsCount = decisionData?.agents_consulted_count || decisionData?.agents_consulted?.length || 0;
   const totalAgents = decisionData?.total_agents_available || 6;
 
-  const followUpSuggestions = (synthesized?.followUpSuggestions || FOLLOW_UP_SUGGESTIONS[language] || FOLLOW_UP_SUGGESTIONS.en);
-
-  // Evidence filtering
-  const evidenceList = decisionData?.evidence || [];
-  const filteredEvidence = evidenceList.filter((item: EvidenceItemContract) => {
+  // Filtered evidence items
+  const filteredEvidence = (decisionData?.evidence || []).filter((item: EvidenceItemContract) => {
     if (activeEvidenceFilter === 'ALL') return true;
     if (activeEvidenceFilter === 'REAL') {
-      return item.observation_type !== 'AI Assessment' && (item.observation_type as string) !== 'Operational Calculation';
+      return item.observation_type === 'Real Telemetry' || item.observation_type === 'Official Observation' || item.observation_type === 'Satellite Radiometry';
     }
     if (activeEvidenceFilter === 'WARNINGS') {
       return item.observation_type === 'Official Warning';
@@ -328,6 +313,46 @@ export const AskOceanisPage: React.FC = () => {
     }
     return true;
   });
+
+  // Starter Prompts for Neutral Initial State
+  const STARTER_PROMPTS = [
+    {
+      category: 'Marine Conditions',
+      icon: '🌊',
+      query: selectedLocation ? `What are the current ocean conditions for ${selectedLocation.city || selectedLocation.name}?` : 'What are the current wave and wind conditions?',
+      description: 'Wave height, swell period, wind speed, and sea state analysis.',
+    },
+    {
+      category: 'Fishing Intelligence',
+      icon: '🎣',
+      query: selectedLocation ? `Is it suitable for artisanal fishing tomorrow morning from ${selectedLocation.city || selectedLocation.name}?` : 'Can I go fishing tomorrow morning?',
+      description: 'PFZ zone convergence, species availability, and weather safety.',
+    },
+    {
+      category: 'Earth Observation',
+      icon: '🛰️',
+      query: selectedLocation ? `Show satellite SST and Chlorophyll-a observations near ${selectedLocation.city || selectedLocation.name}` : 'Show satellite SST and Chlorophyll-a gradients',
+      description: 'Sentinel-3 ocean color, thermal gradients, and chlorophyll-a density.',
+    },
+    {
+      category: 'Disaster & Safety',
+      icon: '⚠️',
+      query: selectedLocation ? `Are there any active cyclone or severe weather warnings near ${selectedLocation.city || selectedLocation.name}?` : 'Are there any active marine weather alerts?',
+      description: 'IMD gale warnings, INCOIS swell surge advisories, and high-wind alerts.',
+    },
+    {
+      category: 'Navigation & Passage',
+      icon: '🧭',
+      query: selectedLocation ? `Evaluate safe passage and navigation around ${selectedLocation.city || selectedLocation.name}` : 'Evaluate coastal transit and navigation route safety',
+      description: 'PostGIS bathymetry checks, EEZ limits, and harbor entry conditions.',
+    },
+    {
+      category: 'What-If Simulation',
+      icon: '⚡',
+      query: selectedLocation ? `What if I depart from ${selectedLocation.city || selectedLocation.name} at 09:00 instead of 06:00?` : 'What if I delay departure by 3 hours?',
+      description: 'Tidal shifts, diurnal sea-breeze strengthening, and risk changes.',
+    },
+  ];
 
   return (
     <div className="ocean-page-container ask-oceanis-container">
@@ -352,7 +377,7 @@ export const AskOceanisPage: React.FC = () => {
               value={queryInput}
               onChange={(e) => setQueryInput(e.target.value)}
               onKeyDown={(e) => e.key === 'Enter' && executeDecisionQuery(queryInput)}
-              placeholder={t('ask.input_placeholder', 'Ask any natural language or voice marine question (English, Telugu, Hindi, Tamil...)')}
+              placeholder={t('ask.input_placeholder', 'Ask about marine conditions, safety, fishing, routes, satellite observations or what-if scenarios...')}
             />
 
             {/* Voice Microphone Control */}
@@ -424,7 +449,7 @@ export const AskOceanisPage: React.FC = () => {
 
         {voiceErrorText && (
           <div className="voice-error-banner">
-            <span>ℹ️ {voiceErrorText}</span>
+            <span>⚠️ {voiceErrorText}</span>
           </div>
         )}
       </div>
@@ -445,6 +470,68 @@ export const AskOceanisPage: React.FC = () => {
         </div>
       )}
 
+      {/* Neutral Initial State: Marine Decision Intelligence Launcher Hub */}
+      {!decisionData && !isLoading && (
+        <div className="ocean-card launcher-hub-card" style={{ background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: '12px', padding: '24px', boxShadow: '0 1px 3px rgba(0, 0, 0, 0.04)' }}>
+          <div style={{ marginBottom: '18px' }}>
+            <h3 style={{ margin: '0 0 6px 0', fontSize: '1.15rem', color: '#0F172A', fontWeight: 700 }}>
+              {t('ask.hub_title', 'Operational Maritime Intelligence Hub')}
+            </h3>
+            <p style={{ margin: 0, fontSize: '0.85rem', color: '#64748B' }}>
+              {selectedLocation
+                ? `Active Sector: ${selectedLocation.city || selectedLocation.name}. Ask any question or select a domain operational query below:`
+                : 'Ask any natural language marine question or select an operational inquiry below:'}
+            </p>
+          </div>
+
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '14px' }}>
+            {STARTER_PROMPTS.map((starter, idx) => (
+              <div
+                key={idx}
+                onClick={() => {
+                  setQueryInput(starter.query);
+                  executeDecisionQuery(starter.query);
+                }}
+                style={{
+                  background: '#F8FAFC',
+                  border: '1px solid #E2E8F0',
+                  borderRadius: '10px',
+                  padding: '14px 16px',
+                  cursor: 'pointer',
+                  transition: 'all 0.2s ease',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: '6px',
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.borderColor = '#0284C7';
+                  e.currentTarget.style.background = '#F0F9FF';
+                  e.currentTarget.style.transform = 'translateY(-2px)';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.borderColor = '#E2E8F0';
+                  e.currentTarget.style.background = '#F8FAFC';
+                  e.currentTarget.style.transform = 'translateY(0)';
+                }}
+              >
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                  <span style={{ fontSize: '1.1rem' }}>{starter.icon}</span>
+                  <span style={{ fontSize: '0.7rem', fontWeight: 700, color: '#0284C7', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                    {starter.category}
+                  </span>
+                </div>
+                <strong style={{ fontSize: '0.88rem', color: '#0F172A', lineHeight: 1.35 }}>
+                  {starter.query}
+                </strong>
+                <span style={{ fontSize: '0.78rem', color: '#64748B' }}>
+                  {starter.description}
+                </span>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
       {/* Location Mismatch Warning Banner */}
       {isLocationMismatch && (
         <div className="location-mismatch-banner" style={{ background: 'rgba(245, 158, 11, 0.15)', border: '1px solid #f59e0b', borderRadius: '10px', padding: '14px 20px', marginBottom: '20px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '12px' }}>
@@ -452,12 +539,12 @@ export const AskOceanisPage: React.FC = () => {
             <span style={{ fontSize: '1.25rem' }}>⚠️</span>
             <div>
               <strong style={{ color: '#fbbf24', display: 'block' }}>Location Context Changed</strong>
-              <span style={{ color: '#A9BBC9', fontSize: '0.85rem' }}>The displayed results are for {decisionData?.location?.name || 'previous area'}. Run the query again for {selectedLocation?.name}.</span>
+              <span style={{ color: '#475569', fontSize: '0.85rem' }}>The displayed results are for {decisionData?.location?.name || 'previous area'}. Run the query again for {selectedLocation?.name}.</span>
             </div>
           </div>
           <button
             type="button"
-            onClick={() => executeDecisionQuery(queryInput)}
+            onClick={() => executeDecisionQuery(queryInput || `What are the conditions near ${selectedLocation?.city || selectedLocation?.name}?`)}
             style={{ background: '#16B8D8', color: '#061827', border: 'none', padding: '8px 16px', borderRadius: '20px', fontWeight: 700, cursor: 'pointer' }}
           >
             Re-run for {selectedLocation?.city || selectedLocation?.name}
@@ -479,7 +566,7 @@ export const AskOceanisPage: React.FC = () => {
                   {decisionData.location.latitude && decisionData.location.longitude && (
                     <small> ({decisionData.location.latitude.toFixed(4)}°N, {decisionData.location.longitude.toFixed(4)}°E)</small>
                   )}
-                  {decisionData.location.is_inland && <span className="inland-tag"> • INLAND</span>}
+                  {decisionData.location.is_inland && <span className="inland-tag"> ⚠️ INLAND</span>}
                 </span>
               )}
               {decisionData.requested_time && (
@@ -498,45 +585,81 @@ export const AskOceanisPage: React.FC = () => {
                   onClick={handleToggleSpeak}
                   title={isSpeaking ? 'Stop speaking' : 'Listen to localized answer'}
                 >
-                  {isSpeaking ? '⏹️ Stop' : '🔊 Read Aloud'}
+                  {isSpeaking ? (
+                    <>
+                      <span className="tts-pulse-dot" />
+                      <span>Stop Voice</span>
+                    </>
+                  ) : (
+                    <>
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="tts-icon">
+                        <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" />
+                        <path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07" />
+                      </svg>
+                      <span>Listen ({language.toUpperCase()})</span>
+                    </>
+                  )}
                 </button>
               )}
 
               {/* Decision Badge */}
-              <div className={`decision-badge-large ${getDecisionBadgeClass(decisionData.decision)}`}>
-                <span className="dec-icon">
-                  {decisionData.decision === 'SUITABLE' && '✅'}
-                  {decisionData.decision === 'CAUTION' && '⚠️'}
-                  {decisionData.decision === 'NOT_RECOMMENDED' && '🛑'}
-                  {decisionData.decision === 'INSUFFICIENT_EVIDENCE' && 'ℹ️'}
-                </span>
-                <span className="dec-text">{synthesized?.decisionLabel || decisionData.decision}</span>
-              </div>
+              <span className={`decision-pill-badge ${getDecisionBadgeClass(decisionData.decision)}`}>
+                {synthesized?.decisionLabel || decisionData.decision}
+              </span>
             </div>
           </div>
 
-          <div className="answer-body-content">
-            <h2 className="primary-answer-text">
-              {synthesized?.primaryAnswer || decisionData.primary_answer || decisionData.summary}
+          {/* Primary synthesized text */}
+          <div className="primary-text-block">
+            <h2 className="primary-response-heading">
+              {synthesized?.primaryAnswer || decisionData.primary_answer}
             </h2>
+            <p className="primary-summary-para">
+              {synthesized?.summary || decisionData.summary}
+            </p>
           </div>
 
-          {/* Follow-up Quick Suggestions */}
+          {/* Key Metric Gauges Row */}
+          {decisionData.key_findings && decisionData.key_findings.length > 0 && (
+            <div className="key-findings-chip-row">
+              {decisionData.key_findings.map((kf: string, idx: number) => (
+                <span key={idx} className="finding-chip">
+                  ✓ {sanitizeEvidenceText(kf)}
+                </span>
+              ))}
+            </div>
+          )}
+
+          {/* Operational Warnings / Guardrails */}
+          {decisionData.warnings && decisionData.warnings.length > 0 && (
+            <div className="warnings-alert-strip">
+              <span className="warn-icon">⚠️</span>
+              <div className="warn-text">
+                {decisionData.warnings.map((w: string, idx: number) => (
+                  <div key={idx} className="warn-item">{sanitizeEvidenceText(w)}</div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Dynamic Follow-Up Inquiry Suggestions */}
           <div className="follow-up-suggestions-row">
-            <span className="follow-up-label">{t('ask.follow_up_label', 'Follow-up Context:')}</span>
-            {followUpSuggestions.map((f, i) => (
-              <button
-                key={i}
-                type="button"
-                className="btn-follow-up-chip"
-                onClick={() => {
-                  setQueryInput(f.query);
-                  executeDecisionQuery(f.query);
-                }}
-              >
-                {f.label}
-              </button>
-            ))}
+            <span className="follow-up-label">{t('ask.follow_up', 'Suggested Inquiries')}:</span>
+            <div className="follow-up-chips">
+              {(synthesized?.followUpSuggestions || FOLLOW_UP_SUGGESTIONS[language] || FOLLOW_UP_SUGGESTIONS.en).map((item, idx) => (
+                <button
+                  key={idx}
+                  type="button"
+                  className="follow-up-chip-btn"
+                  onClick={() => {
+                    setQueryInput(item.query);
+                    executeDecisionQuery(item.query);
+                  }}
+                >
+                  {item.label}
+                </button>
+              ))}
+            </div>
           </div>
         </div>
       )}
@@ -655,7 +778,7 @@ export const AskOceanisPage: React.FC = () => {
                 <div className="conf-reasons-title">Confidence Diagnostic Justification:</div>
                 <ul className="conf-reasons-list">
                   {decisionData.confidence_reasons.map((cr, idx) => (
-                    <li key={idx}>✓ {sanitizeEvidenceText(cr)}</li>
+                    <li key={idx}>• {sanitizeEvidenceText(cr)}</li>
                   ))}
                 </ul>
               </div>
@@ -671,7 +794,7 @@ export const AskOceanisPage: React.FC = () => {
                       {wf.impact}
                     </span>
                   </div>
-                  <p className="factor-desc">{wf.description}</p>
+                  <p className="factor-desc">{sanitizeEvidenceText(wf.description)}</p>
                 </div>
               ))}
             </div>
@@ -698,10 +821,11 @@ export const AskOceanisPage: React.FC = () => {
                   onChange={(e) => setWhatIfTime(e.target.value)}
                   className="what-if-select"
                 >
-                  <option value="06:00">06:00 (Dawn Departure)</option>
-                  <option value="09:00">09:00 (Mid-Morning Transit)</option>
-                  <option value="12:00">12:00 (Midday Operations)</option>
-                  <option value="15:00">15:00 (Afternoon)</option>
+                  <option value="05:00">05:00 (Early Dawn Window)</option>
+                  <option value="06:00">06:00 (Standard Morning Departure)</option>
+                  <option value="09:00">09:00 (Mid-Morning Window)</option>
+                  <option value="12:00">12:00 (Solar Noon Peak)</option>
+                  <option value="15:00">15:00 (Afternoon Thermal Maximum)</option>
                   <option value="18:00">18:00 (Dusk Window)</option>
                 </select>
               </div>
@@ -801,6 +925,7 @@ export const AskOceanisPage: React.FC = () => {
               <tbody>
                 {filteredEvidence.map((item: EvidenceItemContract, idx: number) => {
                   const unitStr = getNormalizedUnit(item);
+                  const cleanVal = sanitizeEvidenceValue(item.value, item.parameter);
                   return (
                     <tr key={idx}>
                       <td>
@@ -810,7 +935,7 @@ export const AskOceanisPage: React.FC = () => {
                         <strong className="param-name">{sanitizeEvidenceText(item.parameter).replace(/_/g, ' ').toUpperCase()}</strong>
                       </td>
                       <td>
-                        <span className="param-value">{String(item.value)} {unitStr ? unitStr : ''}</span>
+                        <span className="param-value">{cleanVal} {unitStr ? unitStr : ''}</span>
                       </td>
                       <td>
                         <span className={`obs-type-badge obs-${item.observation_type.toLowerCase().replace(/\s+/g, '-')}`}>

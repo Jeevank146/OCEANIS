@@ -496,3 +496,61 @@ export function synthesizeMultilingualResponse(
     followUpSuggestions: followUps,
   };
 }
+
+/**
+ * Sanitizes evidence values to ensure no raw python dict strings or objects are shown in the UI.
+ */
+export function sanitizeEvidenceValue(val: any, parameter?: string): string {
+  if (val === null || val === undefined) return 'N/A';
+  if (typeof val === 'number') {
+    if (Number.isInteger(val)) return String(val);
+    return val.toFixed(2);
+  }
+  if (typeof val === 'boolean') {
+    return val ? 'Yes' : 'No';
+  }
+  if (typeof val === 'object') {
+    if (val.value !== undefined) return sanitizeEvidenceValue(val.value, parameter);
+    if (val.display !== undefined) return String(val.display);
+    if (val.status !== undefined) return String(val.status);
+    return 'Observed';
+  }
+  let s = String(val).trim();
+  if (s.startsWith('{') && s.endsWith('}')) {
+    return 'Observed Telemetry';
+  }
+  if (s.includes('factor=') || s.includes('entity_type=')) {
+    if (s.toLowerCase().includes('normal')) return 'Normal';
+    if (s.toLowerCase().includes('optimal') || s.toLowerCase().includes('favorable')) return 'Favorable';
+    if (s.toLowerCase().includes('caution') || s.toLowerCase().includes('warning')) return 'Advisory Active';
+    return 'Verified Telemetry';
+  }
+  return s;
+}
+
+/**
+ * Returns normalized scientific unit for marine parameters.
+ * Strictly guarantees:
+ * - Chlorophyll-a: mg/m³ (NEVER °C)
+ * - SST: °C
+ * - Wave Height: m
+ * - Wind Speed: km/h
+ * - Distance: km
+ */
+export function getNormalizedUnit(item: { parameter?: string | null; unit?: string | null }): string {
+  const p = (item.parameter || '').toLowerCase();
+  if (p.includes('chlorophyll')) return 'mg/m³';
+  if (p.includes('sst') || p.includes('sea_surface_temp') || p.includes('water_temperature') || p.includes('air_temp')) return '°C';
+  if (p.includes('wave') || p.includes('swell') || p.includes('tide_height') || p.includes('surge_height')) return 'm';
+  if (p.includes('wind') || p.includes('current_speed')) return 'km/h';
+  if (p.includes('distance')) return 'km';
+  if (p.includes('salinity')) return 'PSU';
+  if (p.includes('turbidity')) return 'NTU';
+  if (item.unit && item.unit !== 'N/A' && item.unit !== 'None') {
+    if (item.unit === 'degC' || item.unit === 'celsius') return '°C';
+    if (item.unit === 'mg/m3') return 'mg/m³';
+    if (item.unit === 'm/s') return 'km/h';
+    return item.unit;
+  }
+  return '';
+}

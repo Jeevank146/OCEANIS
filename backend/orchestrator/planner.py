@@ -249,7 +249,7 @@ class OrchestratorPlanner:
 
         # 3. Check for specific named locations
         for known_name in self.KNOWN_COASTAL_NAMES:
-            if re.search(r"" + re.escape(known_name) + r"", lower_text):
+            if re.search(r"\b" + re.escape(known_name) + r"\b", lower_text):
                 val_res = self.location_service.validate_location(query=known_name)
                 if val_res.status != "UNRESOLVED" and val_res.latitude is not None and val_res.longitude is not None:
                     is_inland = (val_res.status == "INLAND")

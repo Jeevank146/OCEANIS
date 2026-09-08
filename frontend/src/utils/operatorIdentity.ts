@@ -8,27 +8,46 @@ export interface OperatorIdentity {
 }
 
 /**
- * Deterministic location-aware maritime operator identity generator.
- * Strictly adheres to requirement: NO static 'Cmdr. R. Verma'.
- * Uses fictional/system-generated operational identities (e.g. 'Duty Officer', 'Operations Officer').
+ * Deterministic location-aware maritime operational identity generator.
+ * Strictly adheres to requirement:
+ * - NO hardcoded 'Cmdr. R. Verma'
+ * - NO fake officer titles (Cmdr. X, Duty Officer, etc.)
+ * - For coastal: '<Resolved Location> Marine Operations'
+ * - For offshore: 'Offshore Marine Operations'
+ * - For inland: 'Inland Operations'
+ * - For unknown/unresolved: 'Marine Operations'
  */
 export function getOperatorIdentity(
   locationName?: string,
   cityName?: string,
   isOffshore?: boolean,
   isInland?: boolean,
-  status?: string
+  status?: string,
+  configuredOperator?: string
 ): OperatorIdentity {
-  const loc = (cityName || locationName || 'Coastal Sector').replace(/\s*\([^)]*\)/g, '').trim();
+  if (configuredOperator && configuredOperator.trim()) {
+    const loc = (cityName || locationName || 'Coastal Sector').trim();
+    return {
+      location: loc,
+      sector: loc + ' Sector',
+      operatorName: configuredOperator.trim(),
+      role: 'Configured Operator',
+      displayLabel: configuredOperator.trim(),
+      callSign: 'OPS-USR-01',
+    };
+  }
+
+  const rawLoc = (cityName || locationName || '').replace(/\s*\([^)]*\)/g, '').trim();
 
   if (isInland || status === 'INLAND') {
+    const loc = rawLoc || 'Inland';
     return {
-      location: loc || 'Inland Sector',
-      sector: `${loc || 'Inland'} Sector`,
-      operatorName: 'Inland Command Officer',
+      location: loc + ' Area',
+      sector: 'Inland Operations',
+      operatorName: loc + ' Inland Operations',
       role: 'Inland Operations',
-      displayLabel: `${loc || 'Inland'} Sector`,
-      callSign: `${(loc || 'INL').toUpperCase().slice(0, 3)}-INL-01`,
+      displayLabel: loc + ' Inland Operations',
+      callSign: loc.toUpperCase().slice(0, 3) + '-INL-01',
     };
   }
 
@@ -36,27 +55,38 @@ export function getOperatorIdentity(
     isOffshore ||
     status === 'OFFSHORE' ||
     status === 'VALID_MARINE' ||
-    loc.toLowerCase().includes('offshore') ||
-    loc.toLowerCase().includes('waypoint') ||
-    loc.toLowerCase().includes('marine')
+    rawLoc.toLowerCase().includes('offshore') ||
+    rawLoc.toLowerCase().includes('waypoint') ||
+    rawLoc.toLowerCase().includes('marine')
   ) {
     return {
-      location: loc || 'Offshore Sector',
-      sector: 'Offshore Marine Sector',
-      operatorName: 'Marine Operations Officer',
-      role: 'Offshore Sector',
-      displayLabel: 'Offshore Marine Sector',
+      location: rawLoc || 'Offshore Sector',
+      sector: 'Offshore Marine Operations',
+      operatorName: 'Offshore Marine Operations',
+      role: 'Offshore Marine Operations',
+      displayLabel: 'Offshore Marine Operations',
       callSign: 'MAR-OPS-99',
     };
   }
 
-  // Coastal / Port location
+  if (rawLoc) {
+    return {
+      location: rawLoc,
+      sector: rawLoc + ' Sector',
+      operatorName: rawLoc + ' Marine Operations',
+      role: rawLoc + ' Marine Operations',
+      displayLabel: rawLoc + ' Marine Operations',
+      callSign: rawLoc.toUpperCase().slice(0, 3) + '-OPS-01',
+    };
+  }
+
+  // Unknown / Unresolved location
   return {
-    location: loc || 'Coastal Sector',
-    sector: `${loc || 'Coastal'} Sector`,
-    operatorName: `${loc || 'Coastal'} Duty Officer`,
-    role: `${loc || 'Coastal'} Sector`,
-    displayLabel: `${loc || 'Coastal'} Sector`,
-    callSign: `${(loc || 'OPS').toUpperCase().slice(0, 3)}-OPS-01`,
+    location: 'Marine Operations',
+    sector: 'Marine Operations',
+    operatorName: 'Marine Operations',
+    role: 'Marine Operations',
+    displayLabel: 'Marine Operations',
+    callSign: 'MAR-OPS-01',
   };
 }
