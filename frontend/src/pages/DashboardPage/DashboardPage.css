@@ -549,6 +549,7 @@
   align-items: stretch;
 }
 
+.map-view-card,
 .map-preview-card,
 .safety-summary-card {
   margin-bottom: 0;
@@ -568,6 +569,7 @@
   height: 100%;
 }
 
+.map-view-card .live-ocean-map-card,
 .map-preview-card .live-ocean-map-card {
   flex: 1;
   display: flex;
@@ -580,6 +582,7 @@
   height: 100%;
 }
 
+.map-view-card .map-viewport-container,
 .map-preview-card .map-viewport-container {
   flex: 1;
   min-height: 395px;
@@ -587,6 +590,7 @@
   border-radius: 8px;
 }
 
+.map-view-card .leaflet-map-root,
 .map-preview-card .leaflet-map-root {
   min-height: 395px;
   height: 100%;
