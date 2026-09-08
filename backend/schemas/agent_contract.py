@@ -4,6 +4,16 @@ from typing import Any, Dict, List, Optional
 from pydantic import BaseModel, ConfigDict, Field
 
 
+class QueryIntent(str, Enum):
+    DECISION = "DECISION"
+    INFORMATION = "INFORMATION"
+    SAFETY = "SAFETY"
+    COMPARISON = "COMPARISON"
+    WHAT_IF = "WHAT_IF"
+    ROUTE = "ROUTE"
+    GENERAL = "GENERAL"
+
+
 class ObservationType(str, Enum):
     OBSERVED = "Observed"
     FORECAST = "Forecast"
@@ -30,6 +40,7 @@ class DecisionType(str, Enum):
     CAUTION = "Caution"
     NOT_RECOMMENDED = "Not Recommended"
     INSUFFICIENT_EVIDENCE = "Insufficient Evidence"
+    INFORMATION_ONLY = "Information"
 
 
 class EvidenceItem(BaseModel):
@@ -42,7 +53,7 @@ class EvidenceItem(BaseModel):
     source: str = Field(..., description="Source authority (e.g. IMD, INCOIS, Copernicus Marine, Copernicus EO, PostGIS GIS Engine)")
     parameter: str = Field(..., description="Observed or predicted marine/weather parameter name")
     value: Any = Field(..., description="Observed, modeled, or evaluated value")
-    unit: Optional[str] = Field(None, description="Measurement unit (e.g. m, km/h, °C, mg/m³, NM)")
+    unit: Optional[str] = Field(None, description="Measurement unit (e.g. m, km/h, deg C, mg/m3, NM)")
     observation_type: str = Field(ObservationType.OBSERVED.value, description="Observed, Forecast, Official Warning, AI Assessment")
     timestamp: Optional[str] = Field(None, description="Observation or forecast valid ISO timestamp")
     freshness: str = Field(DataFreshness.FRESH.value, description="Fresh, Aging, Stale, Unavailable")
@@ -72,12 +83,12 @@ class WhyDecisionBreakdown(BaseModel):
     """
     model_config = ConfigDict(extra="ignore")
 
-    marine_conditions: List[str] = Field(default_factory=list, description="Marine physics & sea-state findings")
-    ocean_conditions: List[str] = Field(default_factory=list, description="Ocean dynamics & hydrographic findings")
-    eo_indicators: List[str] = Field(default_factory=list, description="Satellite Earth Observation & bio-optical findings")
-    spatial_constraints: List[str] = Field(default_factory=list, description="Geospatial boundaries, zones & distance findings")
-    safety_warnings: List[str] = Field(default_factory=list, description="Official disaster alerts & severe weather warnings")
-    operational_factors: List[str] = Field(default_factory=list, description="Vessel operations & transit feasibility findings")
+    marine_conditions: List[str] = Field(default_factory=list, description="Marine physics and sea-state findings")
+    ocean_conditions: List[str] = Field(default_factory=list, description="Ocean dynamics and hydrographic findings")
+    eo_indicators: List[str] = Field(default_factory=list, description="Satellite Earth Observation and bio-optical findings")
+    spatial_constraints: List[str] = Field(default_factory=list, description="Geospatial boundaries, zones and distance findings")
+    safety_warnings: List[str] = Field(default_factory=list, description="Official disaster alerts and severe weather warnings")
+    operational_factors: List[str] = Field(default_factory=list, description="Vessel operations and transit feasibility findings")
 
 
 class ScenarioDetails(BaseModel):
@@ -111,26 +122,67 @@ class WhatIfComparison(BaseModel):
     confidence_difference: Optional[int] = Field(None, description="Difference in confidence percentage points")
 
 
-class FinalDecisionObject(BaseModel):
+class ComparisonLocationDetail(BaseModel):
     """
-    Unified Final Decision Object consumed by the OCEANIS frontend and API clients.
+    Evaluation details for a specific location in a multi-location comparison query.
     """
     model_config = ConfigDict(extra="ignore")
 
-    decision: str = Field(..., description="Suitable, Caution, Not Recommended, Insufficient Evidence")
-    summary: str = Field(..., description="Natural-language explainable decision summary")
+    location_name: str
+    latitude: float
+    longitude: float
+    decision: Optional[str] = None
+    confidence: int = 0
+    suitability_score: Optional[float] = None
+    key_metrics: Dict[str, Any] = Field(default_factory=dict)
+    summary: str = ""
+    pros: List[str] = Field(default_factory=list)
+    cons: List[str] = Field(default_factory=list)
+
+
+class ComparisonResult(BaseModel):
+    """
+    Structured result for comparison queries (e.g. Location A vs Location B).
+    """
+    model_config = ConfigDict(extra="ignore")
+
+    target_locations: List[ComparisonLocationDetail] = Field(default_factory=list)
+    recommended_location: Optional[str] = None
+    comparison_summary: str = ""
+    parameter_matrix: Dict[str, Dict[str, Any]] = Field(default_factory=dict)
+
+
+class FinalDecisionObject(BaseModel):
+    @property
+    def agent_contributions(self) -> List[AgentResult]:
+        return self.agents_consulted
+
+    """
+    Unified Final Decision Object consumed by the OCEANIS frontend and API clients.
+    Supports general query types: DECISION, INFORMATION, SAFETY, COMPARISON, WHAT_IF, ROUTE.
+    """
+    model_config = ConfigDict(extra="ignore")
+
+    query_intent: str = Field(QueryIntent.DECISION.value, description="DECISION, INFORMATION, SAFETY, COMPARISON, WHAT_IF, ROUTE, GENERAL")
+    primary_answer: Optional[str] = Field(None, description="Direct natural-language answer to user query")
+    decision: str = Field(..., description="Suitable, Caution, Not Recommended, Insufficient Evidence, Information")
+    summary: str = Field(..., description="Natural-language explainable decision or information summary")
     confidence: int = Field(..., ge=0, le=100, description="Overall confidence score (0-100%)")
     confidence_reasons: List[str] = Field(default_factory=list, description="Transparent reasons explaining confidence calculation")
     safety_status: str = Field(..., description="Authoritative safety guardrail status")
     guardrail_actions: List[str] = Field(default_factory=list, description="Actions executed by the safety guardrail layer")
     key_findings: List[str] = Field(default_factory=list, description="Synthesized key factual findings")
-    why_decision: WhyDecisionBreakdown = Field(default_factory=WhyDecisionBreakdown, description="Categorized 'Why This Decision?' evidence tracing")
+    why_decision: WhyDecisionBreakdown = Field(default_factory=WhyDecisionBreakdown, description="Categorized Why This Decision evidence tracing")
     evidence: List[EvidenceItem] = Field(default_factory=list, description="Consolidated deduplicated evidence items with provenance")
     agents_consulted: List[AgentResult] = Field(default_factory=list, description="Structured results from all consulted domain agents")
+    total_agents_available: int = Field(6, description="Total number of domain agents in the system")
+    agents_consulted_count: int = Field(6, description="Number of agents actually consulted for this query")
     freshness_summary: str = Field(DataFreshness.FRESH.value, description="Fresh, Aging, Stale, Unavailable")
     warnings: List[str] = Field(default_factory=list, description="Consolidated official and operational warnings")
     limitations: List[str] = Field(default_factory=list, description="Consolidated data limitations or gaps")
     location: Optional[Dict[str, Any]] = Field(None, description="Resolved geographic context")
     requested_time: Optional[str] = Field(None, description="Requested operational date/time")
     what_if_comparison: Optional[WhatIfComparison] = Field(None, description="Optional what-if scenario comparison")
+    comparison_data: Optional[ComparisonResult] = Field(None, description="Optional comparative location data")
+    entities_extracted: Dict[str, Any] = Field(default_factory=dict, description="Dynamically extracted query entities")
     generated_at: str = Field(default_factory=lambda: datetime.now(timezone.utc).isoformat())

@@ -610,8 +610,30 @@ export interface WhatIfComparisonContract {
   confidence_difference?: number | null;
 }
 
+export interface ComparisonLocationDetailContract {
+  location_name: string;
+  latitude: number;
+  longitude: number;
+  decision?: string | null;
+  confidence: number;
+  suitability_score?: number | null;
+  key_metrics: Record<string, any>;
+  summary: string;
+  pros: string[];
+  cons: string[];
+}
+
+export interface ComparisonResultContract {
+  target_locations: ComparisonLocationDetailContract[];
+  recommended_location?: string | null;
+  comparison_summary: string;
+  parameter_matrix: Record<string, Record<string, any>>;
+}
+
 export interface FinalDecisionObjectContract {
-  decision: 'Suitable' | 'Caution' | 'Not Recommended' | 'Insufficient Evidence' | string;
+  query_intent?: 'DECISION' | 'INFORMATION' | 'SAFETY' | 'COMPARISON' | 'WHAT_IF' | 'ROUTE' | 'GENERAL' | string;
+  primary_answer?: string | null;
+  decision: 'Suitable' | 'Caution' | 'Not Recommended' | 'Insufficient Evidence' | 'Information' | string;
   summary: string;
   confidence: number;
   confidence_reasons: string[];
@@ -621,6 +643,8 @@ export interface FinalDecisionObjectContract {
   why_decision: WhyDecisionBreakdownContract;
   evidence: EvidenceItemContract[];
   agents_consulted: AgentResultContract[];
+  total_agents_available?: number;
+  agents_consulted_count?: number;
   freshness_summary: string;
   warnings: string[];
   limitations: string[];
@@ -633,6 +657,8 @@ export interface FinalDecisionObjectContract {
   } | null;
   requested_time?: string | null;
   what_if_comparison?: WhatIfComparisonContract | null;
+  comparison_data?: ComparisonResultContract | null;
+  entities_extracted?: Record<string, any>;
   generated_at: string;
 }
 

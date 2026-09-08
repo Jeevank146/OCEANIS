@@ -73,7 +73,7 @@ def test_earth_observation_real_data_retrieval_and_postgres_persistence():
         # 3. Verify PostgreSQL Persistence
         persisted = (
             db.query(EarthObservation)
-            .filter(EarthObservation.source == "Copernicus Marine / Sentinel-3 EO", EarthObservation.latitude >= 17.0)
+            .filter(EarthObservation.source == "Copernicus Marine / Sentinel-3 EO", EarthObservation.latitude >= 17.0, EarthObservation.latitude <= 18.0)
             .all()
         )
         assert len(persisted) == 1
@@ -93,7 +93,7 @@ def test_earth_observation_real_data_retrieval_and_postgres_persistence():
             db.query(EarthObservation)
             .filter(
                 EarthObservation.source == "Copernicus Marine / Sentinel-3 EO",
-                EarthObservation.latitude >= 17.0,
+                EarthObservation.latitude >= 17.0, EarthObservation.latitude <= 18.0,
             )
             .all()
         )
