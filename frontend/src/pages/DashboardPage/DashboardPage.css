@@ -23,29 +23,29 @@
 }
 
 /* ==========================================================================
-   1. Compact Operational Header (Light) & Official Location Popover
+   1. Compact Operational Header (Light)
    ========================================================================== */
 .oceanis-dash-header {
   background: #FFFFFF;
   border-bottom: 1px solid #E2E8F0;
-  padding: 16px 0;
+  padding: 18px 0;
   box-shadow: 0 1px 4px rgba(11, 33, 55, 0.04);
   position: relative;
-  z-index: 50;
+  z-index: 20;
 }
 
 .header-layout-flex {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 20px;
+  gap: 24px;
   flex-wrap: wrap;
 }
 
 .header-title-block {
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: 3px;
 }
 
 .dash-pretag-row {
@@ -87,17 +87,16 @@
   flex-wrap: wrap;
 }
 
-/* Location Identity & Control Card */
+/* Location Selector Card */
 .location-control-card {
   display: flex;
   align-items: center;
-  gap: 16px;
-  background: #F8FAFC;
+  gap: 14px;
+  background: #F1F5F9;
   border: 1px solid #CBD5E1;
   border-radius: 8px;
   padding: 8px 14px;
-  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04);
-  position: relative;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
 }
 
 .loc-info-text {
@@ -112,25 +111,29 @@
   gap: 6px;
 }
 
-.loc-pin-icon {
-  font-size: 0.95rem;
+.loc-marker-icon {
+  font-size: 0.88rem;
 }
 
-.loc-city-name {
-  font-size: 0.92rem;
+.loc-name-display {
+  font-size: 0.88rem;
   font-weight: 800;
   color: #0F2744;
   letter-spacing: 0.02em;
 }
 
-.loc-coords-sub {
-  font-size: 0.73rem;
-  color: #475569;
-  font-weight: 600;
-  letter-spacing: 0.01em;
+.loc-coords-line {
+  font-size: 0.7rem;
+  color: #64748B;
+  font-family: monospace;
 }
 
-/* Change Location Button */
+.loc-sea-tag {
+  color: #0284C7;
+  font-family: inherit;
+  font-weight: 600;
+}
+
 .loc-dropdown-anchor {
   position: relative;
 }
@@ -139,29 +142,27 @@
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  padding: 6px 12px;
+  padding: 5px 10px;
   background: #FFFFFF;
   border: 1px solid #0284C7;
   border-radius: 6px;
   color: #0284C7;
-  font-size: 0.78rem;
+  font-size: 0.75rem;
   font-weight: 700;
   cursor: pointer;
-  transition: all 0.15s ease-in-out;
+  transition: all 0.2s ease;
   box-shadow: 0 1px 2px rgba(2, 132, 199, 0.08);
 }
 
-.btn-change-loc:hover,
-.btn-change-loc.active {
-  background: #0284C7;
-  border-color: #0284C7;
-  color: #FFFFFF;
-  box-shadow: 0 2px 6px rgba(2, 132, 199, 0.25);
+.btn-change-loc:hover {
+  background: #EFF6FF;
+  border-color: #0369A1;
+  color: #0369A1;
 }
 
 .chevron-icon {
-  width: 13px;
-  height: 13px;
+  width: 12px;
+  height: 12px;
   transition: transform 0.2s ease;
 }
 
@@ -169,435 +170,780 @@
   transform: rotate(180deg);
 }
 
-/* ==========================================================================
-   OFFICIAL LOCATION SELECTOR POPOVER
-   ========================================================================== */
-.dash-location-popover {
+.loc-picker-menu {
   position: absolute;
-  top: calc(100% + 10px);
+  top: calc(100% + 8px);
   right: 0;
-  width: 380px;
   background: #FFFFFF;
   border: 1px solid #CBD5E1;
-  border-radius: 10px;
-  box-shadow: 0 14px 34px rgba(15, 39, 68, 0.16), 0 2px 8px rgba(0, 0, 0, 0.06);
-  z-index: 1000;
-  padding: 12px;
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  animation: popoverFadeIn 0.18s ease-out;
+  border-radius: 8px;
+  box-shadow: 0 12px 28px rgba(15, 39, 68, 0.15);
+  min-width: 280px;
+  max-height: 320px;
+  overflow-y: auto;
+  z-index: 100;
+  padding: 6px;
 }
 
-@keyframes popoverFadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(-6px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-/* Popover Search Box */
-.popover-search-box {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  background: #F8FAFC;
-  border: 1px solid #CBD5E1;
-  border-radius: 6px;
-  padding: 6px 10px;
-  transition: border-color 0.15s ease, box-shadow 0.15s ease;
-}
-
-.popover-search-box:focus-within {
-  border-color: #0284C7;
-  background: #FFFFFF;
-  box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.12);
-}
-
-.popover-search-icon {
-  width: 15px;
-  height: 15px;
+.loc-menu-title {
+  font-size: 0.68rem;
+  font-weight: 800;
   color: #64748B;
-  flex-shrink: 0;
+  letter-spacing: 0.08em;
+  padding: 8px 10px 6px 10px;
+  border-bottom: 1px solid #E2E8F0;
+  margin-bottom: 4px;
 }
 
-.popover-search-input {
-  flex: 1;
+.loc-menu-btn {
+  width: 100%;
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 8px 10px;
   border: none;
   background: transparent;
-  font-size: 0.82rem;
-  color: #0F2744;
-  outline: none;
-  font-weight: 500;
-}
-
-.popover-search-input::placeholder {
-  color: #94A3B8;
-  font-size: 0.78rem;
-}
-
-.popover-clear-btn {
-  border: none;
-  background: #E2E8F0;
-  color: #475569;
-  border-radius: 50%;
-  width: 18px;
-  height: 18px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 0.8rem;
-  cursor: pointer;
-  line-height: 1;
-}
-
-.popover-clear-btn:hover {
-  background: #CBD5E1;
-  color: #0F172A;
-}
-
-.popover-searching-status {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  font-size: 0.74rem;
-  color: #0284C7;
-  padding: 4px 6px;
-}
-
-/* Search Results List */
-.popover-results-list {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  max-height: 180px;
-  overflow-y: auto;
-  border-bottom: 1px solid #E2E8F0;
-  padding-bottom: 8px;
-}
-
-.popover-candidate-item {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: 2px;
-  width: 100%;
-  padding: 6px 8px;
-  background: #FFFFFF;
-  border: 1px solid #F1F5F9;
+  color: #334155;
   border-radius: 6px;
   cursor: pointer;
   text-align: left;
-  transition: all 0.12s ease;
+  transition: background 0.15s ease, color 0.15s ease;
 }
 
-.popover-candidate-item:hover {
-  background: #EFF6FF;
-  border-color: #BAE6FD;
-}
-
-.cand-main {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  width: 100%;
-}
-
-.cand-name {
-  font-size: 0.8rem;
-  font-weight: 700;
+.loc-menu-btn:hover {
+  background: #F1F5F9;
   color: #0F2744;
 }
 
-.cand-badge {
-  font-size: 0.65rem;
-  font-weight: 700;
-  padding: 1px 6px;
-  border-radius: 4px;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-}
-
-.cand-badge.coastal {
-  background: #E0F2FE;
+.loc-menu-btn.active {
+  background: #EFF6FF;
   color: #0284C7;
+  font-weight: 700;
 }
 
-.cand-badge.offshore {
-  background: #EDE9FE;
-  color: #7C3AED;
+.loc-pin-glyph {
+  font-size: 0.95rem;
+  margin-top: 2px;
 }
 
-.cand-badge.inland {
-  background: #FEF3C7;
-  color: #D97706;
-}
-
-.cand-coords {
-  font-size: 0.68rem;
-  color: #64748B;
-  font-family: monospace;
-}
-
-/* Quick Access Section */
-.popover-quick-section {
+.loc-btn-text {
   display: flex;
   flex-direction: column;
-  gap: 8px;
 }
 
-.popover-section-header {
+.loc-btn-label {
+  font-size: 0.82rem;
+  font-weight: 700;
+}
+
+.loc-btn-sea {
+  font-size: 0.68rem;
+  color: #64748B;
+}
+
+/* Telemetry Pill */
+.telemetry-status-pill {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  background: #F8FAFC;
+  border: 1px solid #E2E8F0;
+  border-radius: 8px;
+  padding: 8px 14px;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
+}
+
+.telemetry-live-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.live-indicator-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #16A34A;
+  box-shadow: 0 0 6px #16A34A;
+}
+
+.live-indicator-dot.pulse {
+  animation: dotPulse 2s infinite;
+}
+
+@keyframes dotPulse {
+  0% { transform: scale(0.95); opacity: 0.8; }
+  50% { transform: scale(1.2); opacity: 1; }
+  100% { transform: scale(0.95); opacity: 0.8; }
+}
+
+.live-text-tag {
+  font-size: 0.72rem;
+  font-weight: 800;
+  color: #15803D;
+  letter-spacing: 0.05em;
+}
+
+.telemetry-time-text {
+  font-size: 0.72rem;
+  color: #334155;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+.telemetry-sources-text {
+  font-size: 0.64rem;
+  color: #64748B;
+  font-weight: 500;
+}
+
+/* ==========================================================================
+   2. Main Dashboard Grid Body (Balanced Whitespace & Gaps)
+   ========================================================================== */
+.dash-main-grid-body {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  padding-top: 24px;
+}
+
+/* Card Section Frame - Clean White Institutional Card */
+.dash-card-section {
+  background: #FFFFFF;
+  border: 1px solid #E2E8F0;
+  border-radius: 10px;
+  padding: 18px 20px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04), 0 4px 12px rgba(15, 39, 68, 0.02);
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  box-sizing: border-box;
+}
+
+/* Card Header Bar */
+.dash-card-header-bar {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: 16px;
+  border-bottom: 1px solid #F1F5F9;
+  padding-bottom: 12px;
 }
 
-.popover-section-title {
+.card-title-group {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.dash-section-title {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  color: #0F2744;
+}
+
+.card-subtitle-badge {
   font-size: 0.68rem;
+  font-weight: 700;
+  color: #0284C7;
+  background: #EFF6FF;
+  border: 1px solid #BFDBFE;
+  padding: 2px 8px;
+  border-radius: 4px;
+  letter-spacing: 0.04em;
+}
+
+.dash-action-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  color: #0284C7;
+  font-size: 0.8rem;
+  font-weight: 700;
+  text-decoration: none;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+}
+
+.dash-action-link:hover {
+  color: #0369A1;
+  transform: translateX(2px);
+}
+
+.dash-action-link svg {
+  width: 14px;
+  height: 14px;
+}
+
+.dash-action-link.primary-cta {
+  background: #0284C7;
+  color: #FFFFFF;
+  padding: 5px 12px;
+  border-radius: 6px;
+  box-shadow: 0 2px 6px rgba(2, 132, 199, 0.2);
+}
+
+.dash-action-link.primary-cta:hover {
+  background: #0369A1;
+  color: #FFFFFF;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 10px rgba(2, 132, 199, 0.3);
+}
+
+/* ==========================================================================
+   3. Marine Conditions Metrics Grid (Light Card Design)
+   ========================================================================== */
+.marine-metrics-grid {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 14px;
+}
+
+.metric-box {
+  background: #F8FAFC;
+  border: 1px solid #E2E8F0;
+  border-radius: 8px;
+  padding: 12px 14px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 8px;
+  transition: all 0.2s ease;
+}
+
+.metric-box:hover {
+  border-color: #0284C7;
+  background: #FFFFFF;
+  box-shadow: 0 4px 12px rgba(2, 132, 199, 0.08);
+  transform: translateY(-2px);
+}
+
+.metric-label {
+  font-size: 0.65rem;
   font-weight: 800;
   color: #64748B;
   letter-spacing: 0.06em;
 }
 
-.popover-helper-tag {
-  font-size: 0.64rem;
-  color: #94A3B8;
-  font-weight: 600;
-}
-
-.popover-quick-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 6px;
-}
-
-.quick-pill-btn {
+.metric-value-row {
   display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 6px 10px;
-  background: #F8FAFC;
-  border: 1px solid #E2E8F0;
-  border-radius: 6px;
-  cursor: pointer;
-  text-align: left;
-  transition: all 0.15s ease;
+  align-items: baseline;
+  gap: 4px;
 }
 
-.quick-pill-btn:hover {
-  background: #EFF6FF;
-  border-color: #38BDF8;
-  transform: translateY(-1px);
-}
-
-.quick-pill-btn.active {
-  background: #0F2744;
-  border-color: #0F2744;
-  color: #FFFFFF;
-}
-
-.pill-dot {
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background: #0284C7;
-  flex-shrink: 0;
-}
-
-.pill-dot.active {
-  background: #38BDF8;
-  box-shadow: 0 0 6px #38BDF8;
-}
-
-.pill-text-col {
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-}
-
-.pill-city {
-  font-size: 0.76rem;
-  font-weight: 700;
+.metric-main-val {
+  font-size: 1.28rem;
+  font-weight: 800;
   color: #0F2744;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  line-height: 1.1;
 }
 
-.quick-pill-btn.active .pill-city {
-  color: #FFFFFF;
-}
-
-.pill-sea {
-  font-size: 0.64rem;
+.metric-unit {
+  font-size: 0.8rem;
+  font-weight: 600;
   color: #64748B;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
 }
 
-.quick-pill-btn.active .pill-sea {
-  color: #94A3B8;
-}
-
-/* Action Toolbar */
-.popover-action-toolbar {
+.metric-meta-row {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 8px;
-  padding-top: 8px;
+  gap: 6px;
+  font-size: 0.66rem;
   border-top: 1px solid #E2E8F0;
+  padding-top: 5px;
 }
 
-.popover-tool-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-  background: transparent;
-  border: 1px solid #E2E8F0;
-  border-radius: 5px;
-  padding: 5px 8px;
-  font-size: 0.72rem;
-  font-weight: 600;
-  color: #475569;
-  cursor: pointer;
-  text-decoration: none;
-  transition: all 0.15s ease;
+.metric-status-tag {
+  font-weight: 700;
+  color: #64748B;
 }
 
-.popover-tool-btn:hover {
-  background: #F1F5F9;
-  border-color: #CBD5E1;
-  color: #0F2744;
+.metric-status-tag.safe {
+  color: #16A34A;
 }
 
-.popover-tool-btn.map-link {
+.metric-status-tag.normal {
   color: #0284C7;
-  border-color: #BAE6FD;
-  background: #F0F9FF;
 }
 
-.popover-tool-btn.map-link:hover {
-  background: #E0F2FE;
-  border-color: #0284C7;
-  color: #0369A1;
+.metric-source {
+  color: #94A3B8;
+  font-weight: 600;
 }
 
-/* Telemetry Status Card */
-.telemetry-status-card {
-  display: flex;
-  align-items: center;
-  gap: 14px;
-  background: #F8FAFC;
-  border: 1px solid #CBD5E1;
-  border-radius: 8px;
-  padding: 8px 14px;
-  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04);
+/* ==========================================================================
+   4. Two-Column Layout Rows (Map + Safety, Fishing + Decision)
+   ========================================================================== */
+.dash-two-col-grid {
+  display: grid;
+  gap: 24px;
+  align-items: start;
 }
 
-.time-display-block {
+.row-2-split {
+  grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr);
+}
+
+.row-3-split {
+  grid-template-columns: 1fr 1fr;
+}
+
+/* Live Ocean Map Preview Card Frame */
+.map-preview-card {
   display: flex;
   flex-direction: column;
-  gap: 1px;
 }
 
-.live-clock {
-  font-size: 0.88rem;
-  font-weight: 800;
-  color: #0F2744;
-  font-family: monospace;
+.map-embed-wrapper {
+  border-radius: 8px;
+  overflow: hidden;
+  border: 1px solid #E2E8F0;
+  background: #0B1728; /* GIS canvas */
 }
 
-.live-date {
-  font-size: 0.7rem;
-  color: #64748B;
-  font-weight: 600;
+/* Clean up embedded map outer shell to fit preview card cleanly */
+.map-preview-card .live-ocean-map-card {
+  padding: 0;
+  background: transparent;
+  border: none;
+  box-shadow: none;
+  gap: 8px;
 }
 
-.feed-status-indicator {
+.map-preview-card .map-viewport-container {
+  height: 270px; /* Perfectly balanced with Safety Status card */
+  border-radius: 6px;
+}
+
+.map-preview-card .live-ocean-map-header {
+  padding: 6px 8px 0 8px;
+}
+
+.map-preview-card .map-legend-bar {
+  padding: 4px 8px 8px 8px;
+}
+
+/* Safety Summary Card & Content - Natural Fit */
+.safety-summary-card {
   display: flex;
-  align-items: center;
-  gap: 6px;
-  padding-left: 12px;
-  border-left: 1px solid #CBD5E1;
+  flex-direction: column;
+  height: auto;
 }
 
-.pulse-beacon {
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  flex-shrink: 0;
-}
-
-.pulse-beacon.green {
-  background: #10B981;
-  box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.2);
-  animation: beaconPulse 2s infinite ease-in-out;
-}
-
-.pulse-beacon.amber {
-  background: #F59E0B;
-  box-shadow: 0 0 0 2px rgba(245, 158, 11, 0.2);
-}
-
-@keyframes beaconPulse {
-  0%, 100% {
-    transform: scale(1);
-    opacity: 1;
-  }
-  50% {
-    transform: scale(1.2);
-    opacity: 0.75;
-  }
-}
-
-.status-label {
-  font-size: 0.72rem;
-  font-weight: 800;
-  color: #0F2744;
-  letter-spacing: 0.04em;
-}
-
-/* Synchronization Loading States */
-.dash-card-header-actions {
+.safety-card-content {
   display: flex;
-  align-items: center;
+  flex-direction: column;
   gap: 12px;
 }
 
-.sync-loading-indicator {
+.safety-risk-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 14px;
+  border-radius: 8px;
+  background: #FEF3C7;
+  border: 1px solid #FCD34D;
+}
+
+.risk-banner-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.risk-icon {
+  font-size: 1.35rem;
+}
+
+.risk-text-block {
+  display: flex;
+  flex-direction: column;
+}
+
+.risk-level-tag {
+  font-size: 0.62rem;
+  font-weight: 700;
+  color: #92400E;
+  letter-spacing: 0.06em;
+}
+
+.risk-level-title {
+  font-size: 1.05rem;
+  font-weight: 800;
+  color: #B45309;
+}
+
+.active-alerts-pill {
+  background: #F59E0B;
+  color: #FFFFFF;
+  font-size: 0.72rem;
+  font-weight: 800;
+  padding: 3px 8px;
+  border-radius: 20px;
+  box-shadow: 0 1px 3px rgba(245, 158, 11, 0.25);
+}
+
+.safety-detail-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.hazard-highlight-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  background: #F8FAFC;
+  border: 1px solid #E2E8F0;
+  border-radius: 6px;
+  padding: 8px 10px;
+}
+
+.hazard-bullet {
+  font-size: 0.75rem;
+  margin-top: 2px;
+}
+
+.hazard-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.hazard-title {
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: #0F2744;
+}
+
+.hazard-desc {
+  margin: 0;
+  font-size: 0.74rem;
+  color: #475569;
+  line-height: 1.35;
+}
+
+.safety-sources-footer {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.7rem;
+  border-top: 1px solid #F1F5F9;
+  padding-top: 8px;
+}
+
+.safety-src-label {
+  color: #64748B;
+  font-weight: 700;
+}
+
+.safety-src-list {
+  color: #334155;
+  font-weight: 600;
+}
+
+/* ==========================================================================
+   5. Fishing & AI Decision Summary Cards (Light Theme - Equal Heights)
+   ========================================================================= */
+.fishing-summary-card,
+.decision-summary-card {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.fishing-card-content,
+.decision-card-content {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  height: 100%;
+  justify-content: space-between;
+}
+
+.fishing-kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+}
+
+.fishing-kpi-box {
+  background: #F8FAFC;
+  border: 1px solid #E2E8F0;
+  border-radius: 8px;
+  padding: 10px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.kpi-label {
+  font-size: 0.62rem;
+  font-weight: 800;
+  color: #64748B;
+  letter-spacing: 0.05em;
+}
+
+.kpi-val-badge.success {
+  color: #16A34A;
+  font-size: 0.88rem;
+  font-weight: 800;
+}
+
+.kpi-val-text {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #0F2744;
+}
+
+.kpi-val-text.highlight {
+  color: #0284C7;
+}
+
+.fishing-brief-note {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  background: #EFF6FF;
+  border: 1px solid #BFDBFE;
+  border-radius: 8px;
+  padding: 10px 12px;
+}
+
+.fishing-icon {
+  font-size: 1.1rem;
+}
+
+.fishing-brief-note p {
+  margin: 0;
+  font-size: 0.78rem;
+  color: #1E3A8A;
+  line-height: 1.4;
+}
+
+/* Decision Card */
+.decision-kpi-row {
+  display: grid;
+  grid-template-columns: 1.3fr 1fr 1fr;
+  gap: 10px;
+}
+
+.decision-pill-item {
+  background: #F8FAFC;
+  border: 1px solid #E2E8F0;
+  border-radius: 8px;
+  padding: 8px 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.decision-lbl {
+  font-size: 0.62rem;
+  font-weight: 800;
+  color: #64748B;
+  letter-spacing: 0.05em;
+}
+
+.decision-status-chip.warning {
+  color: #D97706;
+  font-size: 0.78rem;
+  font-weight: 800;
+}
+
+.decision-status-chip.moderate {
+  color: #B45309;
+  font-size: 0.78rem;
+  font-weight: 800;
+}
+
+.decision-val-strong {
+  font-size: 0.9rem;
+  font-weight: 800;
+  color: #0284C7;
+}
+
+.decision-explanation-box {
+  background: #F8FAFC;
+  border-left: 3px solid #0284C7;
+  border-radius: 0 8px 8px 0;
+  padding: 10px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.why-tag {
+  font-size: 0.65rem;
+  font-weight: 800;
+  color: #0284C7;
+  letter-spacing: 0.06em;
+}
+
+.why-text {
+  margin: 0;
+  font-size: 0.78rem;
+  color: #334155;
+  line-height: 1.4;
+}
+
+.decision-footer-consensus {
   display: flex;
   align-items: center;
   gap: 6px;
-  font-size: 0.74rem;
-  font-weight: 700;
-  color: #0284C7;
-  animation: fadeIn 0.15s ease;
+  font-size: 0.7rem;
+  color: #64748B;
+  border-top: 1px solid #F1F5F9;
+  padding-top: 8px;
 }
 
-.spinner-mini {
-  width: 11px;
-  height: 11px;
-  border: 2px solid rgba(2, 132, 199, 0.2);
-  border-top-color: #0284C7;
+.consensus-dot {
+  width: 6px;
+  height: 6px;
   border-radius: 50%;
-  animation: spin 0.7s linear infinite;
-  display: inline-block;
+  background: #16A34A;
 }
 
-@keyframes spin {
-  to { transform: rotate(360deg); }
+/* ==========================================================================
+   6. Bottom Data & System Status Card (Light Theme)
+   ========================================================================== */
+.system-status-content {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
 }
 
-.metrics-six-grid.is-loading .metric-box {
-  opacity: 0.7;
-  transition: opacity 0.15s ease;
+.providers-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
 }
 
+.provider-status-item {
+  background: #F8FAFC;
+  border: 1px solid #E2E8F0;
+  border-radius: 8px;
+  padding: 10px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  position: relative;
+  transition: all 0.2s ease;
+}
 
+.provider-status-item:hover {
+  background: #FFFFFF;
+  border-color: #CBD5E1;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
+}
 
+.prov-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  position: absolute;
+  top: 10px;
+  right: 10px;
+}
+
+.prov-dot.connected {
+  background: #16A34A;
+  box-shadow: 0 0 4px #16A34A;
+}
+
+.prov-name {
+  font-size: 0.84rem;
+  font-weight: 800;
+  color: #0F2744;
+}
+
+.prov-desc {
+  font-size: 0.7rem;
+  color: #64748B;
+}
+
+.prov-badge {
+  font-size: 0.62rem;
+  font-weight: 700;
+  color: #16A34A;
+  margin-top: 2px;
+}
+
+.pipeline-meta-bar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  background: #F1F5F9;
+  border: 1px solid #CBD5E1;
+  border-radius: 8px;
+  padding: 8px 14px;
+  font-size: 0.75rem;
+  color: #334155;
+  flex-wrap: wrap;
+}
+
+.meta-indicator {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.meta-icon {
+  font-size: 0.85rem;
+}
+
+.meta-sep {
+  color: #CBD5E1;
+}
+
+/* ==========================================================================
+   Responsive Adaptations
+   ========================================================================== */
+@media (max-width: 1200px) {
+  .marine-metrics-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+  .dash-two-col-grid {
+    grid-template-columns: 1fr;
+  }
+  .providers-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 768px) {
+  .dash-container {
+    padding: 0 16px;
+  }
+  .header-layout-flex {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 14px;
+  }
+  .header-meta-cluster {
+    width: 100%;
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .location-control-card,
+  .telemetry-status-pill {
+    width: 100%;
+    box-sizing: border-box;
+  }
+  .marine-metrics-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .fishing-kpi-grid,
+  .decision-kpi-row {
+    grid-template-columns: 1fr;
+  }
+  .providers-grid {
+    grid-template-columns: 1fr;
+  }
+}
