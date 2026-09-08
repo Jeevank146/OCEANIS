@@ -1,31 +1,38 @@
 /* ===================================================================
    OCEANIS LEFT VERTICAL MARINE OPERATIONS SIDEBAR
-   Dark-blue institutional operations drawer (~180px width)
+   Fixed institutional marine operations drawer (200px width)
    =================================================================== */
 
+.oceanis-sidebar,
 .ocean-sidebar {
   position: fixed;
   top: 70px;
   left: 0;
   bottom: 0;
   width: 200px;
-  background-color: var(--bg-sidebar);
+  background-color: var(--bg-sidebar, #061827);
   border-right: 1px solid rgba(255, 255, 255, 0.08);
   z-index: 900;
   display: flex;
   flex-direction: column;
-  transition: transform var(--transition-normal);
+  transition: transform var(--transition-normal, 0.25s ease);
+  overflow-y: auto;
+  overflow-x: hidden;
+  box-sizing: border-box;
+}
+
+.sidebar-scroll-container,
+.sidebar-inner {
+  display: flex;
+  flex-direction: column;
+  padding: 14px 8px 14px;
+  flex: 1;
+  box-sizing: border-box;
   overflow-y: auto;
   overflow-x: hidden;
 }
 
-.sidebar-inner {
-  display: flex;
-  flex-direction: column;
-  padding: 14px 8px 20px;
-  height: 100%;
-}
-
+.sidebar-group,
 .sidebar-nav-group {
   display: flex;
   flex-direction: column;
@@ -33,12 +40,19 @@
 }
 
 .sidebar-group-title {
-  font-family: var(--font-body);
+  font-family: var(--font-body, 'Inter', sans-serif);
   font-size: 0.625rem;
   font-weight: 700;
   color: #64748b;
   letter-spacing: 0.08em;
   padding: 8px 10px 4px;
+  text-transform: uppercase;
+}
+
+.sidebar-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
 }
 
 .sidebar-link {
@@ -48,27 +62,30 @@
   padding: 8px 10px;
   background: transparent;
   border: 1px solid transparent;
-  border-radius: var(--radius-sm);
+  border-radius: var(--radius-sm, 6px);
   color: #cbd5e1;
-  font-family: var(--font-body);
+  font-family: var(--font-body, 'Inter', sans-serif);
   font-size: 0.75rem;
   font-weight: 500;
   text-align: left;
   cursor: pointer;
-  transition: all var(--transition-fast);
+  transition: all var(--transition-fast, 0.15s ease);
   width: 100%;
+  text-decoration: none;
+  box-sizing: border-box;
 }
 
 .sidebar-link:hover {
-  background-color: var(--bg-sidebar-hover);
+  background-color: var(--bg-sidebar-hover, rgba(255, 255, 255, 0.06));
   color: #ffffff;
 }
 
 .sidebar-link.active {
-  background-color: var(--bg-sidebar-active);
+  background-color: var(--bg-sidebar-active, rgba(2, 132, 199, 0.25));
   color: #ffffff;
   font-weight: 700;
-  box-shadow: 0 2px 8px rgba(2, 132, 199, 0.4);
+  border-color: rgba(2, 132, 199, 0.4);
+  box-shadow: 0 2px 8px rgba(2, 132, 199, 0.25);
 }
 
 .sidebar-icon {
@@ -95,10 +112,10 @@
 
 .sidebar-badge {
   font-size: 0.5625rem;
-  font-family: var(--font-mono);
+  font-family: var(--font-mono, monospace);
   font-weight: 700;
   padding: 1px 5px;
-  border-radius: var(--radius-xs);
+  border-radius: var(--radius-xs, 4px);
   flex-shrink: 0;
 }
 
@@ -126,32 +143,60 @@
   margin: 12px 6px;
 }
 
+.sidebar-footer,
 .sidebar-footer-status {
   margin-top: auto;
-  padding: 10px 8px 4px;
+  padding: 10px 8px 14px;
   display: flex;
   flex-direction: column;
   gap: 4px;
   border-top: 1px solid rgba(255, 255, 255, 0.06);
 }
 
+.engine-status-pill,
 .sidebar-status-pill {
   display: flex;
   align-items: center;
   gap: 6px;
+  padding: 4px 8px;
+  background: rgba(16, 185, 129, 0.1);
+  border: 1px solid rgba(16, 185, 129, 0.25);
+  border-radius: 4px;
 }
 
+.pulse-indicator-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background-color: #10B981;
+  box-shadow: 0 0 8px #10B981;
+  animation: pulseDot 2s infinite ease-in-out;
+}
+
+@keyframes pulseDot {
+  0%, 100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.4;
+    transform: scale(0.85);
+  }
+}
+
+.engine-status-text,
 .sidebar-status-text {
-  font-family: var(--font-body);
+  font-family: var(--font-body, 'Inter', sans-serif);
   font-size: 0.6875rem;
   font-weight: 600;
-  color: #94a3b8;
+  color: #10B981;
 }
 
 .sidebar-version-tag {
-  font-family: var(--font-mono);
+  font-family: var(--font-mono, monospace);
   font-size: 0.625rem;
   color: #64748b;
+  padding-left: 8px;
 }
 
 /* Mobile & Tablet Responsiveness */
@@ -160,12 +205,14 @@
 }
 
 @media (max-width: 1199px) {
+  .oceanis-sidebar,
   .ocean-sidebar {
     transform: translateX(-100%);
     box-shadow: 4px 0 20px rgba(0, 0, 0, 0.4);
     z-index: 1050;
   }
 
+  .oceanis-sidebar.mobile-open,
   .ocean-sidebar.mobile-open {
     transform: translateX(0);
   }
