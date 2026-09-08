@@ -3,11 +3,12 @@
    =================================================================== */
 
 .live-ocean-map-card {
-  padding: 14px;
+  padding: 12px;
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 8px;
   height: 100%;
+  width: 100%;
   background: #FFFFFF;
   border: 1px solid #E2E8F0;
   border-radius: 12px;
@@ -19,7 +20,7 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding-bottom: 8px;
+  padding-bottom: 6px;
   border-bottom: 1px solid #F1F5F9;
   gap: 12px;
 }
@@ -83,7 +84,7 @@
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  padding: 5px 10px;
+  padding: 4px 10px;
   background: #F8FAFC;
   border: 1px solid #CBD5E1;
   border-radius: 6px;
@@ -138,7 +139,7 @@
   display: inline-flex;
   align-items: center;
   gap: 5px;
-  padding: 4px 9px;
+  padding: 4px 10px;
   background: #F8FAFC;
   border: 1px solid #E2E8F0;
   border-radius: 20px;
@@ -176,8 +177,9 @@
 .map-viewport-container {
   position: relative;
   width: 100%;
-  height: 380px;
-  min-height: 340px;
+  flex: 1;
+  min-height: 420px;
+  height: 100%;
   border-radius: 8px;
   overflow: hidden;
   border: 1px solid #E2E8F0;
@@ -187,6 +189,7 @@
 .leaflet-map-root {
   width: 100%;
   height: 100%;
+  min-height: 420px;
   z-index: 1;
 }
 
@@ -198,39 +201,48 @@
 
 .oceanis-marker-beacon {
   position: relative;
-  width: 24px;
-  height: 24px;
+  width: 32px;
+  height: 32px;
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
 .beacon-dot {
-  width: 10px;
-  height: 10px;
+  width: 12px;
+  height: 12px;
   border-radius: 50%;
   background: #0284C7;
-  border: 2px solid #FFFFFF;
-  box-shadow: 0 0 6px rgba(2, 132, 199, 0.8);
-  z-index: 2;
+  border: 2.5px solid #FFFFFF;
+  box-shadow: 0 0 8px rgba(2, 132, 199, 0.9);
+  z-index: 3;
 }
 
 .beacon-pulse {
   position: absolute;
-  width: 24px;
-  height: 24px;
+  width: 30px;
+  height: 30px;
   border-radius: 50%;
-  background: rgba(2, 132, 199, 0.35);
+  background: rgba(2, 132, 199, 0.4);
   animation: beaconWave 2s infinite ease-out;
-  z-index: 1;
+  z-index: 2;
+}
+
+.beacon-pin-badge {
+  position: absolute;
+  top: -10px;
+  right: -6px;
+  font-size: 14px;
+  z-index: 4;
+  filter: drop-shadow(0 1px 2px rgba(0,0,0,0.5));
 }
 
 @keyframes beaconWave {
-  0% { transform: scale(0.5); opacity: 1; }
-  100% { transform: scale(2.2); opacity: 0; }
+  0% { transform: scale(0.4); opacity: 1; }
+  100% { transform: scale(2.4); opacity: 0; }
 }
 
-/* Popup Styling */
+/* Popup & Tooltip Styling */
 .oceanis-map-popup {
   display: flex;
   flex-direction: column;
@@ -268,6 +280,17 @@
 .popup-tag.tag-inland {
   background: #FEF3C7;
   color: #B45309;
+}
+
+.gis-overlay-tooltip {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  font-size: 0.74rem;
+  color: #0F172A;
+  line-height: 1.35;
+}
+
+.gis-overlay-tooltip.warning {
+  color: #991B1B;
 }
 
 /* Inland Map Overlay Banner */
@@ -387,14 +410,16 @@
   height: 100%;
 }
 
+.gradient-fishing_zones { background: linear-gradient(to right, #f1f5f9, #a7f3d0, #10b981, #047857); }
 .gradient-sst { background: linear-gradient(to right, #0284c7, #38bdf8, #f59e0b, #ef4444); }
 .gradient-chlorophyll { background: linear-gradient(to right, #064e3b, #059669, #34d399, #fde047); }
 .gradient-waves { background: linear-gradient(to right, #e0f2fe, #38bdf8, #0284c7, #1e3a8a); }
 .gradient-wind { background: linear-gradient(to right, #ecfdf5, #10b981, #f59e0b, #dc2626); }
 .gradient-currents { background: linear-gradient(to right, #cffafe, #06b6d4, #0284c7, #312e81); }
-.gradient-fishing_zones { background: linear-gradient(to right, #f1f5f9, #a7f3d0, #10b981, #047857); }
 .gradient-hazard_zones { background: linear-gradient(to right, #fef3c7, #f59e0b, #ef4444, #991b1b); }
 .gradient-territorial_eez { background: linear-gradient(to right, #3b82f6, #6366f1, #8b5cf6, #d946ef); }
+.gradient-protected_areas { background: linear-gradient(to right, #fef3c7, #f59e0b, #d97706, #78350f); }
+.gradient-bathymetry { background: linear-gradient(to right, #38bdf8, #0284c7, #0369a1, #1e3a8a); }
 .gradient-ports { background: linear-gradient(to right, #0284c7, #0369a1); }
 
 .legend-scale-labels {
@@ -437,6 +462,10 @@
   background: #F0F9FF;
   border-color: #0284C7;
   color: #0284C7;
+}
+
+.gis-ctrl-btn.fs-btn {
+  font-size: 0.85rem;
 }
 
 /* Fullscreen Map Mode */

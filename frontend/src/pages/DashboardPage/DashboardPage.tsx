@@ -423,6 +423,9 @@ export const DashboardPage: React.FC = () => {
                 <div className="dash-title-group">
                   <span className="dash-kicker-tag">SPATIAL MARITIME GEOFENCING</span>
                   <h2 className="dash-section-title">Live Ocean Intelligence Map</h2>
+                  <p className="dash-section-sub">
+                    <strong>{locName}</strong> • {locCoords} • <span className="loc-sub-tag">{locClassification}</span>
+                  </p>
                 </div>
                 <Link to="/maps" className="dash-action-link">
                   <span>Open Full GIS Map</span>
@@ -434,7 +437,7 @@ export const DashboardPage: React.FC = () => {
               </div>
 
               <div className="map-embed-wrapper">
-                <LiveOceanMap />
+                <LiveOceanMap showHeader={false} />
               </div>
             </section>
 

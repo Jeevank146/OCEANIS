@@ -557,24 +557,44 @@
 }
 
 .map-embed-wrapper {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
   border-radius: 8px;
   overflow: hidden;
   border: 1px solid #E2E8F0;
   background: #0B1728;
-  height: 280px;
+  min-height: 440px;
+  height: 100%;
 }
 
 .map-preview-card .live-ocean-map-card {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
   padding: 0;
   background: transparent;
   border: none;
   box-shadow: none;
-  gap: 6px;
+  gap: 8px;
+  height: 100%;
 }
 
 .map-preview-card .map-viewport-container {
-  height: 280px;
-  border-radius: 6px;
+  flex: 1;
+  min-height: 395px;
+  height: 100%;
+  border-radius: 8px;
+}
+
+.map-preview-card .leaflet-map-root {
+  min-height: 395px;
+  height: 100%;
+}
+
+.loc-sub-tag {
+  font-weight: 700;
+  color: #059669;
 }
 
 /* Safety Card & Content */
