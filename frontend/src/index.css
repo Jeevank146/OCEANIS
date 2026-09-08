@@ -222,3 +222,11 @@ button {
   box-shadow: var(--shadow-md);
   border-color: var(--border-medium);
 }
+
+
+/* Prevent unconstrained SVGs from blowing up */
+svg:not([width]):not([height]):not(.map-gis-svg) {
+  width: 1rem;
+  height: 1rem;
+  flex-shrink: 0;
+}
