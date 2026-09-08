@@ -299,7 +299,11 @@ def test_database_persistence_with_validation():
         # Query back from DB
         obs = (
             db.query(MarineObservation)
-            .filter(MarineObservation.latitude == 17.6868, MarineObservation.longitude == 83.2185)
+            .filter(
+                MarineObservation.latitude == 17.6868,
+                MarineObservation.longitude == 83.2185,
+                MarineObservation.source == "Fallback (Open-Meteo / GFS)",
+            )
             .order_by(MarineObservation.id.desc())
             .first()
         )
