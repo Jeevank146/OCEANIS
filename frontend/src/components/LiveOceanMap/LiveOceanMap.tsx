@@ -88,7 +88,7 @@ export const LiveOceanMap: React.FC = () => {
         <div className="map-header-left">
           <h2 className="map-title-text">Live Ocean Intelligence Map</h2>
           <span className="map-crs-tag">
-            EPSG:3857 • MERCATOR PROJECTION • CENTER: {selectedLocation.name} ({selectedLocation.coordinates})
+            EPSG:3857 • MERCATOR PROJECTION • CENTER: {selectedLocation.name} ({selectedLocation.coordinates || `${Math.abs(selectedLocation.lat).toFixed(4)}° ${selectedLocation.lat >= 0 ? 'N' : 'S'}, ${Math.abs(selectedLocation.lon).toFixed(4)}° ${selectedLocation.lon >= 0 ? 'E' : 'W'}`})
           </span>
         </div>
 

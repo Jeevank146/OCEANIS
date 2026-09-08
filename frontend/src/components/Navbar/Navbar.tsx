@@ -16,7 +16,7 @@ export const Navbar: React.FC<NavbarProps> = ({
 }) => {
   const navigate = useNavigate();
   const location = useLocation();
-  const { selectedLocation, setIsChangeModalOpen } = useLocationContext();
+  const { selectedLocation, setIsChangeModalOpen, activeValidation } = useLocationContext();
 
   const [isScrolled, setIsScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -73,6 +73,35 @@ export const Navbar: React.FC<NavbarProps> = ({
     return location.pathname.startsWith(path);
   };
 
+  const hasLocation = Boolean(selectedLocation && selectedLocation.name && selectedLocation.lat !== undefined);
+  const isInland = Boolean(
+    activeValidation && (activeValidation.status === 'INLAND' || activeValidation.is_coastal === false || activeValidation.is_marine === false)
+  );
+  const isOffshore = Boolean(
+    hasLocation && !isInland && selectedLocation.distance_to_coast_km && selectedLocation.distance_to_coast_km > 20.0
+  );
+
+  const locationSectorText = hasLocation
+    ? isInland
+      ? `${selectedLocation.city || selectedLocation.name} • Inland`
+      : isOffshore
+      ? 'Offshore Sector'
+      : `${selectedLocation.city || selectedLocation.name} Sector`
+    : 'Location Not Selected';
+
+  const handleOpenLocationSelector = () => {
+    if (location.pathname === '/') {
+      const el = document.querySelector('.marine-operating-panel');
+      if (el) {
+        el.scrollIntoView({ behavior: 'smooth' });
+        const input = document.querySelector('.marine-search-input') as HTMLInputElement;
+        if (input) input.focus();
+        return;
+      }
+    }
+    setIsChangeModalOpen(true);
+  };
+
   return (
     <header className={`navbar-header-light ${isScrolled ? 'scrolled' : ''}`}>
       <div className="navbar-container">
@@ -125,20 +154,21 @@ export const Navbar: React.FC<NavbarProps> = ({
           ))}
         </nav>
 
-        {/* Right: Actions, Location Indicator, Language, Profile & Launch */}
+        {/* Right: Actions Cluster */}
         <div className="navbar-right-group">
-          {/* Active Coastal Station Badge */}
-          <button 
-            type="button" 
-            className="navbar-location-pill"
-            onClick={() => setIsChangeModalOpen(true)}
-            title={`Active Coastal Station: ${selectedLocation.name} (Click to Change Location)`}
-            aria-label="Change Active Coastal Location"
-          >
-            <span className="navbar-loc-pin">📍</span>
-            <span className="navbar-loc-name">{selectedLocation.city || selectedLocation.name}</span>
-            <span className="navbar-loc-change-tag">Change</span>
-          </button>
+          {/* Dynamic Active Location Pill */}
+          {hasLocation && (
+            <button
+              type="button"
+              className="navbar-active-loc-btn"
+              onClick={handleOpenLocationSelector}
+              title={`Active location: ${selectedLocation.name}. Click to change.`}
+            >
+              <span className="navbar-loc-pin">📍</span>
+              <span className="navbar-loc-name">{selectedLocation.city || selectedLocation.name}</span>
+              <span className="navbar-loc-change-tag">Change</span>
+            </button>
+          )}
 
           {/* Language Selector Dropdown */}
           <div className="lang-selector-wrapper">
@@ -200,16 +230,16 @@ export const Navbar: React.FC<NavbarProps> = ({
                 <div className="notif-item" onClick={() => { setNotificationsOpen(false); navigate('/safety'); }}>
                   <span className="notif-icon advisory">⚠️</span>
                   <div className="notif-body">
-                    <strong className="notif-heading">Moderate Swell Advisory</strong>
-                    <p className="notif-desc">Kakinada & Vizag Coastal Sector (Wave: 1.8m)</p>
+                    <strong className="notif-heading">Coastal Swell Advisory</strong>
+                    <p className="notif-desc">Wave surge monitoring active for inshore shelf waters</p>
                     <span className="notif-time">12 min ago • INCOIS</span>
                   </div>
                 </div>
                 <div className="notif-item" onClick={() => { setNotificationsOpen(false); navigate('/earth-observation'); }}>
                   <span className="notif-icon normal">🛰️</span>
                   <div className="notif-body">
-                    <strong className="notif-heading">Sentinel-3 Pass Ingested</strong>
-                    <p className="notif-desc">Chlorophyll-a & SST gradients synchronized</p>
+                    <strong className="notif-heading">Sentinel-3 Pass Synchronized</strong>
+                    <p className="notif-desc">Chlorophyll-a and SST gradients updated</p>
                     <span className="notif-time">45 min ago • Copernicus</span>
                   </div>
                 </div>
@@ -217,8 +247,13 @@ export const Navbar: React.FC<NavbarProps> = ({
             )}
           </div>
 
-          {/* User Profile / Portal Icon with Operator Title */}
-          <Link to="/settings" className="operator-profile-badge" title="Authenticated Maritime Operator">
+          {/* Dynamic Operator Profile Badge */}
+          <div 
+            className="operator-profile-badge" 
+            title={`Active Sector: ${locationSectorText}`}
+            onClick={handleOpenLocationSelector}
+            style={{ cursor: 'pointer' }}
+          >
             <div className="operator-avatar">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                 <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
@@ -227,11 +262,11 @@ export const Navbar: React.FC<NavbarProps> = ({
             </div>
             <div className="operator-info">
               <span className="operator-name">Cmdr. R. Verma</span>
-              <span className="operator-role">Vizag Sector</span>
+              <span className="operator-role">{locationSectorText}</span>
             </div>
-          </Link>
+          </div>
 
-          {/* Primary Action Button */}
+          {/* Primary Action Button (Ask OCEANIS) */}
           <Link 
             to="/ask" 
             className="btn-launch-header"
@@ -270,10 +305,7 @@ export const Navbar: React.FC<NavbarProps> = ({
             <Link to="/navigation" className="mobile-link" onClick={() => setMobileMenuOpen(false)}>Geo-Spatial & Navigation</Link>
             <Link to="/safety" className="mobile-link" onClick={() => setMobileMenuOpen(false)}>Disaster & Safety</Link>
             <Link to="/operations" className="mobile-link" onClick={() => setMobileMenuOpen(false)}>Marine Operations</Link>
-            <Link to="/decision-intelligence" className="mobile-link" onClick={() => setMobileMenuOpen(false)}>Decision Intelligence</Link>
-            <Link to="/what-if" className="mobile-link" onClick={() => setMobileMenuOpen(false)}>What-If Simulation</Link>
             <Link to="/agents" className="mobile-link" onClick={() => setMobileMenuOpen(false)}>Domain Agents</Link>
-            <Link to="/analytics" className="mobile-link" onClick={() => setMobileMenuOpen(false)}>Analytics</Link>
             <Link to="/reports" className="mobile-link" onClick={() => setMobileMenuOpen(false)}>Reports</Link>
             <Link to="/data-sources" className="mobile-link" onClick={() => setMobileMenuOpen(false)}>Data Sources</Link>
             <Link to="/settings" className="mobile-link" onClick={() => setMobileMenuOpen(false)}>Settings</Link>

@@ -4,7 +4,8 @@ import { useLocationContext, type LocationInfo } from '../../context/LocationCon
 import { searchLocations, type LocationCandidate } from '../../services/api';
 import './HomePage.css';
 
-// 10 High-Quality Project-Relevant Maritime Images
+// 10 High-Quality Maritime Background Images (Flagship Indian Coastline is Slide 0)
+import heroFlagshipImg from '../../assets/images/oceanis_flagship_coastline.jpg';
 import heroGisImg from '../../assets/images/geospatial_gis_coastline.jpg';
 import heroHarbourImg from '../../assets/images/coastal_harbour_port.jpg';
 import heroSatelliteImg from '../../assets/images/hero_satellite_earth.jpg';
@@ -13,19 +14,18 @@ import heroWavesImg from '../../assets/images/hero_ocean_waves.jpg';
 import heroFishingImg from '../../assets/images/hero_coastal_fishing.jpg';
 import heroVesselImg from '../../assets/images/marine_operations_vessel.jpg';
 import heroCycloneImg from '../../assets/images/satellite_cyclone_radar.jpg';
-import heroSafetyImg from '../../assets/images/hero_maritime_safety.jpg';
 import heroSunsetImg from '../../assets/images/sunset_ocean_cta.jpg';
 
 const backgroundSlides = [
+  { img: heroFlagshipImg, label: 'Indian Coastline & Marine Operations Corridor' },
   { img: heroGisImg, label: 'Indian Coastline & Satellite GIS Radar' },
   { img: heroHarbourImg, label: 'Bay of Bengal Deepwater Port Operations' },
   { img: heroSatelliteImg, label: 'Indian Ocean Earth Observation & Remote Sensing' },
   { img: heroSstChlorophyllImg, label: 'Sentinel-3 Ocean Colour, Chlorophyll & SST Gradients' },
   { img: heroWavesImg, label: 'Hydrodynamics, Ocean Currents & Wave Models' },
   { img: heroFishingImg, label: 'Coastal Fishing Fleets & Potential Fishing Zones' },
-  { img: heroVesselImg, label: 'Maritime Operations & Oceanographic Research Vessels' },
+  { img: heroVesselImg, label: 'Maritime Operations & Research Vessels' },
   { img: heroCycloneImg, label: 'Cyclone Tracking & Severe Maritime Weather Systems' },
-  { img: heroSafetyImg, label: 'Navigational Safety & Search and Rescue Boundaries' },
   { img: heroSunsetImg, label: 'Open Ocean Navigation & Maritime Operations' },
 ];
 
@@ -39,7 +39,6 @@ export const HomePage: React.FC = () => {
     validateAndSetQuery,
     validateAndSetCoordinates,
     useCurrentLocation,
-    setSelectedLocation,
     validationError,
     clearValidationError,
   } = useLocationContext();
@@ -47,7 +46,6 @@ export const HomePage: React.FC = () => {
   const [bgIndex, setBgIndex] = useState(0);
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState<LocationCandidate[]>([]);
-  const [isSearching, setIsSearching] = useState(false);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isGeoLocating, setIsGeoLocating] = useState(false);
   const [gpsNotice, setGpsNotice] = useState<string | null>(null);
@@ -57,6 +55,13 @@ export const HomePage: React.FC = () => {
   const searchDebounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const searchContainerRef = useRef<HTMLDivElement | null>(null);
   const carouselTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  // Preload next image
+  useEffect(() => {
+    const nextIdx = (bgIndex + 1) % backgroundSlides.length;
+    const img = new Image();
+    img.src = backgroundSlides[nextIdx].img;
+  }, [bgIndex]);
 
   // Background carousel auto-rotation (every 3.5 seconds)
   const resetCarouselTimer = useCallback(() => {
@@ -112,7 +117,6 @@ export const HomePage: React.FC = () => {
       return;
     }
 
-    // If input looks like coordinates (e.g. 16.20, 82.50), don't query autocomplete
     const isCoordinateLike = /^[-+]?\d{1,3}(?:\.\d+)?[,\s]+[-+]?\d{1,3}(?:\.\d+)?$/.test(trimmed);
     if (isCoordinateLike) {
       setSearchResults([]);
@@ -124,7 +128,6 @@ export const HomePage: React.FC = () => {
       clearTimeout(searchDebounceRef.current);
     }
 
-    setIsSearching(true);
     searchDebounceRef.current = setTimeout(async () => {
       try {
         const res = await searchLocations(trimmed, 8);
@@ -132,8 +135,6 @@ export const HomePage: React.FC = () => {
         setIsDropdownOpen(true);
       } catch (e) {
         console.error('Search query error', e);
-      } finally {
-        setIsSearching(false);
       }
     }, 220);
 
@@ -150,214 +151,191 @@ export const HomePage: React.FC = () => {
     setGpsNotice(null);
     setCustomError(null);
     clearValidationError();
-    await validateAndSetCoordinates(candidate.latitude, candidate.longitude, candidate.name);
+
+    await validateAndSetQuery(candidate.name);
   };
 
-  const executeLocationSearch = async () => {
-    const trimmed = searchQuery.trim();
-    if (!trimmed) {
-      setCustomError('Please enter a coastal area, port name, or coordinates to search.');
+  const executeSearch = async (rawQuery: string) => {
+    const q = rawQuery.trim();
+    if (!q) {
+      setCustomError('Please enter a location name, port, or coordinates (e.g. 17.68, 83.21).');
       return;
     }
 
-    setIsDropdownOpen(false);
     setGpsNotice(null);
     setCustomError(null);
     clearValidationError();
+    setIsDropdownOpen(false);
 
-    // Check if input is formatted as coordinates (e.g. "16.20, 82.50" or "17.6868 83.2185")
-    const coordMatch = trimmed.match(/^([-+]?\d{1,3}(?:\.\d+)?)[,\s]+([-+]?\d{1,3}(?:\.\d+)?)$/);
+    const coordMatch = q.match(/^([-+]?\d{1,3}(?:\.\d+)?)[,\s]+([-+]?\d{1,3}(?:\.\d+)?)$/);
     if (coordMatch) {
       const lat = parseFloat(coordMatch[1]);
       const lon = parseFloat(coordMatch[2]);
-      if (!isNaN(lat) && !isNaN(lon) && lat >= -90 && lat <= 90 && lon >= -180 && lon <= 180) {
-        const res = await validateAndSetCoordinates(
-          lat,
-          lon,
-          `Coordinates (${lat.toFixed(4)}, ${lon.toFixed(4)})`
-        );
-        if (res.status === 'UNRESOLVED') {
-          setCustomError('Location could not be resolved. Try another location or select a point on the map.');
-        }
-        return;
-      } else {
-        setCustomError('Invalid coordinates. Latitude must be between -90 and 90, Longitude between -180 and 180.');
+      if (lat >= -90 && lat <= 90 && lon >= -180 && lon <= 180) {
+        await validateAndSetCoordinates(lat, lon, `Custom Coordinates (${lat.toFixed(2)}, ${lon.toFixed(2)})`);
+        setSearchQuery('');
         return;
       }
     }
 
-    // Name-based resolution
-    const res = await validateAndSetQuery(trimmed);
-    if (res.status === 'UNRESOLVED') {
-      setCustomError('Location could not be resolved. Try another location or select a point on the map.');
-    }
+    await validateAndSetQuery(q);
+    setSearchQuery('');
   };
 
   const handleSearchSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    await executeLocationSearch();
-  };
-
-  const handleSearchBtnClick = async () => {
-    if (!searchQuery.trim()) {
-      if (searchInputRef.current) {
-        searchInputRef.current.focus();
-      }
-      setCustomError('Please enter a location name or coordinates in the search box.');
-      return;
+    if (searchResults.length > 0 && isDropdownOpen) {
+      handleSelectCandidate(searchResults[0]);
+    } else {
+      executeSearch(searchQuery);
     }
-    await executeLocationSearch();
   };
 
-  const handleUseCurrentLocation = async () => {
-    setIsGeoLocating(true);
+  const handleSelectPopular = async (loc: LocationInfo) => {
     setGpsNotice(null);
     setCustomError(null);
     clearValidationError();
+    setIsDropdownOpen(false);
+    setSearchQuery('');
+
+    if (loc.lat && loc.lon) {
+      await validateAndSetCoordinates(loc.lat, loc.lon, loc.name);
+    } else {
+      await validateAndSetQuery(loc.name);
+    }
+  };
+
+  const handleUseCurrentLocation = async () => {
+    setCustomError(null);
+    setGpsNotice(null);
+    clearValidationError();
+    setIsGeoLocating(true);
     try {
-      const res = await useCurrentLocation();
-      setSearchQuery('');
-      setIsDropdownOpen(false);
-      if (res.status === 'UNRESOLVED') {
-        setGpsNotice(res.reason || 'Location access was not granted. Search for a location or select one on the map.');
-      } else {
-        setGpsNotice(null);
-      }
-    } catch (e: any) {
-      console.error('Current location error', e);
-      setGpsNotice('Location access was not granted. Search for a location or select one on the map.');
+      await useCurrentLocation();
+    } catch (err: any) {
+      setGpsNotice(err.message || 'GPS location denied or unavailable.');
     } finally {
       setIsGeoLocating(false);
     }
   };
 
-  const handleSelectPopular = (loc: LocationInfo) => {
-    setGpsNotice(null);
-    setCustomError(null);
-    clearValidationError();
-    setSelectedLocation(loc);
-    setSearchQuery('');
-    setIsDropdownOpen(false);
+  const handleContinueToIntelligence = () => {
+    if (isCoastalReady) {
+      navigate('/dashboard');
+    }
   };
 
-  // Location resolution states
-  const isResolving = isValidating || isSearching || isGeoLocating;
+  // State calculations
   const hasSelectedLocation = Boolean(
     selectedLocation &&
     selectedLocation.name &&
-    activeValidation &&
-    activeValidation.status &&
-    activeValidation.status !== 'UNRESOLVED'
+    selectedLocation.lat !== undefined &&
+    selectedLocation.lon !== undefined
   );
 
-  const isInland = hasSelectedLocation && activeValidation.status === 'INLAND';
+  const isInland = Boolean(
+    activeValidation &&
+    (activeValidation.status === 'INLAND' || activeValidation.is_coastal === false || activeValidation.is_marine === false)
+  );
+
   const isCoastalReady = hasSelectedLocation && !isInland;
+  const isResolving = isValidating;
   const isCtaEnabled = isCoastalReady && !isResolving;
-
-  const handleContinueToIntelligence = () => {
-    if (!isCtaEnabled) return;
-    const locParam = encodeURIComponent(selectedLocation.city || selectedLocation.name);
-    navigate(`/dashboard?location=${locParam}`);
-  };
-
   const displayErrorMessage = customError || validationError || gpsNotice;
 
   return (
     <div className="landing-page-root">
-      {/* Full-Screen Institutional Marine Hero Section */}
-      <section className="landing-hero-section">
-        {/* Dynamic 10-Image Carousel with Optimized Maritime Overlays */}
-        <div className="landing-bg-carousel">
+      {/* Full-Screen Hero Viewport */}
+      <section className="landing-hero-section" aria-label="OCEANIS Marine Intelligence Portal">
+        {/* Full-Screen Background Carousel */}
+        <div className="landing-bg-carousel" aria-hidden="true">
           {backgroundSlides.map((slide, idx) => (
             <div
               key={idx}
               className={`landing-bg-slide ${idx === bgIndex ? 'active' : ''}`}
               style={{ backgroundImage: `url(${slide.img})` }}
-              role="img"
-              aria-label={slide.label}
             />
           ))}
-          {/* Institutional Navy & Gradient Overlays */}
-          <div className="landing-overlay-base" />
-          <div className="landing-overlay-gradient" />
-          <div className="landing-overlay-vignette" />
         </div>
 
-        {/* Carousel Manual Navigation Controls */}
-        <div className="carousel-controls-bar" aria-label="Background image controls">
+        {/* Realistic Marine Atmospheric Overlays (High visual fidelity to Reference 1) */}
+        <div className="landing-overlay-base" aria-hidden="true" />
+        <div className="landing-overlay-gradient" aria-hidden="true" />
+        <div className="landing-overlay-vignette" aria-hidden="true" />
+
+        {/* Carousel Slide Indicators & Manual Arrows */}
+        <div className="carousel-controls-bar" role="toolbar" aria-label="Background image selector">
           <button
             type="button"
-            className="btn-carousel-nav btn-prev"
+            className="btn-carousel-nav btn-carousel-prev"
             onClick={handlePrevSlide}
-            title="Previous background image"
-            aria-label="Previous background image"
+            aria-label="Previous background satellite view"
           >
             ←
           </button>
-
-          <div className="carousel-pagination-strip" role="tablist" aria-label="Image slide indicators">
-            {backgroundSlides.map((slide, idx) => (
+          <div className="carousel-pagination-strip">
+            {backgroundSlides.map((_, idx) => (
               <button
                 key={idx}
                 type="button"
                 className={`pagination-dot ${idx === bgIndex ? 'active' : ''}`}
                 onClick={() => handleJumpSlide(idx)}
-                title={`Slide ${idx + 1}: ${slide.label}`}
-                aria-label={`Slide ${idx + 1}: ${slide.label}`}
-                aria-selected={idx === bgIndex}
-                role="tab"
+                aria-label={`Switch to background slide ${idx + 1}`}
               >
                 <span className="dot-fill" />
               </button>
             ))}
           </div>
-
           <button
             type="button"
-            className="btn-carousel-nav btn-next"
+            className="btn-carousel-nav btn-carousel-next"
             onClick={handleNextSlide}
-            title="Next background image"
-            aria-label="Next background image"
+            aria-label="Next background satellite view"
           >
             →
           </button>
         </div>
 
-        {/* Hero Foreground Content */}
+        {/* Main Hero Container */}
         <div className="landing-hero-container">
           <div className="landing-hero-grid">
-            {/* Left Hero Column: Official Marine Intelligence Title & Capabilities */}
+            {/* Left Hero Column: Marine Intelligence Badge, 3-Line Headline, Subtitle, 3 Capabilities */}
             <div className="landing-left-col">
+              {/* Pill Badge matching Reference 1 */}
               <div className="landing-platform-badge">
                 <span className="badge-beacon-dot" />
-                <span className="badge-text">MARINE INTELLIGENCE & DECISION SUPPORT</span>
+                <span className="badge-text">MARINE INTELLIGENCE &amp; DECISION SUPPORT</span>
               </div>
 
+              {/* Exact 3-Line Hero Headline matching Reference 1 */}
               <h1 className="landing-headline">
-                Integrated Marine Intelligence for Safer Decisions
+                Integrated Marine<br />
+                <span className="accent-cyan">Intelligence</span><br />
+                for Safer Decisions
               </h1>
 
+              {/* Exact Subtitle matching Reference 1 */}
               <p className="landing-supporting-text">
                 Integrated marine observations, satellite intelligence, environmental conditions and safety information for informed maritime decisions.
               </p>
 
-              {/* Verified Maritime Capability Cards (Clickable & Accessible) */}
+              {/* 3 Horizontal Compact Capability Cards matching Reference 1 */}
               <div className="landing-capabilities-grid">
                 <button
                   type="button"
                   className="capability-card"
                   onClick={() => navigate('/marine-conditions')}
-                  title="Explore Real-Time Hydrodynamic Intelligence"
+                  title="Explore Wave, Swell and Current Intelligence"
                 >
                   <div className="cap-icon-box">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                      <path d="M2 12h20M2 12a10 10 0 0 1 20 0M2 12a10 10 0 0 0 20 0" />
-                      <circle cx="12" cy="12" r="4" />
+                      <path d="M2 12c3-4 6-4 9 0s6 4 9 0" />
+                      <path d="M2 17c3-4 6-4 9 0s6 4 9 0" />
                     </svg>
                   </div>
                   <div className="cap-text">
                     <strong>Hydrodynamic Intelligence</strong>
-                    <span>Wave height, swell, currents & ocean forecasts</span>
+                    <span>Wave, swell and current intelligence</span>
                   </div>
                 </button>
 
@@ -365,7 +343,7 @@ export const HomePage: React.FC = () => {
                   type="button"
                   className="capability-card"
                   onClick={() => navigate('/agents')}
-                  title="Explore 6 Specialized Domain Agents"
+                  title="Explore Specialized Domain Intelligence Agents"
                 >
                   <div className="cap-icon-box">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -376,7 +354,7 @@ export const HomePage: React.FC = () => {
                   </div>
                   <div className="cap-text">
                     <strong>Multi-Agent Marine Analysis</strong>
-                    <span>6 specialized AI domain agents synthesizing live intelligence</span>
+                    <span>Six specialized domain agents for marine reasoning</span>
                   </div>
                 </button>
 
@@ -384,43 +362,52 @@ export const HomePage: React.FC = () => {
                   type="button"
                   className="capability-card"
                   onClick={() => navigate('/safety')}
-                  title="Explore Cyclone Tracking & Early Hazard Warnings"
+                  title="Explore Marine Warnings, Hazard Zones and Operational Risk Indicators"
                 >
                   <div className="cap-icon-box">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                      <circle cx="12" cy="12" r="10" />
+                      <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
                       <line x1="12" y1="8" x2="12" y2="12" />
                       <line x1="12" y1="16" x2="12.01" y2="16" />
                     </svg>
                   </div>
                   <div className="cap-text">
                     <strong>Marine Hazard Monitoring</strong>
-                    <span>Cyclone tracking, high swell & maritime alerts</span>
+                    <span>Marine warnings, hazard zones and operational risk indicators</span>
                   </div>
                 </button>
               </div>
             </div>
 
-            {/* Right Hero Column: Professional Translucent Dark Marine Operating Area Panel */}
+            {/* Right Hero Column: Professional Dark Translucent Marine Operating Area Panel */}
             <div className="landing-right-card-wrapper">
               <div className="marine-operating-panel">
                 {/* Panel Top Heading & Badge */}
                 <div className="panel-header-section">
                   <div className="panel-badge-row">
-                    <span className="panel-institutional-badge">MARINE OPERATING AREA</span>
+                    <span className="panel-institutional-badge">
+                      <svg className="panel-crosshair-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                        <circle cx="12" cy="12" r="10" />
+                        <line x1="22" y1="12" x2="18" y2="12" />
+                        <line x1="6" y1="12" x2="2" y2="12" />
+                        <line x1="12" y1="6" x2="12" y2="2" />
+                        <line x1="12" y1="22" x2="12" y2="18" />
+                      </svg>
+                      MARINE OPERATING AREA
+                    </span>
                     {hasSelectedLocation && (
                       <span className={`panel-status-pill ${isInland ? 'status-inland' : 'status-coastal'}`}>
-                        {isInland ? 'INLAND DETECTED' : 'COASTAL ACTIVE'}
+                        {isInland ? 'INLAND' : 'COASTAL'}
                       </span>
                     )}
                   </div>
                   <h2 className="panel-title">Select a Location</h2>
                   <p className="panel-subtitle">
-                    Choose a coastal, offshore or map-defined area to access marine intelligence.
+                    Choose a coastal, offshore, or map-defined area to access marine intelligence.
                   </p>
                 </div>
 
-                {/* Location Search Input Form with Enter & Submit */}
+                {/* Location Search Input Form */}
                 <div className="panel-search-container" ref={searchContainerRef}>
                   <form onSubmit={handleSearchSubmit} role="search" className="search-form">
                     <div className="search-input-box">
@@ -462,47 +449,42 @@ export const HomePage: React.FC = () => {
                     </div>
                   </form>
 
-                  {/* Autocomplete Dropdown */}
-                  {isDropdownOpen && (
-                    <div className="search-autocomplete-dropdown" role="listbox">
-                      {isSearching ? (
-                        <div className="search-dropdown-state">
-                          <span className="dropdown-spinner" />
-                          <span>Searching coastal ports, stations & waters...</span>
-                        </div>
-                      ) : searchResults.length > 0 ? (
-                        searchResults.map((item) => (
-                          <button
-                            key={item.id}
-                            type="button"
-                            className="autocomplete-item"
-                            onClick={() => handleSelectCandidate(item)}
-                            role="option"
-                            aria-selected="false"
-                          >
-                            <span className="item-icon" aria-hidden="true">⚓</span>
-                            <div className="item-meta">
-                              <strong>{item.name}</strong>
-                              <span>{item.display_name} · {item.is_coastal ? 'Coastal Waters' : 'Inland Sector'}</span>
+                  {/* Search Autocomplete Results Dropdown */}
+                  {isDropdownOpen && searchResults.length > 0 && (
+                    <div className="search-results-dropdown" role="listbox">
+                      {searchResults.map((cand) => (
+                        <button
+                          key={`${cand.name}-${cand.latitude}-${cand.longitude}`}
+                          type="button"
+                          className="search-result-item"
+                          onClick={() => handleSelectCandidate(cand)}
+                        >
+                          <div className="result-item-main">
+                            <span className="result-loc-pin">📍</span>
+                            <div className="result-loc-info">
+                              <strong className="result-loc-name">{cand.name}</strong>
+                              <span className="result-loc-meta">
+                                {[cand.city, cand.state, cand.country].filter(Boolean).join(', ')} ·{' '}
+                                {cand.latitude.toFixed(2)}°N, {cand.longitude.toFixed(2)}°E
+                              </span>
                             </div>
-                          </button>
-                        ))
-                      ) : (
-                        <div className="search-dropdown-state">
-                          <span>No location found. Press Enter or click Search to resolve.</span>
-                        </div>
-                      )}
+                          </div>
+                          <span className={`result-tag ${cand.is_coastal ? 'tag-coastal' : 'tag-inland'}`}>
+                            {cand.is_coastal ? 'COASTAL' : 'INLAND'}
+                          </span>
+                        </button>
+                      ))}
                     </div>
                   )}
                 </div>
 
-                {/* Primary Panel Action Buttons */}
+                {/* 3 Action Buttons (Search, Use Current Position, Select on Map) */}
                 <div className="panel-action-buttons">
                   <button
                     type="button"
                     className="btn-action-marine btn-action-search"
-                    onClick={handleSearchBtnClick}
-                    aria-label="Search entered location"
+                    onClick={() => executeSearch(searchQuery)}
+                    aria-label="Execute search"
                   >
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
                       <circle cx="11" cy="11" r="8" />
@@ -545,9 +527,11 @@ export const HomePage: React.FC = () => {
                   </div>
                 )}
 
-                {/* Popular Coastal Operating Areas */}
+                {/* Coastal Operating Areas (3x2 Grid) matching Reference 1 */}
                 <div className="coastal-operating-section">
-                  <span className="section-label">COASTAL OPERATING AREAS</span>
+                  <span className="section-label">
+                    <span className="section-label-icon">⚓</span> COASTAL OPERATING AREAS
+                  </span>
                   <div className="coastal-buttons-grid">
                     {popularLocations.slice(0, 6).map((loc) => {
                       const isSelected = Boolean(
@@ -573,7 +557,6 @@ export const HomePage: React.FC = () => {
                 {/* State-Driven Location Summary Box */}
                 <div className="location-state-container">
                   {isResolving ? (
-                    /* STATE 3: Resolving */
                     <div className="state-resolving-box">
                       <span className="resolving-radar-pulse" />
                       <div className="resolving-text">
@@ -582,7 +565,6 @@ export const HomePage: React.FC = () => {
                       </div>
                     </div>
                   ) : isInland ? (
-                    /* STATE 5: Inland */
                     <div className="state-inland-box">
                       <div className="inland-header">
                         <span className="inland-badge">INLAND TERRITORY</span>
@@ -599,7 +581,6 @@ export const HomePage: React.FC = () => {
                       </p>
                     </div>
                   ) : isCoastalReady ? (
-                    /* STATE 2: Location Selected */
                     <div className="state-selected-box">
                       <div className="selected-box-header">
                         <span className="sel-operating-title">SELECTED OPERATING AREA</span>
@@ -624,9 +605,11 @@ export const HomePage: React.FC = () => {
                       </div>
                     </div>
                   ) : (
-                    /* STATE 1: No Location Selected */
                     <div className="state-empty-box">
-                      <span className="empty-marine-icon" aria-hidden="true">⚓</span>
+                      <svg className="empty-marine-pin-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+                        <circle cx="12" cy="12" r="10" />
+                        <circle cx="12" cy="12" r="3" />
+                      </svg>
                       <span className="empty-marine-text">
                         Select a location above or search to view marine intelligence.
                       </span>
@@ -646,7 +629,7 @@ export const HomePage: React.FC = () => {
                     <span>Continue to Marine Intelligence →</span>
                   </button>
                   <span className="panel-telemetry-note">
-                    Real-time observation & multi-agent synthesis from INCOIS, IMD & Copernicus Marine
+                    Authoritative marine observations and forecasts from INCOIS, IMD and Copernicus Marine.
                   </span>
                 </div>
               </div>
@@ -654,19 +637,59 @@ export const HomePage: React.FC = () => {
           </div>
         </div>
 
-        {/* Bottom Platform Explore Strip */}
-        <div className="landing-bottom-strip">
-          <button
-            type="button"
-            className="btn-bottom-explore"
-            onClick={() => navigate('/dashboard')}
-            aria-label="Explore Operations Dashboard"
-          >
-            <span className="explore-text">Explore Marine Platform</span>
-            <svg className="explore-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
-              <polyline points="6 9 12 15 18 9" />
-            </svg>
-          </button>
+        {/* Bottom Institutional Data Source Strip matching Reference 1 */}
+        <div className="landing-bottom-data-strip">
+          <div className="bottom-strip-container">
+            {/* Left side: INDIAN OCEAN & Institutional Data Sources */}
+            <div className="bottom-left-sources">
+              <span className="ocean-region-label">I N D I A N &nbsp; O C E A N</span>
+              
+              <div className="institutional-source-item" onClick={() => navigate('/data-sources')}>
+                <div className="source-icon-wrap">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <path d="M2 12c3-3 6-3 9 0s6 3 9 0" />
+                    <path d="M2 17c3-3 6-3 9 0s6 3 9 0" />
+                    <path d="M2 7c3-3 6-3 9 0s6 3 9 0" />
+                  </svg>
+                </div>
+                <div className="source-text-block">
+                  <strong className="source-org">INCOIS</strong>
+                  <span className="source-desc">Ocean Observations</span>
+                </div>
+              </div>
+
+              <div className="institutional-source-item" onClick={() => navigate('/safety')}>
+                <div className="source-icon-wrap">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
+                  </svg>
+                </div>
+                <div className="source-text-block">
+                  <strong className="source-org">IMD</strong>
+                  <span className="source-desc">Weather &amp; Warnings</span>
+                </div>
+              </div>
+
+              <div className="institutional-source-item" onClick={() => navigate('/earth-observation')}>
+                <div className="source-icon-wrap">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <circle cx="12" cy="12" r="8" />
+                    <path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20" />
+                    <path d="M2 12h20" />
+                  </svg>
+                </div>
+                <div className="source-text-block">
+                  <strong className="source-org">Copernicus Marine</strong>
+                  <span className="source-desc">Satellite Data</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Right side: PEOPLE | OCEAN | SAFETY | SUSTAINABLE TOMORROW */}
+            <div className="bottom-right-motto">
+              <span>PEOPLE &nbsp;|&nbsp; OCEAN &nbsp;|&nbsp; SAFETY &nbsp;|&nbsp; SUSTAINABLE TOMORROW</span>
+            </div>
+          </div>
         </div>
       </section>
     </div>

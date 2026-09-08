@@ -185,7 +185,7 @@ def get_dynamic_marine_conditions(
         longitude=longitude,
         message="Live marine intelligence retrieved and validated.",
         sea_state=sea_state,
-        wave_height_m=wh,
+        wave_height_m=wh if wh is not None else effective_wh,
         wave_period_s=wp if wp is not None else 7.5,
         wave_direction_deg=wd if wd is not None else 190.0,
         swell_height_m=sh if sh is not None else (max(0.4, effective_wh * 0.7) if effective_wh else None),

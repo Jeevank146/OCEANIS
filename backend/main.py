@@ -1,5 +1,6 @@
 from contextlib import asynccontextmanager
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 from database import test_database_connection
 from ingestion.worker import BackgroundIngestionWorker
 from api.v1.system import router as system_router
@@ -23,7 +24,6 @@ from api.v1.conversation import router as conversation_router
 from api.v1.location import router as location_router
 
 
-
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     # Application startup: start background ingestion worker if enabled
@@ -36,9 +36,18 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(
     title="OCEANIS API",
-    description="Ocean Intelligence & Decision System",
+    description="Ocean Intelligence and Decision System",
     version="0.1.0",
     lifespan=lifespan,
+)
+
+# Enable CORS for all local and production frontend origins
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
 app.include_router(system_router, prefix="/api/v1")
@@ -62,15 +71,12 @@ app.include_router(conversation_router, prefix="/api/v1")
 app.include_router(agents_router, prefix="/api/v1")
 
 
-
-
-
 @app.get("/")
 def root():
     return {
         "project": "OCEANIS",
         "status": "online",
-        "message": "Ocean Intelligence & Decision System API",
+        "message": "Ocean Intelligence and Decision System API",
     }
 
 

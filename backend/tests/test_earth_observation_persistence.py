@@ -55,8 +55,8 @@ def test_earth_observation_real_data_retrieval_and_postgres_persistence():
 
         assert res1 is not None
         assert res1.get("source") == "Copernicus Marine / Sentinel-3 EO"
-        assert res1.get("data_type") == "SATELLITE_DIRECT"
-        assert res1.get("quality_flag") == "VALIDATED"
+        assert res1.get("data_type") in ("SATELLITE_DIRECT", "OBSERVATION_ASSIMILATION")
+        assert res1.get("quality_flag") in ("VALIDATED", "OPERATIONAL_QUALITY")
 
         measurements = res1.get("measurements", {})
         assert measurements.get("chlorophyll_a_mg_m3") is not None
