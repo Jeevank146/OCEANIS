@@ -1,13 +1,25 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import { useLocationContext } from '../../context/LocationContext';
+import { useLanguage } from '../../context/LanguageContext';
 import './ReportsPage.css';
 
 export const ReportsPage: React.FC = () => {
+  const { selectedLocation } = useLocationContext();
+  const { t } = useLanguage();
+
+  const initialSector = selectedLocation?.city || selectedLocation?.name || 'Operational Sector';
   const [reportType, setReportType] = useState<string>('pfz-briefing');
-  const [sector, setSector] = useState<string>('Visakhapatnam');
+  const [sector, setSector] = useState<string>(initialSector);
   const [includeProvenance, setIncludeProvenance] = useState<boolean>(true);
   const [isGenerating, setIsGenerating] = useState<boolean>(false);
   const [downloadSuccess, setDownloadSuccess] = useState<boolean>(false);
+
+  useEffect(() => {
+    if (selectedLocation?.name || selectedLocation?.city) {
+      setSector(selectedLocation.city || selectedLocation.name);
+    }
+  }, [selectedLocation]);
 
   const handleGenerateReport = (e: React.FormEvent) => {
     e.preventDefault();
@@ -20,30 +32,42 @@ export const ReportsPage: React.FC = () => {
     }, 800);
   };
 
+  const formattedDate = new Date().toLocaleDateString('en-GB', {
+    day: '2-digit',
+    month: 'short',
+    year: 'numeric',
+  }).toUpperCase();
+
+  const coordsText = selectedLocation?.coordinates || (
+    selectedLocation?.lat !== undefined && selectedLocation?.lon !== undefined
+      ? `${Math.abs(selectedLocation.lat).toFixed(4)}° ${selectedLocation.lat >= 0 ? 'N' : 'S'}, ${Math.abs(selectedLocation.lon).toFixed(4)}° ${selectedLocation.lon >= 0 ? 'E' : 'W'}`
+      : '17.6868° N, 83.2185° E'
+  );
+
   return (
     <div className="ocean-page-container">
       {/* Header Banner */}
       <header className="page-header-banner">
         <div className="page-header-main">
           <div className="page-breadcrumbs">
-            <Link to="/" className="page-breadcrumb-crumb">Home</Link>
+            <Link to="/" className="page-breadcrumb-crumb">{t('nav.home', 'Home')}</Link>
             <span className="page-breadcrumb-sep">/</span>
-            <span className="page-breadcrumb-current">Reports</span>
+            <span className="page-breadcrumb-current">{t('nav.reports', 'Reports')}</span>
           </div>
           <h1 className="page-title">
-            Structured Marine Intelligence Report Generator
-            <span className="page-title-badge badge-official">Official Format</span>
+            {t('reports.title', 'Structured Marine Intelligence Report Generator')}
+            <span className="page-title-badge badge-official">{t('reports.badge', 'Official Format')}</span>
           </h1>
           <p className="page-subtitle">
-            Generate printable operational dossiers, fishing advisories, passage briefings, and multi-agency provenance audits.
+            {t('reports.subtitle', 'Generate printable operational dossiers, fishing advisories, passage briefings, and multi-agency provenance audits.')}
           </p>
         </div>
         <div className="page-header-actions">
           <Link to="/analytics" className="btn-page-action secondary">
-            <span>View KPIs</span>
+            <span>{t('nav.analytics', 'View KPIs')}</span>
           </Link>
-          <Link to="/ask-oceanis" className="btn-page-action primary">
-            <span>Query Assistant</span>
+          <Link to="/ask" className="btn-page-action primary">
+            <span>{t('nav.ask', 'Ask OCEANIS')}</span>
           </Link>
         </div>
       </header>
@@ -54,13 +78,13 @@ export const ReportsPage: React.FC = () => {
         <div className="reports-left-col">
           <div className="ocean-card report-config-card">
             <div className="card-top-header">
-              <h3>Report Parameters & Configuration</h3>
-              <span className="badge-tool">Export Engine</span>
+              <h3>{t('reports.config_title', 'Report Parameters & Configuration')}</h3>
+              <span className="badge-tool">{selectedLocation?.name || 'Active Location'}</span>
             </div>
 
             <form onSubmit={handleGenerateReport} className="report-form">
               <div className="form-field">
-                <label>Report Template</label>
+                <label>{t('reports.template_label', 'Report Template')}</label>
                 <select
                   value={reportType}
                   onChange={(e) => setReportType(e.target.value)}
@@ -74,18 +98,14 @@ export const ReportsPage: React.FC = () => {
               </div>
 
               <div className="form-field">
-                <label>Target Coastal Sector</label>
-                <select
+                <label>{t('reports.sector_label', 'Target Operating Sector')}</label>
+                <input
+                  type="text"
                   value={sector}
                   onChange={(e) => setSector(e.target.value)}
                   className="report-select"
-                >
-                  <option value="Visakhapatnam">Visakhapatnam & North Andhra Coast</option>
-                  <option value="Kakinada">Kakinada Spit & Godavari Estuary</option>
-                  <option value="Gopalpur">Gopalpur & South Odisha Coast</option>
-                  <option value="Paradip">Paradip Roadstead Sector</option>
-                  <option value="Chennai">Chennai & Coromandel Coast</option>
-                </select>
+                  placeholder="Enter coastal sector or city"
+                />
               </div>
 
               <div className="form-field checkbox-field">
@@ -95,7 +115,7 @@ export const ReportsPage: React.FC = () => {
                     checked={includeProvenance}
                     onChange={(e) => setIncludeProvenance(e.target.checked)}
                   />
-                  <span>Include cryptographic institutional provenance hashes (INCOIS, IMD, ISRO)</span>
+                  <span>{t('reports.provenance_checkbox', 'Include cryptographic institutional provenance hashes (INCOIS, IMD, ISRO, Copernicus)')}</span>
                 </label>
               </div>
 
@@ -104,12 +124,12 @@ export const ReportsPage: React.FC = () => {
                 className="btn-generate-report"
                 disabled={isGenerating}
               >
-                {isGenerating ? 'Compiling Multi-Agent Dossier...' : 'Generate & Download PDF Report'}
+                {isGenerating ? t('reports.generating', 'Compiling Multi-Agent Dossier...') : t('reports.generate_btn', 'Generate & Download PDF Report')}
               </button>
 
               {downloadSuccess && (
                 <div className="report-success-box">
-                  <span>✓ Report compiled successfully. Ready for maritime dispatch.</span>
+                  <span>✓ {t('reports.success_msg', 'Report compiled successfully for')} {sector}. {t('reports.ready_msg', 'Ready for maritime dispatch.')}</span>
                 </div>
               )}
             </form>
@@ -120,7 +140,7 @@ export const ReportsPage: React.FC = () => {
         <div className="reports-right-col">
           <div className="ocean-card report-preview-card">
             <div className="card-top-header">
-              <h3>Live Document Preview</h3>
+              <h3>{t('reports.preview_title', 'Live Document Preview')}</h3>
               <span className="badge-provenance">CONFIDENTIAL MARITIME BRIEF</span>
             </div>
 
@@ -131,8 +151,8 @@ export const ReportsPage: React.FC = () => {
                   <span>Government of India Marine Operations Protocol</span>
                 </div>
                 <div className="dossier-meta">
-                  <span>Date: <strong>06-SEP-2026</strong></span>
-                  <span>Ref: <strong>OCN-RPT-8422</strong></span>
+                  <span>Date: <strong>{formattedDate}</strong></span>
+                  <span>Ref: <strong>OCN-RPT-{(selectedLocation?.lat ? Math.round(selectedLocation.lat * 100) : 8422)}</strong></span>
                 </div>
               </div>
 
@@ -147,29 +167,29 @@ export const ReportsPage: React.FC = () => {
 
               <div className="dossier-section">
                 <strong>1. OPERATIONAL SECTOR</strong>
-                <p>Location: {sector} • Maritime Zone: 0 - 25 NM Coastal & Shelf Basin</p>
+                <p>Location: {sector} • Coordinates: {coordsText} • Zone: 0 - 25 NM Coastal & Shelf Basin</p>
               </div>
 
               <div className="dossier-section">
                 <strong>2. CONSENSUS SAFETY ASSESSMENT</strong>
-                <p>Status: <span className="text-success">CLEAR / MODERATE VIGILANCE</span> • Significant Wave Height: 1.4m • Wind: 14 kts ESE</p>
+                <p>Status: <span className="text-success">CLEAR / OPERATIONAL VIGILANCE</span> • Significant Wave Height: 1.2m • Wind: 12 kts ESE</p>
               </div>
 
               <div className="dossier-section">
                 <strong>3. TARGET WAYPOINTS & HYDRODYNAMICS</strong>
-                <p>PFZ-82 (17.68°N, 83.42°E): Chlorophyll-a: 0.84 mg/m³ • SST Front: 28.2°C • Distance: 14.5 NM</p>
+                <p>PFZ Waypoint ({coordsText}): Chlorophyll-a: 0.82 mg/m³ • SST Front: 28.5°C • Distance: 12.0 NM</p>
               </div>
 
               {includeProvenance && (
                 <div className="dossier-section provenance">
                   <strong>4. INSTITUTIONAL DATA PROVENANCE AUDIT</strong>
-                  <p>• INCOIS Moored Buoy BD08 (Sync: 17:15 IST) • IMD Doppler Radar Machilipatnam • Copernicus Sentinel-3 OLCI (Pass: 09:42 UTC)</p>
+                  <p>• INCOIS Moored Buoys • IMD Doppler Weather Radar • Copernicus Sentinel-3 OLCI/SLSTR (Pass: Recent UTC)</p>
                 </div>
               )}
 
               <div className="dossier-footer">
                 <span>Certified by OCEANIS Multi-Agent Orchestrator v2.4</span>
-                <span>Page 1 of 1</span>
+                <span>Sector: {sector}</span>
               </div>
             </div>
           </div>

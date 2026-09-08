@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useLocationContext } from '../../context/LocationContext';
+import { useLanguage } from '../../context/LanguageContext';
 import './DisasterSafetyPage.css';
 
 interface SafetyAlertItem {
@@ -17,54 +18,55 @@ interface SafetyAlertItem {
 
 export const DisasterSafetyPage: React.FC = () => {
   const navigate = useNavigate();
-  const { selectedLocation } = useLocationContext();
+  const { selectedLocation, activeValidation } = useLocationContext();
+  const { t } = useLanguage();
   const [activeFilter, setActiveFilter] = useState<'ALL' | 'WARNING' | 'ALERT' | 'ADVISORY'>('ALL');
+
+  const locName = selectedLocation?.city || selectedLocation?.name || 'Coastal Waters';
+  const isInland = Boolean(
+    activeValidation && (activeValidation.status === 'INLAND' || activeValidation.is_coastal === false || activeValidation.is_marine === false)
+  );
 
   const alerts: SafetyAlertItem[] = [
     {
       id: 'alert-1',
       severity: 'WARNING',
-      title: 'Deep Depression / Cyclonic Vortex Warning (Track BD-04)',
-      agency: 'IMD Cyclone Warning Division (New Delhi)',
+      title: `Coastal Swell & Synoptic Alert — Sector ${locName}`,
+      agency: 'IMD Cyclone Warning Division & INCOIS Hyderabad',
       issuedTime: 'Today 14:00 IST',
       validUntil: 'Next 48 Hours',
-      affectedArea: 'West-Central Bay of Bengal off Andhra Pradesh & South Odisha coasts',
-      parameters: 'Sustained Winds: 45 - 55 kmph gusting to 65 kmph • Wave Height: 2.8 - 3.8m',
-      actionRequired: 'Fishermen are strongly advised NOT to venture into deep sea. Vessels in deep waters advised to return to coast immediately.',
+      affectedArea: `${locName} and adjoining coastal shelf waters (0 - 25 NM)`,
+      parameters: 'Sustained Winds: 35 - 45 kmph gusting to 55 kmph • Wave Height: 1.8 - 2.6m',
+      actionRequired: 'Small motorized craft and country vessels are advised to exercise vigilance. Comply with local port authority flags.',
     },
     {
       id: 'alert-2',
       severity: 'ALERT',
-      title: 'High Wave / Swell Surge Alert (Kallakkadal Warning)',
+      title: `High Wave / Long-Period Swell Monitoring — ${locName}`,
       agency: 'INCOIS Marine Early Warning Centre (Hyderabad)',
       issuedTime: 'Today 11:30 IST',
       validUntil: 'Tomorrow 23:30 IST',
-      affectedArea: 'Low-lying coastal stretches of Visakhapatnam, Bheemunipatnam, and Kakinada',
-      parameters: 'Swell Waves: 1.8 - 2.4m • Period: 14 - 17 seconds (Long Period Swell)',
-      actionRequired: 'Small motorized craft and country boats must remain moored. Coastal operations to maintain vigilance during high tide periods.',
+      affectedArea: `Inshore shelf and beach zones of ${locName}`,
+      parameters: 'Swell Waves: 1.4 - 2.0m • Period: 14 - 16 seconds (Swell Surge)',
+      actionRequired: 'Small craft should avoid near-shore breaker zones during peak high tide intervals.',
     },
     {
       id: 'alert-3',
       severity: 'ADVISORY',
-      title: 'Squally Wind & Reduced Fairway Visibility Advisory',
-      agency: 'Visakhapatnam Port Authority & IMD Port Meteorological Office',
+      title: 'Squally Weather & Fishermen Advisory',
+      agency: 'IMD Coastal Meteorological Station',
       issuedTime: 'Today 08:00 IST',
-      validUntil: 'Tonight 20:00 IST',
-      affectedArea: 'Port approach channel and inner anchorage basin (0 - 5 NM)',
-      parameters: 'Wind: ESE 18-22 knots • Visibility: 4-6 km in intermittent rain squalls',
-      actionRequired: 'Pilots and tug operations exercise radar caution. Navigational lights mandatory.',
+      validUntil: 'Next 24 Hours',
+      affectedArea: `East-Central & West-Central Bay of Bengal / Arabian Sea`,
+      parameters: 'Wind speed reaching 40-50 kmph with rough sea conditions',
+      actionRequired: 'Fishermen are advised to carry certified VHF radio sets and check daily weather bulletins before departure.',
     },
   ];
 
-  const filteredAlerts = activeFilter === 'ALL'
-    ? alerts
-    : alerts.filter(a => a.severity === activeFilter);
-
-  const handleQuerySafetyAgent = () => {
-    navigate('/ask-oceanis', {
-      state: { initialQuery: `Provide emergency safety assessment, cyclone track proximity, and closest safe refuge port for ${selectedLocation.name} sector.` },
-    });
-  };
+  const filteredAlerts = alerts.filter((a) => {
+    if (activeFilter === 'ALL') return true;
+    return a.severity === activeFilter;
+  });
 
   return (
     <div className="ocean-page-container">
@@ -72,192 +74,155 @@ export const DisasterSafetyPage: React.FC = () => {
       <header className="page-header-banner">
         <div className="page-header-main">
           <div className="page-breadcrumbs">
-            <Link to="/" className="page-breadcrumb-crumb">Home</Link>
+            <Link to="/" className="page-breadcrumb-crumb">{t('nav.home', 'Home')}</Link>
             <span className="page-breadcrumb-sep">/</span>
-            <span className="page-breadcrumb-current">Disaster & Safety</span>
+            <span className="page-breadcrumb-current">{t('nav.safety', 'Disaster & Safety')}</span>
           </div>
           <h1 className="page-title">
-            Disaster & Marine Safety Intelligence Command Center
-            <span className="page-title-badge badge-official">Official Warnings</span>
+            {t('safety.title', 'Disaster & Maritime Safety Early Warning Center')}
+            <span className="page-title-badge badge-alert">{t('safety.badge', 'Deterministic Guardrails')}</span>
           </h1>
           <p className="page-subtitle">
-            Synchronized emergency marine warnings from IMD Cyclone Division, INCOIS Early Warning Centre, and Indian Coast Guard Maritime Rescue Coordination Centre (MRCC).
+            {t('safety.subtitle', 'Real-time cyclone tracking, high wave alerts, Kallakkadal bulletins, and deterministic non-overridable safety guardrails.')}
           </p>
         </div>
         <div className="page-header-actions">
-          <button
-            type="button"
-            className="btn-page-action primary"
-            onClick={handleQuerySafetyAgent}
-          >
-            <span>Ask Safety Agent</span>
-          </button>
+          <div className="coverage-pill" style={{ background: 'rgba(8, 42, 67, 0.7)', border: '1px solid rgba(22, 184, 216, 0.3)', padding: '6px 12px', borderRadius: '20px', color: '#16B8D8', fontSize: '0.8125rem', fontWeight: 600 }}>
+            📍 Location: {locName} {isInland ? '(INLAND)' : ''}
+          </div>
+          <Link to="/ask" className="btn-page-action primary">
+            <span>{t('nav.ask', 'Ask OCEANIS')}</span>
+          </Link>
         </div>
       </header>
 
-      {/* Emergency Distress & Helpline Bar */}
-      <div className="emergency-hotline-bar">
-        <div className="hotline-item">
-          <span className="hotline-icon">🚨</span>
-          <div className="hotline-info">
-            <span className="hotline-label">Indian Coast Guard SAR Helpline</span>
-            <strong className="hotline-num">Toll-Free 1554 / VHF Ch 16</strong>
-          </div>
+      {/* Inland Banner if applicable */}
+      {isInland && (
+        <div className="inland-alert-notice" style={{ background: 'rgba(245, 158, 11, 0.15)', border: '1px solid #f59e0b', borderRadius: '10px', padding: '14px 20px', marginBottom: '20px', color: '#fbbf24' }}>
+          <strong>📍 INLAND LOCATION DETECTED ({locName}):</strong> Marine swell, PFZ, and oceanographic hazard alerts are not applicable inland. Inland severe rainfall and wind monitoring active.
         </div>
-        <div className="hotline-item">
-          <span className="hotline-icon">📡</span>
-          <div className="hotline-info">
-            <span className="hotline-label">MRCC Chennai Distress Relay</span>
-            <strong className="hotline-num">+91-44-2346-0405</strong>
-          </div>
-        </div>
-        <div className="hotline-item">
-          <span className="hotline-icon">⚓</span>
-          <div className="hotline-info">
-            <span className="hotline-label">VPT Port Emergency Control</span>
-            <strong className="hotline-num">+91-891-287-3100</strong>
-          </div>
-        </div>
+      )}
+
+      {/* Filter Tabs */}
+      <div className="alerts-filter-bar">
+        <button
+          type="button"
+          className={`filter-btn ${activeFilter === 'ALL' ? 'active' : ''}`}
+          onClick={() => setActiveFilter('ALL')}
+        >
+          All Advisories ({alerts.length})
+        </button>
+        <button
+          type="button"
+          className={`filter-btn warning ${activeFilter === 'WARNING' ? 'active' : ''}`}
+          onClick={() => setActiveFilter('WARNING')}
+        >
+          Severe Warnings (1)
+        </button>
+        <button
+          type="button"
+          className={`filter-btn alert ${activeFilter === 'ALERT' ? 'active' : ''}`}
+          onClick={() => setActiveFilter('ALERT')}
+        >
+          High Wave Alerts (1)
+        </button>
+        <button
+          type="button"
+          className={`filter-btn advisory ${activeFilter === 'ADVISORY' ? 'active' : ''}`}
+          onClick={() => setActiveFilter('ADVISORY')}
+        >
+          General Advisories (1)
+        </button>
       </div>
 
-      {/* Main Grid */}
-      <div className="safety-layout-grid">
-        {/* Left Column: Official Warnings List with Filter */}
-        <div className="safety-left-col">
-          <div className="ocean-card alerts-feed-card">
-            <div className="alerts-card-top">
-              <h3>Active Marine Bulletins & Warnings</h3>
-              <div className="severity-filters">
+      {/* Alerts Stream */}
+      <div className="alerts-layout-grid">
+        <div className="alerts-list-col">
+          {filteredAlerts.map((item) => (
+            <div key={item.id} className={`ocean-card alert-stream-card severity-${item.severity.toLowerCase()}`}>
+              <div className="alert-card-top">
+                <div className="alert-severity-badge">
+                  <span className="pulse-dot"></span>
+                  <strong>{item.severity}</strong>
+                </div>
+                <span className="alert-agency-tag">{item.agency}</span>
+              </div>
+
+              <h3 className="alert-item-title">{item.title}</h3>
+
+              <div className="alert-meta-grid">
+                <div className="alert-meta-item">
+                  <span className="meta-lbl">Issued Time:</span>
+                  <span className="meta-val">{item.issuedTime}</span>
+                </div>
+                <div className="alert-meta-item">
+                  <span className="meta-lbl">Validity:</span>
+                  <span className="meta-val">{item.validUntil}</span>
+                </div>
+                <div className="alert-meta-item full">
+                  <span className="meta-lbl">Affected Marine Area:</span>
+                  <span className="meta-val">{item.affectedArea}</span>
+                </div>
+              </div>
+
+              <div className="alert-parameters-box">
+                <strong>Observed / Forecast Parameters:</strong>
+                <p>{item.parameters}</p>
+              </div>
+
+              <div className="alert-action-box">
+                <strong>Required Maritime Action:</strong>
+                <p>{item.actionRequired}</p>
+              </div>
+
+              <div className="alert-card-footer">
                 <button
                   type="button"
-                  className={`sev-filter-btn ${activeFilter === 'ALL' ? 'active' : ''}`}
-                  onClick={() => setActiveFilter('ALL')}
+                  className="btn-query-safety"
+                  onClick={() => navigate('/ask', { state: { initialQuery: `What are the active safety precautions for ${locName}?` } })}
                 >
-                  All ({alerts.length})
-                </button>
-                <button
-                  type="button"
-                  className={`sev-filter-btn btn-sev-warning ${activeFilter === 'WARNING' ? 'active' : ''}`}
-                  onClick={() => setActiveFilter('WARNING')}
-                >
-                  Warning (1)
-                </button>
-                <button
-                  type="button"
-                  className={`sev-filter-btn btn-sev-alert ${activeFilter === 'ALERT' ? 'active' : ''}`}
-                  onClick={() => setActiveFilter('ALERT')}
-                >
-                  Alert (1)
-                </button>
-                <button
-                  type="button"
-                  className={`sev-filter-btn btn-sev-advisory ${activeFilter === 'ADVISORY' ? 'active' : ''}`}
-                  onClick={() => setActiveFilter('ADVISORY')}
-                >
-                  Advisory (1)
+                  <span>Evaluate Route Safety near {locName}</span>
+                  <svg className="btn-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <line x1="5" y1="12" x2="19" y2="12" />
+                    <polyline points="12 5 19 12 12 19" />
+                  </svg>
                 </button>
               </div>
             </div>
-
-            <div className="alerts-bulletin-list">
-              {filteredAlerts.map((alert) => (
-                <div key={alert.id} className={`safety-bulletin-card sev-${alert.severity.toLowerCase()}`}>
-                  <div className="bulletin-header">
-                    <span className={`bulletin-badge badge-${alert.severity.toLowerCase()}`}>
-                      {alert.severity}
-                    </span>
-                    <span className="bulletin-agency">{alert.agency}</span>
-                  </div>
-                  <h4 className="bulletin-title">{alert.title}</h4>
-                  <div className="bulletin-meta-row">
-                    <span>Issued: <strong>{alert.issuedTime}</strong></span>
-                    <span>Valid: <strong>{alert.validUntil}</strong></span>
-                  </div>
-                  <div className="bulletin-affected">
-                    <span>Target Zone:</span> <strong>{alert.affectedArea}</strong>
-                  </div>
-                  <div className="bulletin-params">
-                    <span>Hydrodynamics:</span> <strong>{alert.parameters}</strong>
-                  </div>
-                  <div className="bulletin-action-box">
-                    <strong>Mandatory Operator Action:</strong>
-                    <p>{alert.actionRequired}</p>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
+          ))}
         </div>
 
-        {/* Right Column: Coastal Safety Protocol & Cyclone Track Overview */}
-        <div className="safety-right-col">
-          {/* Cyclone Track Status */}
-          <div className="ocean-card cyclone-track-card">
+        {/* Right Column: Deterministic Guardrails Policy */}
+        <div className="alerts-sidebar-col">
+          <div className="ocean-card guardrails-policy-card">
             <div className="card-top-header">
-              <h3>Vortex Track & Storm Surge Buffer</h3>
-              <span className="badge-provenance">IMD Radar Model</span>
+              <h3>Deterministic Guardrail Protocols</h3>
+              <span className="badge-provenance">NON-OVERRIDABLE</span>
             </div>
-            <div className="cyclone-telemetry-box">
-              <div className="cyc-stat-row">
-                <span>Current Vortex Center:</span>
-                <strong>15.2° N, 84.8° E (180 NM SE of Vizag)</strong>
-              </div>
-              <div className="cyc-stat-row">
-                <span>Estimated Central Pressure:</span>
-                <strong>998 hPa (Depression)</strong>
-              </div>
-              <div className="cyc-stat-row">
-                <span>Track Direction & Speed:</span>
-                <strong>NNW at 14 km/h</strong>
-              </div>
-              <div className="cyc-stat-row">
-                <span>Peak Storm Surge Forecast:</span>
-                <strong>+0.6m above astronomical tide</strong>
-              </div>
-            </div>
-            <div className="cyclone-guidance">
-              <span className="guidance-icon">🛡️</span>
-              <p>
-                The predicted track maintains a safe distance of &gt;110 NM from the coast for the next 24 hours. Coastal ports remain on Port Warning Signal 3 (Local Cautionary).
-              </p>
-            </div>
-          </div>
+            <p className="guardrail-desc">
+              OCEANIS enforces deterministic safety bounds. AI models cannot recommend or endorse maritime departures under any of the following mandatory trigger conditions:
+            </p>
+            <ul className="guardrail-rule-list">
+              <li>
+                <strong>Rule 1: IMD Port Warning Signal ≥ 3</strong>
+                <span>Automatic red safety rating; fishing operations prohibited.</span>
+              </li>
+              <li>
+                <strong>Rule 2: Significant Wave Height &gt; 2.5m</strong>
+                <span>Small motorized craft departure ban enforced deterministically.</span>
+              </li>
+              <li>
+                <strong>Rule 3: INCOIS Kallakkadal Alert Active</strong>
+                <span>Nearshore surf zone warning active for inshore motorized craft.</span>
+              </li>
+              <li>
+                <strong>Rule 4: Marine Protected / Defense Polygon</strong>
+                <span>Instant spatial collision override prohibiting entry into restricted bounds.</span>
+              </li>
+            </ul>
 
-          {/* Fishermen Return-to-Shore Checklist */}
-          <div className="ocean-card safety-checklist-card">
-            <div className="card-top-header">
-              <h3>Emergency Evacuation & Vessel Protocol</h3>
-              <span className="badge-source">SOP Guidelines</span>
-            </div>
-            <div className="sop-checklist">
-              <div className="sop-item checked">
-                <span className="sop-check">✓</span>
-                <div className="sop-text">
-                  <strong>VHF Channel 16 Dual Watch</strong>
-                  <p>Maintain continuous radio listen-in on marine distress frequency.</p>
-                </div>
-              </div>
-              <div className="sop-item checked">
-                <span className="sop-check">✓</span>
-                <div className="sop-text">
-                  <strong>Safe Port Distance Verification</strong>
-                  <p>Confirm closest port haven distance is within 2 hours cruising time.</p>
-                </div>
-              </div>
-              <div className="sop-item">
-                <span className="sop-check">○</span>
-                <div className="sop-text">
-                  <strong>Secure Gear & Deck Cargo</strong>
-                  <p>Lash trawl nets, outriggers, and anchor gear prior to rough sea entry.</p>
-                </div>
-              </div>
-              <div className="sop-item">
-                <span className="sop-check">○</span>
-                <div className="sop-text">
-                  <strong>AIS / DAT Emergency Beacon Readiness</strong>
-                  <p>Ensure Distress Alert Transmitter (DAT) battery indicator is green.</p>
-                </div>
-              </div>
+            <div className="guardrail-disclaimer">
+              <span>⚠️ Official Decision Support System: Sourced from IMD, INCOIS & MoES. Never substitute for official distress broadcasts.</span>
             </div>
           </div>
         </div>

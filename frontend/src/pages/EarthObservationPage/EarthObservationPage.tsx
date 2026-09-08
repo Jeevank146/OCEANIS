@@ -41,6 +41,7 @@ interface SatellitePass {
 }
 
 export const EarthObservationPage: React.FC = () => {
+
   const navigate = useNavigate();
   const [selectedPass, setSelectedPass] = useState<string>('s3-olci');
   const [selectedProduct, setSelectedProduct] = useState<SatelliteProductCard | null>(null);

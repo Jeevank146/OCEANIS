@@ -12,6 +12,7 @@ interface MaritimeZone {
 }
 
 export const GeospatialPage: React.FC = () => {
+
   const navigate = useNavigate();
   const [vesselLat, setVesselLat] = useState<string>('17.6868');
   const [vesselLon, setVesselLon] = useState<string>('83.2185');

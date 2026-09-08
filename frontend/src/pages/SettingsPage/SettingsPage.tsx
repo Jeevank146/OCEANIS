@@ -1,15 +1,54 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import { useLocationContext } from '../../context/LocationContext';
+import { useLanguage, type SupportedLanguage } from '../../context/LanguageContext';
+import { getOperatorIdentity } from '../../utils/operatorIdentity';
 import './SettingsPage.css';
 
 export const SettingsPage: React.FC = () => {
-  const [operatorName, setOperatorName] = useState<string>('Cmdr. R. Verma');
-  const [callSign, setCallSign] = useState<string>('VPT-OPS-04');
-  const [selectedLanguage, setSelectedLanguage] = useState<string>('en');
+  const { selectedLocation, activeValidation } = useLocationContext();
+  const { language, setLanguage, t, languages } = useLanguage();
+
+  const isInland = Boolean(
+    activeValidation && (activeValidation.status === 'INLAND' || activeValidation.is_coastal === false || activeValidation.is_marine === false)
+  );
+  const isOffshore = Boolean(
+    selectedLocation && !isInland && (
+      (selectedLocation.distance_to_coast_km && selectedLocation.distance_to_coast_km > 20.0) ||
+      (activeValidation && activeValidation.status === 'VALID_MARINE' && !activeValidation.is_coastal) ||
+      (selectedLocation.name && selectedLocation.name.toLowerCase().includes('offshore')) ||
+      (selectedLocation.name && selectedLocation.name.toLowerCase().includes('waypoint'))
+    )
+  );
+
+  const locName = selectedLocation?.city || selectedLocation?.name || 'Coastal Sector';
+  const initialOp = getOperatorIdentity(
+    locName,
+    selectedLocation?.city,
+    isOffshore,
+    isInland,
+    activeValidation?.status
+  );
+
+  const [operatorName, setOperatorName] = useState<string>(initialOp.operatorName);
+  const [callSign, setCallSign] = useState<string>(initialOp.callSign);
   const [unitSystem, setUnitSystem] = useState<'nautical' | 'metric'>('nautical');
   const [smsAlerts, setSmsAlerts] = useState<boolean>(true);
   const [vhfRelay, setVhfRelay] = useState<boolean>(true);
   const [saveSuccess, setSaveSuccess] = useState<boolean>(false);
+
+  // Sync with location changes if user hasn't typed custom values
+  useEffect(() => {
+    const op = getOperatorIdentity(
+      selectedLocation?.city || selectedLocation?.name,
+      selectedLocation?.city,
+      isOffshore,
+      isInland,
+      activeValidation?.status
+    );
+    setOperatorName(op.operatorName);
+    setCallSign(op.callSign);
+  }, [selectedLocation, isOffshore, isInland, activeValidation]);
 
   const handleSaveSettings = (e: React.FormEvent) => {
     e.preventDefault();
@@ -23,16 +62,16 @@ export const SettingsPage: React.FC = () => {
       <header className="page-header-banner">
         <div className="page-header-main">
           <div className="page-breadcrumbs">
-            <Link to="/" className="page-breadcrumb-crumb">Home</Link>
+            <Link to="/" className="page-breadcrumb-crumb">{t('nav.home', 'Home')}</Link>
             <span className="page-breadcrumb-sep">/</span>
-            <span className="page-breadcrumb-current">Settings</span>
+            <span className="page-breadcrumb-current">{t('nav.settings', 'Settings')}</span>
           </div>
           <h1 className="page-title">
-            Platform Settings & Maritime Operator Profile
-            <span className="page-title-badge badge-agent">Operator Config</span>
+            {t('settings.title', 'Platform Settings & Maritime Operator Profile')}
+            <span className="page-title-badge badge-agent">{initialOp.displayLabel}</span>
           </h1>
           <p className="page-subtitle">
-            Configure authenticated maritime operator details, default linguistic preferences, nautical measurement units, and emergency distress broadcast relays.
+            {t('settings.subtitle', 'Configure authenticated maritime operator details, default linguistic preferences, nautical measurement units, and emergency distress broadcast relays.')}
           </p>
         </div>
       </header>
@@ -41,17 +80,17 @@ export const SettingsPage: React.FC = () => {
       <div className="settings-layout-grid">
         <div className="ocean-card settings-card">
           <div className="card-top-header">
-            <h3>Operator & Platform Configuration</h3>
-            <span className="badge-source">Authenticated Profile</span>
+            <h3>{t('settings.card_title', 'Operator & Platform Configuration')}</h3>
+            <span className="badge-source">{selectedLocation?.name || 'Active Operational Sector'}</span>
           </div>
 
           <form onSubmit={handleSaveSettings} className="settings-form">
             {/* Operator Profile Section */}
             <div className="settings-section">
-              <span className="settings-section-title">1. Maritime Operator Profile</span>
+              <span className="settings-section-title">1. {t('settings.section1', 'Maritime Operator Profile')}</span>
               <div className="settings-fields-grid">
                 <div className="form-field">
-                  <label>Operator Name & Rank</label>
+                  <label>{t('settings.op_name', 'Operator Designation & Sector')}</label>
                   <input
                     type="text"
                     value={operatorName}
@@ -60,7 +99,7 @@ export const SettingsPage: React.FC = () => {
                   />
                 </div>
                 <div className="form-field">
-                  <label>Radio Call Sign / Unit Identifier</label>
+                  <label>{t('settings.call_sign', 'Radio Call Sign / Unit Identifier')}</label>
                   <input
                     type="text"
                     value={callSign}
@@ -73,24 +112,25 @@ export const SettingsPage: React.FC = () => {
 
             {/* Units & Language Section */}
             <div className="settings-section">
-              <span className="settings-section-title">2. Language & Unit System</span>
+              <span className="settings-section-title">2. {t('settings.section2', 'Language & Unit System')}</span>
               <div className="settings-fields-grid">
                 <div className="form-field">
-                  <label>Default Interface Language</label>
+                  <label>{t('settings.language_label', 'Default Interface Language')}</label>
                   <select
-                    value={selectedLanguage}
-                    onChange={(e) => setSelectedLanguage(e.target.value)}
+                    value={language}
+                    onChange={(e) => setLanguage(e.target.value as SupportedLanguage)}
                     className="settings-select"
                   >
-                    <option value="en">English (Official)</option>
-                    <option value="te">Telugu (తెలుగు)</option>
-                    <option value="hi">Hindi (हिन्दी)</option>
-                    <option value="ta">Tamil (தமிழ்)</option>
+                    {languages.map((l) => (
+                      <option key={l.code} value={l.code}>
+                        {l.nativeName} ({l.name})
+                      </option>
+                    ))}
                   </select>
                 </div>
 
                 <div className="form-field">
-                  <label>Navigation & Measurement System</label>
+                  <label>{t('settings.unit_label', 'Navigation & Measurement System')}</label>
                   <select
                     value={unitSystem}
                     onChange={(e) => setUnitSystem(e.target.value as any)}
@@ -105,7 +145,7 @@ export const SettingsPage: React.FC = () => {
 
             {/* Emergency Broadcast Channels */}
             <div className="settings-section">
-              <span className="settings-section-title">3. Safety & Warning Dispatch Channels</span>
+              <span className="settings-section-title">3. {t('settings.section3', 'Safety & Warning Dispatch Channels')}</span>
               <div className="settings-checkboxes-list">
                 <label className="checkbox-label">
                   <input
@@ -129,10 +169,10 @@ export const SettingsPage: React.FC = () => {
             {/* Save Button */}
             <div className="settings-actions-row">
               <button type="submit" className="btn-save-settings">
-                Save Platform Preferences
+                {t('settings.save_btn', 'Save Platform Preferences')}
               </button>
               {saveSuccess && (
-                <span className="save-success-tag">✓ Preferences updated successfully.</span>
+                <span className="save-success-tag">✓ Preferences updated successfully for {initialOp.sector}.</span>
               )}
             </div>
           </form>
@@ -141,7 +181,7 @@ export const SettingsPage: React.FC = () => {
         {/* Backend & Connectivity Status Card */}
         <div className="ocean-card system-diag-card">
           <div className="card-top-header">
-            <h3>System Diagnostics & Service Endpoints</h3>
+            <h3>{t('settings.diagnostics', 'System Diagnostics & Service Endpoints')}</h3>
             <span className="badge-provenance">Active Cluster</span>
           </div>
 

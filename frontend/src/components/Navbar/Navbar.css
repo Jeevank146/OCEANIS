@@ -1,6 +1,7 @@
 /* ===================================================================
    OCEANIS TOP INSTITUTIONAL NAVIGATION HEADER (DARK INTEGRATED THEME)
-   Reference 1: Seamless dark navy header matching hero atmosphere
+   Perfect single horizontal row on desktop, fixed 70px height, 
+   vertically centered items, zero line wrapping.
    =================================================================== */
 
 .navbar-header-light {
@@ -9,38 +10,43 @@
   left: 0;
   right: 0;
   z-index: 1000;
-  background: rgba(6, 24, 39, 0.88);
+  background: rgba(6, 24, 39, 0.92);
   backdrop-filter: blur(14px);
   -webkit-backdrop-filter: blur(14px);
   border-bottom: 1px solid rgba(8, 127, 181, 0.22);
   transition: all 0.25s ease;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.35);
-  height: 68px;
+  height: 70px;
 }
 
 .navbar-header-light.scrolled {
-  background: rgba(6, 24, 39, 0.96);
+  background: rgba(6, 24, 39, 0.98);
   border-bottom-color: rgba(22, 184, 216, 0.3);
   box-shadow: 0 6px 24px rgba(0, 0, 0, 0.55);
 }
 
 .navbar-container {
   display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
   align-items: center;
   justify-content: space-between;
   height: 100%;
-  padding: 0 32px;
+  padding: 0 24px;
   width: 100%;
-  max-width: 1440px;
+  max-width: 1600px;
   margin: 0 auto;
   box-sizing: border-box;
+  gap: 16px;
 }
 
 /* Left Group */
 .navbar-left-group {
   display: flex;
   align-items: center;
-  gap: 14px;
+  gap: 12px;
+  flex-shrink: 0;
+  white-space: nowrap;
 }
 
 .btn-sidebar-toggle {
@@ -55,6 +61,7 @@
   color: #A9BBC9;
   cursor: pointer;
   transition: all 0.2s ease;
+  flex-shrink: 0;
 }
 
 @media (max-width: 1199px) {
@@ -79,20 +86,23 @@
   align-items: center;
   gap: 10px;
   text-decoration: none;
+  flex-shrink: 0;
+  white-space: nowrap;
 }
 
 .brand-icon-wrapper {
   position: relative;
-  width: 34px;
-  height: 34px;
+  width: 32px;
+  height: 32px;
   display: flex;
   align-items: center;
   justify-content: center;
+  flex-shrink: 0;
 }
 
 .brand-icon {
-  width: 34px;
-  height: 34px;
+  width: 32px;
+  height: 32px;
   filter: drop-shadow(0 0 6px rgba(22, 184, 216, 0.4));
 }
 
@@ -110,11 +120,12 @@
 .brand-text-block {
   display: flex;
   flex-direction: column;
+  white-space: nowrap;
 }
 
 .brand-name {
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  font-size: 1.25rem;
+  font-size: 1.1875rem;
   font-weight: 800;
   letter-spacing: 0.08em;
   color: #F4F7FA;
@@ -122,7 +133,7 @@
 }
 
 .brand-tagline {
-  font-size: 0.6875rem;
+  font-size: 0.65rem;
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   color: #A9BBC9;
   font-weight: 500;
@@ -132,18 +143,23 @@
 /* Center Desktop Navigation */
 .desktop-nav {
   display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
   align-items: center;
-  gap: 1.75rem;
+  gap: 1.25rem;
+  flex-shrink: 0;
+  white-space: nowrap;
 }
 
 .nav-link {
   color: #A9BBC9;
-  font-size: 0.875rem;
+  font-size: 0.84rem;
   font-weight: 500;
   text-decoration: none;
   padding: 6px 4px;
   position: relative;
   transition: color 0.2s ease;
+  white-space: nowrap;
 }
 
 .nav-link:hover {
@@ -167,30 +183,34 @@
   box-shadow: 0 0 8px rgba(22, 184, 216, 0.7);
 }
 
-/* Right Actions */
+/* Right Actions Cluster */
 .navbar-right-group,
 .navbar-actions {
   display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
   align-items: center;
-  gap: 12px;
+  gap: 10px;
+  flex-shrink: 0;
+  white-space: nowrap;
 }
 
-/* Compact Active Location Badge / Indicator */
-.navbar-location-pill,
+/* Dynamic Active Location Button */
 .navbar-active-loc-btn {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  padding: 5px 12px;
+  padding: 5px 10px;
   background: rgba(8, 42, 67, 0.7);
   border: 1px solid rgba(22, 184, 216, 0.4);
   border-radius: 20px;
   color: #16B8D8;
-  font-size: 0.8125rem;
+  font-size: 0.8rem;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.2s ease;
-  max-width: none;
+  white-space: nowrap;
+  flex-shrink: 0;
 }
 
 .navbar-active-loc-btn:hover {
@@ -209,38 +229,43 @@
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  max-width: 220px;
+  max-width: 140px;
   color: #F4F7FA;
   font-weight: 700;
 }
 
 .navbar-loc-change-tag {
-  font-size: 0.6875rem;
+  font-size: 0.65rem;
   font-weight: 600;
   background: rgba(22, 184, 216, 0.2);
   color: #16B8D8;
-  padding: 1px 6px;
+  padding: 1px 5px;
   border-radius: 4px;
   flex-shrink: 0;
+  white-space: nowrap;
 }
 
+/* Language Selector */
 .lang-selector-wrapper {
   position: relative;
+  flex-shrink: 0;
+  white-space: nowrap;
 }
 
 .lang-selector-btn {
   display: flex;
   align-items: center;
-  gap: 6px;
-  padding: 6px 14px;
+  gap: 5px;
+  padding: 5px 10px;
   background: rgba(8, 42, 67, 0.65);
   border: 1px solid rgba(8, 127, 181, 0.35);
   border-radius: 20px;
   color: #F4F7FA;
-  font-size: 0.8125rem;
+  font-size: 0.8rem;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.2s ease;
+  white-space: nowrap;
 }
 
 .lang-selector-btn:hover {
@@ -253,6 +278,11 @@
   width: 14px;
   height: 14px;
   color: #16B8D8;
+  flex-shrink: 0;
+}
+
+.lang-current {
+  white-space: nowrap;
 }
 
 .lang-chevron {
@@ -260,6 +290,7 @@
   height: 12px;
   color: #A9BBC9;
   transition: transform 0.2s ease;
+  flex-shrink: 0;
 }
 
 .lang-chevron.open {
@@ -295,6 +326,7 @@
   cursor: pointer;
   transition: all 0.2s ease;
   text-align: left;
+  white-space: nowrap;
 }
 
 .lang-option:hover {
@@ -313,9 +345,10 @@
   color: #6C8296;
 }
 
-/* Icon Buttons (Notifications) */
+/* Notification Bell */
 .notif-wrapper {
   position: relative;
+  flex-shrink: 0;
 }
 
 .navbar-icon-btn {
@@ -323,14 +356,15 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 36px;
-  height: 36px;
+  width: 34px;
+  height: 34px;
   border-radius: 50%;
   background: rgba(8, 42, 67, 0.65);
   border: 1px solid rgba(8, 127, 181, 0.35);
   color: #F4F7FA;
   cursor: pointer;
   transition: all 0.2s ease;
+  flex-shrink: 0;
 }
 
 .navbar-icon-btn:hover {
@@ -340,14 +374,14 @@
 }
 
 .navbar-icon-btn svg {
-  width: 17px;
-  height: 17px;
+  width: 16px;
+  height: 16px;
 }
 
 .notif-badge-dot {
   position: absolute;
-  top: 7px;
-  right: 7px;
+  top: 6px;
+  right: 6px;
   width: 7px;
   height: 7px;
   border-radius: 50%;
@@ -439,17 +473,19 @@
   color: #6C8296;
 }
 
-/* Operator Profile Badge */
+/* Operator Profile Badge (Dynamic Location-Aware) */
 .operator-profile-badge {
   display: flex;
   align-items: center;
   gap: 8px;
-  padding: 4px 12px 4px 6px;
+  padding: 4px 10px 4px 6px;
   background: rgba(8, 42, 67, 0.65);
   border: 1px solid rgba(8, 127, 181, 0.35);
   border-radius: 20px;
   text-decoration: none;
   transition: all 0.2s ease;
+  white-space: nowrap;
+  flex-shrink: 0;
 }
 
 .operator-profile-badge:hover {
@@ -466,6 +502,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  flex-shrink: 0;
 }
 
 .operator-avatar svg {
@@ -476,6 +513,7 @@
 .operator-info {
   display: flex;
   flex-direction: column;
+  white-space: nowrap;
 }
 
 .operator-name {
@@ -483,28 +521,32 @@
   font-weight: 700;
   color: #F4F7FA;
   line-height: 1.1;
+  white-space: nowrap;
 }
 
 .operator-role {
   font-size: 0.625rem;
   color: #A9BBC9;
+  white-space: nowrap;
 }
 
-/* Launch Button (Ask OCEANIS CTA) */
+/* Ask OCEANIS CTA Button */
 .btn-launch-header {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  padding: 8px 18px;
+  padding: 7px 16px;
   background: linear-gradient(135deg, #087FB5 0%, #16B8D8 100%);
   color: #061827;
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   font-weight: 700;
-  font-size: 0.875rem;
+  font-size: 0.84rem;
   border-radius: 24px;
   text-decoration: none;
   box-shadow: 0 2px 10px rgba(22, 184, 216, 0.35);
   transition: all 0.2s ease;
+  white-space: nowrap;
+  flex-shrink: 0;
 }
 
 .btn-launch-header:hover {
@@ -515,6 +557,7 @@
 .btn-arrow {
   width: 14px;
   height: 14px;
+  flex-shrink: 0;
 }
 
 /* Mobile Toggle */
@@ -522,12 +565,13 @@
   display: none;
   flex-direction: column;
   justify-content: space-between;
-  width: 26px;
-  height: 18px;
+  width: 24px;
+  height: 17px;
   background: transparent;
   border: none;
   cursor: pointer;
   padding: 0;
+  flex-shrink: 0;
 }
 
 .hamburger-bar {
@@ -539,7 +583,7 @@
 }
 
 .mobile-toggle-btn.open .hamburger-bar:nth-child(1) {
-  transform: translateY(8px) rotate(45deg);
+  transform: translateY(7.5px) rotate(45deg);
 }
 
 .mobile-toggle-btn.open .hamburger-bar:nth-child(2) {
@@ -547,7 +591,7 @@
 }
 
 .mobile-toggle-btn.open .hamburger-bar:nth-child(3) {
-  transform: translateY(-8px) rotate(-45deg);
+  transform: translateY(-7.5px) rotate(-45deg);
 }
 
 /* Mobile Drawer */
@@ -582,23 +626,20 @@
   color: #16B8D8;
 }
 
-.mobile-drawer-footer {
-  margin-top: 12px;
+/* Responsive Breakpoints */
+@media (max-width: 1350px) {
+  .desktop-nav {
+    gap: 0.85rem;
+  }
+  .nav-link {
+    font-size: 0.8rem;
+  }
 }
 
-.btn-mobile-launch {
-  display: block;
-  text-align: center;
-  padding: 10px;
-  background: linear-gradient(135deg, #087FB5 0%, #16B8D8 100%);
-  color: #061827;
-  font-weight: 700;
-  border-radius: 20px;
-  text-decoration: none;
-}
-
-/* Responsive */
-@media (max-width: 1100px) {
+@media (max-width: 1200px) {
+  .brand-tagline {
+    display: none;
+  }
   .operator-profile-badge {
     display: none;
   }
@@ -610,8 +651,5 @@
   }
   .mobile-toggle-btn {
     display: flex;
-  }
-  .brand-tagline {
-    display: none;
   }
 }

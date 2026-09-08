@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation, Link } from 'react-router-dom';
 import { useLocationContext } from '../../context/LocationContext';
 import { useLanguage } from '../../context/LanguageContext';
+import { getOperatorIdentity } from '../../utils/operatorIdentity';
 import './Navbar.css';
 
 interface NavbarProps {
@@ -33,8 +34,8 @@ export const Navbar: React.FC<NavbarProps> = ({
     { path: '/', label: t('nav.home', 'Home') },
     { path: '/dashboard', label: t('nav.dashboard', 'Dashboard') },
     { path: '/maps', label: t('nav.maps', 'Live Map') },
-    { path: '/agents', label: t('nav.agents', 'Agents') },
-    { path: '/safety', label: t('nav.safety', 'Alerts') },
+    { path: '/agents', label: t('nav.agents', 'Domain Agents') },
+    { path: '/safety', label: t('nav.safety', 'Disaster & Safety') },
     { path: '/reports', label: t('nav.reports', 'Reports') },
     { path: '/data-sources', label: t('nav.data_sources', 'Data Sources') },
   ];
@@ -61,13 +62,13 @@ export const Navbar: React.FC<NavbarProps> = ({
     ? (selectedLocation.city || selectedLocation.name.replace(/\s*\([^)]*\)/g, '').trim())
     : '';
 
-  const locationSectorText = hasLocation
-    ? isInland
-      ? `${cleanLocName} • ${t('nav.inland_sector', 'Inland Sector')}`
-      : isOffshore
-      ? `${cleanLocName ? cleanLocName + ' • ' : ''}${t('nav.offshore_sector', 'Offshore Sector')}`
-      : `${cleanLocName} ${t('nav.sector_suffix', 'Sector')}`
-    : t('nav.loc_not_selected', 'Location Not Selected');
+  const operator = getOperatorIdentity(
+    cleanLocName,
+    selectedLocation?.city,
+    isOffshore,
+    isInland,
+    activeValidation?.status
+  );
 
   const currentLangObj = languages.find((l) => l.code === language) || languages[0];
 
@@ -196,7 +197,7 @@ export const Navbar: React.FC<NavbarProps> = ({
               type="button"
               className="navbar-icon-btn"
               onClick={() => setNotificationsOpen(!notificationsOpen)}
-              title="Active Marine Advisories & Notices"
+              title="Active Marine Advisories and Notices"
               aria-label="Notifications"
             >
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -232,10 +233,10 @@ export const Navbar: React.FC<NavbarProps> = ({
             )}
           </div>
 
-          {/* Dynamic Operator Profile Badge */}
+          {/* Dynamic Operator Profile Badge (Location-Aware) */}
           <div
             className="operator-profile-badge"
-            title={`Active Sector: ${locationSectorText}`}
+            title={`Active Sector: ${operator.displayLabel}`}
             onClick={handleOpenLocationSelector}
             style={{ cursor: 'pointer' }}
           >
@@ -246,12 +247,12 @@ export const Navbar: React.FC<NavbarProps> = ({
               </svg>
             </div>
             <div className="operator-info">
-              <span className="operator-name">Cmdr. R. Verma</span>
-              <span className="operator-role">{locationSectorText}</span>
+              <span className="operator-name">{operator.operatorName}</span>
+              <span className="operator-role">{operator.role}</span>
             </div>
           </div>
 
-          {/* Primary Action Button (Ask OCEANIS) */}
+          {/* Primary Action Button (Ask OCEANIS CTA) */}
           <Link
             to="/ask"
             className="btn-launch-header"
@@ -284,15 +285,16 @@ export const Navbar: React.FC<NavbarProps> = ({
             <Link to="/" className="mobile-link" onClick={() => setMobileMenuOpen(false)}>{t('nav.home', 'Home')}</Link>
             <Link to="/dashboard" className="mobile-link" onClick={() => setMobileMenuOpen(false)}>{t('nav.dashboard', 'Dashboard')}</Link>
             <Link to="/maps" className="mobile-link" onClick={() => setMobileMenuOpen(false)}>{t('nav.maps', 'Live Map')}</Link>
+            <Link to="/agents" className="mobile-link" onClick={() => setMobileMenuOpen(false)}>{t('nav.agents', 'Domain Agents')}</Link>
+            <Link to="/safety" className="mobile-link" onClick={() => setMobileMenuOpen(false)}>{t('nav.safety', 'Disaster & Safety')}</Link>
+            <Link to="/reports" className="mobile-link" onClick={() => setMobileMenuOpen(false)}>{t('nav.reports', 'Reports')}</Link>
+            <Link to="/data-sources" className="mobile-link" onClick={() => setMobileMenuOpen(false)}>{t('nav.data_sources', 'Data Sources')}</Link>
             <Link to="/fishing" className="mobile-link" onClick={() => setMobileMenuOpen(false)}>{t('nav.fishing', 'Fishing Intelligence')}</Link>
             <Link to="/marine-conditions" className="mobile-link" onClick={() => setMobileMenuOpen(false)}>{t('nav.marine_conditions', 'Marine Conditions')}</Link>
             <Link to="/earth-observation" className="mobile-link" onClick={() => setMobileMenuOpen(false)}>{t('nav.earth_observation', 'Earth Observation')}</Link>
             <Link to="/navigation" className="mobile-link" onClick={() => setMobileMenuOpen(false)}>{t('nav.navigation', 'Geo-Spatial & Nav')}</Link>
-            <Link to="/safety" className="mobile-link" onClick={() => setMobileMenuOpen(false)}>{t('nav.safety', 'Disaster & Safety')}</Link>
             <Link to="/operations" className="mobile-link" onClick={() => setMobileMenuOpen(false)}>{t('nav.operations', 'Marine Operations')}</Link>
-            <Link to="/agents" className="mobile-link" onClick={() => setMobileMenuOpen(false)}>{t('nav.agents', 'Domain Agents')}</Link>
-            <Link to="/reports" className="mobile-link" onClick={() => setMobileMenuOpen(false)}>{t('nav.reports', 'Reports')}</Link>
-            <Link to="/data-sources" className="mobile-link" onClick={() => setMobileMenuOpen(false)}>{t('nav.data_sources', 'Data Sources')}</Link>
+            <Link to="/ask" className="mobile-link" onClick={() => setMobileMenuOpen(false)}>{t('nav.ask', 'Ask OCEANIS')}</Link>
           </nav>
         </div>
       )}

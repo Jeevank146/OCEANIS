@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import './AnalyticsPage.css';
 
 export const AnalyticsPage: React.FC = () => {
+
   const intentStats = [
     { name: 'Fishing Suitability & PFZ', pct: 38, count: '14,820', color: '#16A34A' },
     { name: 'Marine Conditions & Wave Height', pct: 24, count: '9,360', color: '#0284C7' },

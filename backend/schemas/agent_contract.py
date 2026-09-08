@@ -19,6 +19,7 @@ class ObservationType(str, Enum):
     FORECAST = "Forecast"
     OFFICIAL_WARNING = "Official Warning"
     AI_ASSESSMENT = "AI Assessment"
+    OPERATIONAL_CALCULATION = "AI Assessment"
 
 
 class DataFreshness(str, Enum):

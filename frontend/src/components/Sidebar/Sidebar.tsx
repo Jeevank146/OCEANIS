@@ -1,5 +1,5 @@
 import React from 'react';
-import { useLocation, Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { useLanguage } from '../../context/LanguageContext';
 import './Sidebar.css';
 
@@ -32,10 +32,10 @@ export const Sidebar: React.FC<SidebarProps> = ({
       defaultLabel: 'Dashboard',
       icon: (
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-          <rect x="3" y="3" width="7" height="7" rx="1" />
-          <rect x="14" y="3" width="7" height="7" rx="1" />
-          <rect x="14" y="14" width="7" height="7" rx="1" />
-          <rect x="3" y="14" width="7" height="7" rx="1" />
+          <rect x="3" y="3" width="7" height="7" />
+          <rect x="14" y="3" width="7" height="7" />
+          <rect x="14" y="14" width="7" height="7" />
+          <rect x="3" y="14" width="7" height="7" />
         </svg>
       ),
     },
@@ -51,16 +51,15 @@ export const Sidebar: React.FC<SidebarProps> = ({
           <line x1="16" y1="6" x2="16" y2="22" />
         </svg>
       ),
-      badge: 'GIS',
     },
     {
-      id: 'fishing',
+      id: 'fishing-intelligence',
       path: '/fishing',
       labelKey: 'nav.fishing',
       defaultLabel: 'Fishing Intelligence',
       icon: (
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-          <path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c2.5 0 4.8-.9 6.5-2.5L22 22l-2.5-3.5C21.1 16.8 22 14.5 22 12c0-5.5-4.5-10-10-10z" />
+          <path d="M12 2a10 10 0 0 1 10 10c0 5.5-4.5 10-10 10S2 17.5 2 12A10 10 0 0 1 12 2z" />
           <path d="M8 12c1.5-2 4-2 5.5 0" />
         </svg>
       ),
@@ -229,7 +228,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
         <div className="sidebar-scroll-container">
           {/* Section: Operational Core Navigation */}
           <div className="sidebar-group">
-            <div className="sidebar-group-title">OPERATIONS</div>
+            <div className="sidebar-group-title">{t('sidebar.operations', 'OPERATIONS')}</div>
             <nav className="sidebar-nav">
               {primaryNavItems.map((item) => (
                 <Link
@@ -254,7 +253,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
 
           {/* Section: System & Analytical Tools */}
           <div className="sidebar-group">
-            <div className="sidebar-group-title">INTELLIGENCE & CONFIG</div>
+            <div className="sidebar-group-title">{t('sidebar.intelligence_config', 'INTELLIGENCE & CONFIG')}</div>
             <nav className="sidebar-nav">
               {secondaryNavItems.map((item) => (
                 <Link
@@ -275,7 +274,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
         <div className="sidebar-footer">
           <div className="engine-status-pill">
             <span className="pulse-indicator-dot" />
-            <span className="engine-status-text">6/6 Agents Live</span>
+            <span className="engine-status-text">{t('sidebar.agents_online', '6/6 Domain Agents Online')}</span>
           </div>
         </div>
       </aside>

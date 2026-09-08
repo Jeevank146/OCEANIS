@@ -4,6 +4,7 @@ import { WhatIfSimulation } from '../../components/WhatIfSimulation/WhatIfSimula
 import './WhatIfPage.css';
 
 export const WhatIfPage: React.FC = () => {
+
   return (
     <div className="ocean-page-container whatif-page-root">
       {/* Page Header Banner */}

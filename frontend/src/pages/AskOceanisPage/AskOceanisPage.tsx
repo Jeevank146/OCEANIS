@@ -33,7 +33,7 @@ export const AskOceanisPage: React.FC = () => {
   const { language, t } = useLanguage();
 
   const [queryInput, setQueryInput] = useState<string>(
-    'Can I go fishing tomorrow morning from Kakinada?'
+    selectedLocation ? `What are the current ocean conditions for ${selectedLocation.city || selectedLocation.name}?` : 'What are the current ocean conditions?'
   );
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
@@ -292,6 +292,19 @@ export const AskOceanisPage: React.FC = () => {
     return '';
   };
 
+    // Location Mismatch Detection
+  const currentLocName = (selectedLocation?.city || selectedLocation?.name || '').toLowerCase();
+  const resultLocName = (decisionData?.location?.name || '').toLowerCase();
+  const isLocationMismatch = Boolean(
+    decisionData &&
+    selectedLocation &&
+    selectedLocation.lat !== undefined &&
+    decisionData.location?.latitude !== undefined &&
+    Math.abs(selectedLocation.lat - decisionData.location.latitude) > 0.4 &&
+    !resultLocName.includes(currentLocName.slice(0, 4)) &&
+    !currentLocName.includes(resultLocName.slice(0, 4))
+  );
+
   const queryIntent = decisionData?.query_intent || 'DECISION';
   const isDecisionQuery = queryIntent === 'DECISION';
   const isComparisonQuery = queryIntent === 'COMPARISON';
@@ -428,6 +441,26 @@ export const AskOceanisPage: React.FC = () => {
             onClick={() => executeDecisionQuery(queryInput)}
           >
             Retry Query
+          </button>
+        </div>
+      )}
+
+      {/* Location Mismatch Warning Banner */}
+      {isLocationMismatch && (
+        <div className="location-mismatch-banner" style={{ background: 'rgba(245, 158, 11, 0.15)', border: '1px solid #f59e0b', borderRadius: '10px', padding: '14px 20px', marginBottom: '20px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '12px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+            <span style={{ fontSize: '1.25rem' }}>⚠️</span>
+            <div>
+              <strong style={{ color: '#fbbf24', display: 'block' }}>Location Context Changed</strong>
+              <span style={{ color: '#A9BBC9', fontSize: '0.85rem' }}>The displayed results are for {decisionData?.location?.name || 'previous area'}. Run the query again for {selectedLocation?.name}.</span>
+            </div>
+          </div>
+          <button
+            type="button"
+            onClick={() => executeDecisionQuery(queryInput)}
+            style={{ background: '#16B8D8', color: '#061827', border: 'none', padding: '8px 16px', borderRadius: '20px', fontWeight: 700, cursor: 'pointer' }}
+          >
+            Re-run for {selectedLocation?.city || selectedLocation?.name}
           </button>
         </div>
       )}
