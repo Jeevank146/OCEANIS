@@ -527,10 +527,10 @@ export const HomePage: React.FC = () => {
                   </div>
                 )}
 
-                {/* Coastal Operating Areas (3x2 Grid) matching Reference 1 */}
+                {/* Quick Access Locations (3x2 Grid Shortcuts) */}
                 <div className="coastal-operating-section">
                   <span className="section-label">
-                    <span className="section-label-icon">⚓</span> COASTAL OPERATING AREAS
+                    <span className="section-label-icon">⚓</span> QUICK ACCESS LOCATIONS
                   </span>
                   <div className="coastal-buttons-grid">
                     {popularLocations.slice(0, 6).map((loc) => {
@@ -551,6 +551,9 @@ export const HomePage: React.FC = () => {
                         </button>
                       );
                     })}
+                  </div>
+                  <div className="quick-access-helper-text">
+                    Search any location or select a point on the map.
                   </div>
                 </div>
 
@@ -606,12 +609,11 @@ export const HomePage: React.FC = () => {
                     </div>
                   ) : (
                     <div className="state-empty-box">
-                      <svg className="empty-marine-pin-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
-                        <circle cx="12" cy="12" r="10" />
-                        <circle cx="12" cy="12" r="3" />
-                      </svg>
+                      <div className="empty-box-header">
+                        <span className="empty-marine-badge">LOCATION REQUIRED</span>
+                      </div>
                       <span className="empty-marine-text">
-                        Select a location above or search to view marine intelligence.
+                        Select a location to view marine spatial intelligence.
                       </span>
                     </div>
                   )}

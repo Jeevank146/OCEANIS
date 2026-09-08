@@ -1065,3 +1065,29 @@
     align-items: flex-start;
   }
 }
+
+.quick-access-helper-text {
+  font-size: 0.72rem;
+  color: #8da4b8;
+  margin-top: 6px;
+  text-align: center;
+  font-style: italic;
+}
+
+.empty-box-header {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 4px;
+}
+
+.empty-marine-badge {
+  font-size: 0.65rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  color: #38bdf8;
+  background: rgba(56, 189, 248, 0.12);
+  border: 1px solid rgba(56, 189, 248, 0.3);
+  padding: 2px 8px;
+  border-radius: 4px;
+}

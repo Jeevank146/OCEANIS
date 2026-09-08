@@ -190,7 +190,17 @@ export const AskOceanisPage: React.FC = () => {
 
       {errorMsg && (
         <div className="error-alert-banner">
-          <strong>Pipeline Exception:</strong> {errorMsg}
+          <span className="error-alert-icon">⚠️</span>
+          <div className="error-alert-text">
+            <strong>Unable to Complete Marine Analysis:</strong> {errorMsg}
+          </div>
+          <button 
+            type="button" 
+            className="btn-retry-query"
+            onClick={() => executeDecisionQuery(queryInput)}
+          >
+            Retry Query
+          </button>
         </div>
       )}
 
