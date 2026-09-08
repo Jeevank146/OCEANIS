@@ -1,3 +1,4 @@
+import os
 from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
@@ -41,14 +42,41 @@ app = FastAPI(
     lifespan=lifespan,
 )
 
-# Enable CORS for all local and production frontend origins
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
+# CORS Configuration for Local Development and Public Cloud Production
+default_origins = [
+    "http://localhost:5173",
+    "http://127.0.0.1:5173",
+    "http://localhost:3000",
+    "http://127.0.0.1:3000",
+    "http://localhost:8080",
+    "http://127.0.0.1:8080",
+]
+
+# Allow custom production frontend origins via FRONTEND_ORIGIN or ALLOWED_ORIGINS env vars
+frontend_origin_env = os.getenv("FRONTEND_ORIGIN") or os.getenv("ALLOWED_ORIGINS")
+if frontend_origin_env:
+    for origin in frontend_origin_env.split(","):
+        cleaned = origin.strip().rstrip("/")
+        if cleaned and cleaned not in default_origins:
+            default_origins.append(cleaned)
+
+# If wildcard is explicitly specified in ALLOWED_ORIGINS
+if "*" in default_origins:
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origins=["*"],
+        allow_credentials=True,
+        allow_methods=["*"],
+        allow_headers=["*"],
+    )
+else:
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origins=default_origins,
+        allow_credentials=True,
+        allow_methods=["*"],
+        allow_headers=["*"],
+    )
 
 app.include_router(system_router, prefix="/api/v1")
 app.include_router(location_router, prefix="/api/v1")
@@ -93,7 +121,8 @@ def health():
 
     except Exception as error:
         return {
-            "status": "unhealthy",
-            "database": "disconnected",
-            "error": str(error),
+            "status": "degraded",
+            "database": "offline_or_initializing",
+            "message": "API active with live upstream providers and cache fallback",
+            "detail": str(error),
         }

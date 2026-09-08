@@ -1,3 +1,4 @@
+import { API_BASE_URL } from '../../services/api';
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useLocationContext } from '../../context/LocationContext';
@@ -189,7 +190,7 @@ export const SettingsPage: React.FC = () => {
             <div className="diag-item">
               <div className="diag-main">
                 <strong>FastAPI Core Orchestrator</strong>
-                <span>http://127.0.0.1:8000 (28 Active Endpoints)</span>
+                <span>{API_BASE_URL} (28 Active Endpoints)</span>
               </div>
               <span className="badge-diag-green">HEALTHY</span>
             </div>

@@ -1,0 +1,38 @@
+services:
+  # OCEANIS FastAPI Backend Web Service
+  - type: web
+    name: oceanis-backend
+    runtime: python
+    rootDir: backend
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn main:app --host 0.0.0.0 --port $PORT
+    envVars:
+      - key: PORT
+        value: 8000
+      - key: ENVIRONMENT
+        value: production
+      - key: LOG_LEVEL
+        value: INFO
+      - key: FRONTEND_ORIGIN
+        sync: false
+      - key: DATABASE_URL
+        fromDatabase:
+          name: oceanis-db
+          property: connectionString
+      - key: INCOIS_ENABLED
+        value: "true"
+      - key: IMD_ENABLED
+        value: "true"
+      - key: COPERNICUS_ENABLED
+        value: "true"
+      - key: FALLBACK_ENABLED
+        value: "true"
+
+databases:
+  # Managed PostgreSQL with PostGIS
+  - name: oceanis-db
+    databaseName: oceanis
+    user: oceanis
+    plan: free
+    region: singapore
+    ipAllowList: []

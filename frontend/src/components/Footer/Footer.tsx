@@ -1,3 +1,4 @@
+import { API_BASE_URL } from '../../services/api';
 import React from 'react';
 import './Footer.css';
 
@@ -68,8 +69,8 @@ export const Footer: React.FC = () => {
               <li><a href="#query">Ask OCEANIS Natural Query</a></li>
               <li><a href="#decision-intelligence">Decision Provenance Architecture</a></li>
               <li><a href="#trusted-sources">Institutional Telemetry Ingestion</a></li>
-              <li><a href="http://127.0.0.1:8000/docs" target="_blank" rel="noreferrer">FastAPI Swagger Documentation</a></li>
-              <li><a href="http://127.0.0.1:8000/redoc" target="_blank" rel="noreferrer">ReDoc API Specifications</a></li>
+              <li><a href={`${API_BASE_URL}/docs`} target="_blank" rel="noreferrer">FastAPI Swagger Documentation</a></li>
+              <li><a href={`${API_BASE_URL}/redoc`} target="_blank" rel="noreferrer">ReDoc API Specifications</a></li>
               <li><a href="#trust">Maritime Safety Guardrails</a></li>
             </ul>
           </div>
