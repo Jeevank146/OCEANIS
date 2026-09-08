@@ -200,12 +200,12 @@ export const AskOceanisPage: React.FC = () => {
       };
 
       recognition.onend = () => {
-        if (voiceState === 'LISTENING' && queryInput.trim()) {
-          setVoiceState('PROCESSING');
-          executeDecisionQuery(queryInput);
-        } else {
-          setVoiceState('IDLE');
-        }
+        setVoiceState((prev) => {
+          if (prev === 'LISTENING') {
+            return 'IDLE';
+          }
+          return prev;
+        });
       };
 
       recognition.start();
@@ -877,6 +877,38 @@ export const AskOceanisPage: React.FC = () => {
                 ))}
               </tbody>
             </table>
+          </div>
+        </div>
+      )}
+
+            {/* Conversational Memory / Recent Interaction Turns */}
+      {conversationHistory.length > 1 && (
+        <div className="conversation-history-card">
+          <div className="history-header">
+            <span className="history-kicker">CONVERSATIONAL MEMORY</span>
+            <h3 className="history-title">Recent Intelligence Turns ({conversationHistory.length})</h3>
+            <p className="history-sub">Click any prior turn to reload full multi-agent evidence and reasoning state</p>
+          </div>
+          <div className="history-turns-list">
+            {conversationHistory.slice(1).map((turn) => (
+              <div
+                key={turn.id}
+                className="history-turn-item"
+                onClick={() => {
+                  setQueryInput(turn.query);
+                  executeDecisionQuery(turn.query);
+                }}
+                title="Reload this conversational query"
+              >
+                <div className="turn-left">
+                  <span className="turn-time">{turn.timestamp}</span>
+                  <strong className="turn-query">"{turn.query}"</strong>
+                </div>
+                <span className={`turn-dec-badge ${getDecisionBadgeClass(turn.response.decision)}`}>
+                  {turn.response.decision} ({turn.response.confidence}%)
+                </span>
+              </div>
+            ))}
           </div>
         </div>
       )}

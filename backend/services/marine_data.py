@@ -382,14 +382,17 @@ class MarineDataService:
             # 1. Save / Update MarineObservation (with duplicate protection)
             if wave_map:
                 primary_src = source_name
-                # Check for existing record at same location, time, and source
+                # Check for existing record at same location, time window (within 30 mins), and source
+                from datetime import timedelta
+                time_min = valid_time - timedelta(minutes=30)
+                time_max = valid_time + timedelta(minutes=30)
                 existing_marine = (
                     db.query(MarineObservation)
                     .filter(
                         MarineObservation.latitude == latitude,
                         MarineObservation.longitude == longitude,
-                        MarineObservation.observed_at == valid_time,
                         MarineObservation.source == primary_src,
+                        MarineObservation.observed_at.between(time_min, time_max),
                     )
                     .first()
                 )
