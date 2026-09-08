@@ -455,26 +455,31 @@ export const DashboardPage: React.FC = () => {
               </div>
 
               <div className="safety-card-content">
-                {/* Official Warning State Banner */}
+                {/* Overall Risk Banner */}
                 <div className="safety-risk-banner">
                   <div className="risk-banner-left">
                     <span className="risk-icon">🛡️</span>
                     <div className="risk-text-block">
-                      <span className="risk-level-tag">OFFICIAL COASTAL BULLETIN</span>
-                      <strong className="risk-level-title">NO ACTIVE SEVERE WARNINGS</strong>
-                      <span className="risk-level-sub">Verified bulletin for {locName}.</span>
+                      <span className="risk-level-tag">OVERALL SAFETY ASSESSMENT</span>
+                      <strong className="risk-level-title">Normal Marine Operations</strong>
+                      <span className="risk-level-sub">All primary safety indicators within operational thresholds</span>
                     </div>
                   </div>
-                  <span className="active-alerts-pill">ALL CLEAR</span>
+                  <span className="active-alerts-pill">3 Monitored</span>
                 </div>
 
-                {/* Structured Advisory Cards Grid */}
+                {/* Structured Advisory Cards (Dedicated cards, no concatenation, full visibility) */}
                 <div className="advisory-cards-grid">
                   {safetyAdvisories.map((adv, idx) => (
-                    <div key={idx} className={`advisory-item-card ${adv.severity}`}>
+                    <div key={idx} className="advisory-item-card">
                       <div className="adv-card-header">
-                        <span className="adv-icon">⚠️</span>
-                        <strong className="adv-title">{adv.title}</strong>
+                        <div className="adv-title-group">
+                          <span className="adv-icon">⚠️</span>
+                          <strong className="adv-title">{adv.title}</strong>
+                        </div>
+                        <span className={`adv-badge ${adv.severity}`}>
+                          {adv.severity === 'favorable' ? 'Favorable' : adv.severity === 'safe' ? 'Safe / Normal' : 'Monitored'}
+                        </span>
                       </div>
                       <p className="adv-desc">{adv.desc}</p>
                       <div className="adv-footer">
@@ -484,10 +489,13 @@ export const DashboardPage: React.FC = () => {
                   ))}
                 </div>
 
-                {/* Verified Authorities Footer */}
+                {/* Authoritative Sources & Safety Notice Footer */}
                 <div className="safety-sources-footer">
-                  <span className="safety-src-label">Verified Authorities:</span>
-                  <span className="safety-src-list">IMD Coastal Bulletins • INCOIS Ocean State Forecast • Maritime Rescue Center</span>
+                  <span className="safety-src-label">Authoritative Sources:</span>
+                  <span className="safety-src-list">INCOIS, IMD Marine Bulletins</span>
+                </div>
+                <div className="safety-disclaimer-note">
+                  Decision support, not a safety guarantee.
                 </div>
               </div>
             </section>

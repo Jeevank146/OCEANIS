@@ -437,15 +437,15 @@
    ========================================================================== */
 .marine-six-grid {
   display: grid;
-  grid-template-columns: repeat(6, 1fr);
-  gap: 12px;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 10px;
 }
 
 .telemetry-card {
   background: #FFFFFF;
   border: 1px solid #E2E8F0;
   border-radius: 8px;
-  padding: 12px 14px;
+  padding: 10px 12px;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
@@ -464,18 +464,16 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 6px;
+  margin-bottom: 4px;
 }
 
 .telem-card-label {
   font-size: 0.65rem;
-  font-weight: 700;
+  font-weight: 800;
   color: #64748B;
   letter-spacing: 0.06em;
   text-transform: uppercase;
   white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
 }
 
 .telem-status-dot {
@@ -501,55 +499,52 @@
 }
 
 .telem-card-val-row {
-  margin: 4px 0 8px 0;
+  margin: 2px 0 6px 0;
 }
 
 .telem-main-val {
-  font-size: 1.15rem;
-  font-weight: 700;
+  font-size: 1.125rem;
+  font-weight: 800;
   color: #0B2137;
   line-height: 1.2;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  word-break: break-word;
 }
 
 .telem-card-footer {
   display: flex;
-  align-items: center;
-  justify-content: space-between;
-  font-size: 0.68rem;
+  flex-direction: column;
+  gap: 3px;
   border-top: 1px solid #F1F5F9;
-  padding-top: 6px;
-  gap: 4px;
+  padding-top: 5px;
+  font-size: 0.68rem;
 }
 
 .telem-footer-sub {
-  color: #64748B;
-  font-weight: 500;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  color: #334155;
+  font-weight: 600;
+  line-height: 1.25;
+  word-break: break-word;
 }
 
 .telem-footer-src {
-  color: #0369A1;
+  color: #0284C7;
+  font-size: 0.62rem;
   font-weight: 600;
   background: #F0F9FF;
   padding: 1px 5px;
   border-radius: 4px;
   border: 1px solid #BAE6FD;
+  align-self: flex-start;
   white-space: nowrap;
-  flex-shrink: 0;
 }
 
 /* ==========================================================================
-   4. Middle Row — 2-Column Grid (GIS Map Preview & Safety Status)
+   4. Middle Row — 2-Column Grid (GIS Map Preview ~65% & Safety Status ~35%)
    ========================================================================== */
 .dash-two-col-grid {
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 18px;
+  grid-template-columns: minmax(0, 1.85fr) minmax(0, 1fr);
+  gap: 16px;
   margin-bottom: 18px;
   align-items: stretch;
 }
@@ -646,30 +641,43 @@
 
 /* Structured Advisory Cards Grid */
 .advisory-cards-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  display: flex;
+  flex-direction: column;
   gap: 8px;
 }
 
 .advisory-item-card {
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
   background: #F8FAFC;
   border: 1px solid #E2E8F0;
   border-radius: 8px;
-  padding: 8px 10px;
+  padding: 9px 12px;
   gap: 4px;
+  transition: all 0.15s ease;
+}
+
+.advisory-item-card:hover {
+  background: #FFFFFF;
+  border-color: #CBD5E1;
+  box-shadow: 0 2px 4px rgba(15, 23, 42, 0.04);
 }
 
 .adv-card-header {
   display: flex;
   align-items: center;
-  gap: 4px;
+  justify-content: space-between;
+  gap: 6px;
+}
+
+.adv-title-group {
+  display: flex;
+  align-items: center;
+  gap: 5px;
 }
 
 .adv-icon {
-  font-size: 0.8rem;
+  font-size: 0.82rem;
 }
 
 .adv-title {
@@ -679,23 +687,59 @@
   line-height: 1.2;
 }
 
+.adv-badge {
+  font-size: 0.62rem;
+  font-weight: 700;
+  padding: 1px 6px;
+  border-radius: 4px;
+}
+
+.adv-badge.favorable {
+  background: #ECFDF5;
+  color: #059669;
+  border: 1px solid #A7F3D0;
+}
+
+.adv-badge.safe {
+  background: #EFF6FF;
+  color: #2563EB;
+  border: 1px solid #BFDBFE;
+}
+
+.adv-badge.info {
+  background: #F1F5F9;
+  color: #475569;
+  border: 1px solid #CBD5E1;
+}
+
 .adv-desc {
   margin: 0;
-  font-size: 0.7rem;
+  font-size: 0.72rem;
   color: #475569;
   line-height: 1.35;
 }
 
 .adv-footer {
-  margin-top: 4px;
-  padding-top: 4px;
-  border-top: 1px solid #EDF2F7;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 2px;
+  padding-top: 3px;
+  border-top: 1px solid #F1F5F9;
 }
 
 .adv-source {
   font-size: 0.62rem;
   font-weight: 600;
   color: #64748B;
+}
+
+.safety-disclaimer-note {
+  font-size: 0.65rem;
+  color: #94A3B8;
+  font-style: italic;
+  border-top: 1px solid #F1F5F9;
+  padding-top: 6px;
 }
 
 .safety-sources-footer {

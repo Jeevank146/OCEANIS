@@ -190,7 +190,7 @@
   font-weight: 600;
   cursor: pointer;
   transition: all 0.2s ease;
-  max-width: 190px;
+  max-width: none;
 }
 
 .navbar-active-loc-btn:hover {
@@ -209,7 +209,7 @@
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  max-width: 110px;
+  max-width: 220px;
   color: #F4F7FA;
   font-weight: 700;
 }

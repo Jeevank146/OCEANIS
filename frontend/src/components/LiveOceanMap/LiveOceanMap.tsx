@@ -81,15 +81,43 @@ export const LiveOceanMap: React.FC = () => {
     await validateAndSetCoordinates(lat, lon, `Waypoint (${lat.toFixed(4)}, ${lon.toFixed(4)})`);
   };
 
+  // Clean location & coordinate values without duplication
+  const cleanMapLocName = selectedLocation?.name
+    ? (selectedLocation.name.replace(/\s*\([^)]*\)/g, '').trim() || selectedLocation.name)
+    : 'Selected Operating Area';
+
+  const centerCoordsFormatted = selectedLocation?.lat !== undefined && selectedLocation?.lon !== undefined
+    ? `${Math.abs(selectedLocation.lat).toFixed(4)}° ${selectedLocation.lat >= 0 ? 'N' : 'S'}, ${Math.abs(selectedLocation.lon).toFixed(4)}° ${selectedLocation.lon >= 0 ? 'E' : 'W'}`
+    : '17.6868° N, 83.2185° E';
+
+  const isOffshoreDomain = Boolean(
+    (!selectedLocation?.is_coastal && selectedLocation?.distance_to_coast_km && selectedLocation.distance_to_coast_km > 20.0) ||
+    (selectedLocation?.status === 'VALID_MARINE' && !selectedLocation?.is_coastal) ||
+    cleanMapLocName.toLowerCase().includes('offshore') ||
+    cleanMapLocName.toLowerCase().includes('waypoint')
+  );
+
+  const domainClassificationTag = selectedLocation?.is_coastal
+    ? 'COASTAL'
+    : isOffshoreDomain
+    ? 'OFFSHORE'
+    : 'INLAND';
+
   return (
     <div id="live-map" className={`live-ocean-map-card ocean-card ${isFullscreen ? 'fullscreen-map' : ''}`}>
       {/* Map Header */}
       <div className="map-card-header">
         <div className="map-header-left">
-          <h2 className="map-title-text">Live Ocean Intelligence Map</h2>
-          <span className="map-crs-tag">
-            EPSG:3857 • MERCATOR PROJECTION • CENTER: {selectedLocation.name} ({selectedLocation.coordinates || `${Math.abs(selectedLocation.lat).toFixed(4)}° ${selectedLocation.lat >= 0 ? 'N' : 'S'}, ${Math.abs(selectedLocation.lon).toFixed(4)}° ${selectedLocation.lon >= 0 ? 'E' : 'W'}`})
-          </span>
+          <h2 className="map-title-text">LIVE OCEAN INTELLIGENCE MAP</h2>
+          <div className="map-meta-info-row">
+            <span className="map-meta-item"><strong className="meta-lbl">LOCATION:</strong> {cleanMapLocName}</span>
+            <span className="map-meta-sep">•</span>
+            <span className="map-meta-item"><strong className="meta-lbl">CENTER:</strong> {centerCoordsFormatted}</span>
+            <span className="map-meta-sep">•</span>
+            <span className="map-meta-item"><strong className="meta-lbl">DOMAIN:</strong> <span className="domain-badge">{domainClassificationTag}</span></span>
+            <span className="map-meta-sep">•</span>
+            <span className="map-analytical-note">Marine analytical layer</span>
+          </div>
         </div>
 
         <div className="map-header-actions">

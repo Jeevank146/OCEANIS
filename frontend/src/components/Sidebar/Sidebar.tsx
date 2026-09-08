@@ -247,7 +247,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
           <div className="sidebar-footer-status">
             <div className="sidebar-status-pill">
               <span className="live-dot pulse" />
-              <span className="sidebar-status-text">6/6 Agents Active</span>
+              <span className="sidebar-status-text">6/6 Domain Agents Online</span>
             </div>
             <span className="sidebar-version-tag">OCEANIS v2.4</span>
           </div>

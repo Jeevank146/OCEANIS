@@ -78,15 +78,24 @@ export const Navbar: React.FC<NavbarProps> = ({
     activeValidation && (activeValidation.status === 'INLAND' || activeValidation.is_coastal === false || activeValidation.is_marine === false)
   );
   const isOffshore = Boolean(
-    hasLocation && !isInland && selectedLocation.distance_to_coast_km && selectedLocation.distance_to_coast_km > 20.0
+    hasLocation && !isInland && (
+      (selectedLocation.distance_to_coast_km && selectedLocation.distance_to_coast_km > 20.0) ||
+      (activeValidation && activeValidation.status === 'VALID_MARINE' && !activeValidation.is_coastal) ||
+      (selectedLocation.name && selectedLocation.name.toLowerCase().includes('offshore')) ||
+      (selectedLocation.name && selectedLocation.name.toLowerCase().includes('waypoint'))
+    )
   );
+
+  const cleanLocName = selectedLocation
+    ? (selectedLocation.city || selectedLocation.name.replace(/\s*\([^)]*\)/g, '').trim())
+    : '';
 
   const locationSectorText = hasLocation
     ? isInland
-      ? `${selectedLocation.city || selectedLocation.name} • Inland`
+      ? `${cleanLocName} • Inland`
       : isOffshore
       ? 'Offshore Sector'
-      : `${selectedLocation.city || selectedLocation.name} Sector`
+      : `${cleanLocName} Sector`
     : 'Location Not Selected';
 
   const handleOpenLocationSelector = () => {
