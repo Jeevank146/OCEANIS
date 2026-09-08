@@ -306,10 +306,14 @@ export const LocationProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     setValidationError(null);
     try {
       const res = await validateLocation({ query });
-      if (res.is_coastal || res.is_marine) {
+      if (res.status !== 'UNRESOLVED') {
         setActiveValidation(res);
-        const locInfo = validationToLocationInfo(res);
-        setRecentLocations((prev) => [locInfo, ...prev.filter((p) => p.name !== locInfo.name)].slice(0, 5));
+        if (res.is_coastal || res.is_marine) {
+          const locInfo = validationToLocationInfo(res);
+          setRecentLocations((prev) => [locInfo, ...prev.filter((p) => p.name !== locInfo.name)].slice(0, 5));
+        }
+      } else {
+        setValidationError(res.reason || 'Location could not be resolved. Try another location or select a point on the map.');
       }
       return res;
     } catch (err: any) {
@@ -389,10 +393,12 @@ export const LocationProvider: React.FC<{ children: React.ReactNode }> = ({ chil
           const { latitude, longitude } = position.coords;
           try {
             const res = await reverseGeocodeLocation(latitude, longitude, 'Detected GPS Location');
-            if (res.is_coastal || res.is_marine) {
+            if (res.status !== 'UNRESOLVED') {
               setActiveValidation(res);
-              const locInfo = validationToLocationInfo(res);
-              setRecentLocations((prev) => [locInfo, ...prev.filter((p) => p.name !== locInfo.name)].slice(0, 5));
+              if (res.is_coastal || res.is_marine) {
+                const locInfo = validationToLocationInfo(res);
+                setRecentLocations((prev) => [locInfo, ...prev.filter((p) => p.name !== locInfo.name)].slice(0, 5));
+              }
             }
             resolve(res);
           } catch (err: any) {
@@ -413,7 +419,7 @@ export const LocationProvider: React.FC<{ children: React.ReactNode }> = ({ chil
           }
         },
         (error) => {
-          let reasonMsg = 'Geolocation permission was denied.';
+          let reasonMsg = 'Location access was not granted. Search for a location or select one on the map.';
           if (error.code === error.POSITION_UNAVAILABLE) {
             reasonMsg = 'Location information is currently unavailable.';
           } else if (error.code === error.TIMEOUT) {
