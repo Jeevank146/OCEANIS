@@ -771,3 +771,29 @@
 .fresh-unavailable { background: rgba(100, 116, 139, 0.15); color: #94a3b8; }
 
 .timestamp-cell { color: #94a3b8; font-size: 0.8rem; }
+
+/* Safety Disclaimer Banner */
+.oceanis-safety-disclaimer-banner {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-left: 4px solid #3b82f6;
+  border-radius: 8px;
+  padding: 12px 18px;
+  margin-top: 24px;
+  font-size: 0.88rem;
+  color: #475569;
+  line-height: 1.5;
+}
+
+.disclaimer-shield-icon {
+  font-size: 1.25rem;
+  flex-shrink: 0;
+}
+
+.disclaimer-text strong {
+  color: #1e293b;
+  font-weight: 600;
+}

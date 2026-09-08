@@ -615,6 +615,15 @@ export const AskOceanisPage: React.FC = () => {
           </div>
         </div>
       )}
+
+      {decisionData && (
+        <div className="oceanis-safety-disclaimer-banner">
+          <span className="disclaimer-shield-icon">🛡️</span>
+          <p className="disclaimer-text">
+            <strong>Operational Advisory:</strong> Decision support, not a safety guarantee. Always cross-reference with official local port authorities, Coast Guard, and IMD/INCOIS meteorological bulletins before initiating offshore voyages.
+          </p>
+        </div>
+      )}
     </div>
   );
 };
