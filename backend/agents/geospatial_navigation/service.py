@@ -38,3 +38,10 @@ class GeoSpatialNavigationAgentService:
         Alias for assess_geospatial_navigation.
         """
         return self.assess_geospatial_navigation(db=db, query=query)
+
+    def assess_spatial(
+        self,
+        db: Session,
+        query: GeoSpatialNavigationQuery,
+    ) -> GeoSpatialNavigationAssessmentResponse:
+        return self.assess_geospatial_navigation(db=db, query=query)

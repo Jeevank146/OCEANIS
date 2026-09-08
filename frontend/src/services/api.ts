@@ -555,3 +555,153 @@ export async function reverseGeocodeLocation(
 
   return response.json();
 }
+
+
+export interface EvidenceItemContract {
+  source: string;
+  parameter: string;
+  value: any;
+  unit?: string | null;
+  observation_type: 'Observed' | 'Forecast' | 'Official Warning' | 'AI Assessment';
+  timestamp?: string | null;
+  freshness: 'Fresh' | 'Aging' | 'Stale' | 'Unavailable';
+  location?: Record<string, any> | null;
+  provenance?: Record<string, any> | null;
+}
+
+export interface AgentResultContract {
+  agent_name: string;
+  status: 'success' | 'partial' | 'unavailable' | 'error';
+  summary: string;
+  findings: string[];
+  evidence: EvidenceItemContract[];
+  confidence: number;
+  warnings: string[];
+  limitations: string[];
+}
+
+export interface WhyDecisionBreakdownContract {
+  marine_conditions: string[];
+  ocean_conditions: string[];
+  eo_indicators: string[];
+  spatial_constraints: string[];
+  safety_warnings: string[];
+  operational_factors: string[];
+}
+
+export interface ScenarioDetailsContract {
+  departure_time?: string | null;
+  location_name?: string | null;
+  latitude?: number | null;
+  longitude?: number | null;
+  decision?: string | null;
+  confidence_score?: number | null;
+  risk_level?: string | null;
+  key_conditions?: string[];
+}
+
+export interface WhatIfComparisonContract {
+  status: string;
+  message?: string | null;
+  base_scenario?: ScenarioDetailsContract | null;
+  what_if_scenario?: ScenarioDetailsContract | null;
+  changed_factors: string[];
+  decision_difference?: string | null;
+  confidence_difference?: number | null;
+}
+
+export interface FinalDecisionObjectContract {
+  decision: 'Suitable' | 'Caution' | 'Not Recommended' | 'Insufficient Evidence' | string;
+  summary: string;
+  confidence: number;
+  confidence_reasons: string[];
+  safety_status: string;
+  guardrail_actions: string[];
+  key_findings: string[];
+  why_decision: WhyDecisionBreakdownContract;
+  evidence: EvidenceItemContract[];
+  agents_consulted: AgentResultContract[];
+  freshness_summary: string;
+  warnings: string[];
+  limitations: string[];
+  location?: {
+    name?: string;
+    latitude?: number;
+    longitude?: number;
+    is_port?: boolean;
+    is_inland?: boolean;
+  } | null;
+  requested_time?: string | null;
+  what_if_comparison?: WhatIfComparisonContract | null;
+  generated_at: string;
+}
+
+export interface WhatIfRequestPayload {
+  query: string;
+  latitude?: number | null;
+  longitude?: number | null;
+  target_datetime?: string | null;
+  what_if_time?: string | null;
+  what_if_latitude?: number | null;
+  what_if_longitude?: number | null;
+  what_if_location_name?: string | null;
+}
+
+/**
+ * Fetch authoritative structured marine decision from Agent Orchestrator.
+ */
+export async function getOrchestratorDecision(
+  query: string,
+  latitude?: number | null,
+  longitude?: number | null,
+  targetDatetime?: string | null,
+  whatIfTime?: string | null,
+  whatIfLat?: number | null,
+  whatIfLon?: number | null,
+  whatIfLocName?: string | null,
+): Promise<FinalDecisionObjectContract> {
+  const params = new URLSearchParams();
+  if (whatIfTime) params.append('what_if_time', whatIfTime);
+  if (whatIfLat !== undefined && whatIfLat !== null) params.append('what_if_lat', whatIfLat.toString());
+  if (whatIfLon !== undefined && whatIfLon !== null) params.append('what_if_lon', whatIfLon.toString());
+  if (whatIfLocName) params.append('what_if_loc_name', whatIfLocName);
+
+  const url = `${API_BASE_URL}/api/v1/orchestrator/decision${params.toString() ? '?' + params.toString() : ''}`;
+  const response = await fetch(url, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      query,
+      latitude: latitude ?? null,
+      longitude: longitude ?? null,
+      target_datetime: targetDatetime ?? null,
+    }),
+  });
+
+  if (!response.ok) {
+    const errDetail = await response.text();
+    throw new Error(`Orchestrator decision API error (${response.status}): ${errDetail}`);
+  }
+
+  return response.json();
+}
+
+/**
+ * Run standalone What-If scenario comparison.
+ */
+export async function runWhatIfSimulation(
+  payload: WhatIfRequestPayload
+): Promise<WhatIfComparisonContract> {
+  const response = await fetch(`${API_BASE_URL}/api/v1/orchestrator/what-if`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload),
+  });
+
+  if (!response.ok) {
+    const errDetail = await response.text();
+    throw new Error(`What-If simulation API error (${response.status}): ${errDetail}`);
+  }
+
+  return response.json();
+}

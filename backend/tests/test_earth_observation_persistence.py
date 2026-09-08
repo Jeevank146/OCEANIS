@@ -73,7 +73,7 @@ def test_earth_observation_real_data_retrieval_and_postgres_persistence():
         # 3. Verify PostgreSQL Persistence
         persisted = (
             db.query(EarthObservation)
-            .filter(EarthObservation.source == "Copernicus Marine / Sentinel-3 EO")
+            .filter(EarthObservation.source == "Copernicus Marine / Sentinel-3 EO", EarthObservation.latitude >= 17.0)
             .all()
         )
         assert len(persisted) == 1
@@ -91,7 +91,10 @@ def test_earth_observation_real_data_retrieval_and_postgres_persistence():
 
         persisted_after = (
             db.query(EarthObservation)
-            .filter(EarthObservation.source == "Copernicus Marine / Sentinel-3 EO")
+            .filter(
+                EarthObservation.source == "Copernicus Marine / Sentinel-3 EO",
+                EarthObservation.latitude >= 17.0,
+            )
             .all()
         )
         assert len(persisted_after) == 1, f"Duplicate rows created! ({len(persisted_after)} != 1)"

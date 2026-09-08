@@ -45,6 +45,7 @@ class QueryUnderstanding(BaseModel):
     vessel_type: Optional[str] = None
     operation_type: Optional[str] = None
     is_comparison: bool = False
+    entities_extracted: Dict[str, Any] = Field(default_factory=dict)
 
 
 class AgentSelection(BaseModel):
