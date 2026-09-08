@@ -1196,3 +1196,138 @@
   color: #64748B;
   border-color: #CBD5E1;
 }
+
+
+/* ===================================================================
+   CURRENT QUERY HIGHLIGHT & LOCATION SYNC BANNER ENHANCEMENTS
+   =================================================================== */
+
+.current-query-highlight-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 10px;
+  background: rgba(8, 42, 67, 0.65);
+  border-bottom: 1px solid rgba(8, 127, 181, 0.35);
+  padding: 12px 18px;
+  margin: -20px -20px 18px -20px;
+  border-radius: 12px 12px 0 0;
+}
+
+.highlight-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.current-query-label {
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  color: #16B8D8;
+  background: rgba(22, 184, 216, 0.15);
+  border: 1px solid rgba(22, 184, 216, 0.3);
+  padding: 3px 8px;
+  border-radius: 4px;
+  text-transform: uppercase;
+}
+
+.current-query-text {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #F4F7FA;
+}
+
+.current-query-time-badge {
+  font-size: 0.76rem;
+  color: #A9BBC9;
+  background: rgba(6, 24, 39, 0.5);
+  padding: 3px 10px;
+  border-radius: 12px;
+  border: 1px solid rgba(8, 127, 181, 0.2);
+}
+
+/* Location Mismatch / Sync Banner */
+.location-context-sync-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+  background: rgba(245, 158, 11, 0.12);
+  border: 1px solid rgba(245, 158, 11, 0.4);
+  border-radius: 10px;
+  padding: 12px 18px;
+  margin-bottom: 16px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+}
+
+.sync-banner-left {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.88rem;
+  color: #F4F7FA;
+}
+
+.sync-pin-icon {
+  font-size: 1.15rem;
+}
+
+.sync-sep {
+  color: rgba(255, 255, 255, 0.35);
+  margin: 0 6px;
+}
+
+.global-loc-note {
+  color: #CBD5E1;
+  font-size: 0.84rem;
+}
+
+.btn-sync-loc {
+  background: linear-gradient(135deg, #087FB5 0%, #16B8D8 100%);
+  color: #061827;
+  border: none;
+  padding: 7px 16px;
+  border-radius: 20px;
+  font-weight: 700;
+  font-size: 0.8rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.btn-sync-loc:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(22, 184, 216, 0.45);
+}
+
+/* Informational Telemetry Badge */
+.info-telemetry-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-size: 0.82rem;
+  font-weight: 700;
+  background: rgba(8, 127, 181, 0.18);
+  color: #16B8D8;
+  border: 1px solid rgba(22, 184, 216, 0.4);
+}
+
+/* Conversational History Metadata Chips */
+.turn-meta-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.72rem;
+  color: #A9BBC9;
+  background: rgba(8, 42, 67, 0.65);
+  padding: 2px 8px;
+  border-radius: 12px;
+  border: 1px solid rgba(8, 127, 181, 0.25);
+  margin-left: 6px;
+}
