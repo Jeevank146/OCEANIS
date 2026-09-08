@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useLocationContext } from '../../context/LocationContext';
 import './LiveOceanMap.css';
 
 type MapLayer = 
@@ -34,44 +35,50 @@ const mapLayers: MapLayerConfig[] = [
   { id: 'ports', label: 'Ports & Refuges', category: 'Infrastructure', legendTitle: 'Maritime Facilities', legendScale: ['Major Port', 'Fishing Harbor', 'Designated Refuge'], unit: 'Port' },
 ];
 
-interface PortMarker {
-  name: string;
-  lat: string;
-  lon: string;
-  status: 'OPEN' | 'ADVISORY' | 'REFUGE';
-  depth: string;
-}
-
-const coastalPorts: PortMarker[] = [
-  { name: 'Visakhapatnam Major Port', lat: '17.6868° N', lon: '83.2185° E', status: 'OPEN', depth: '18.0 m' },
-  { name: 'Kakinada Deep Water Port', lat: '16.9890° N', lon: '82.2474° E', status: 'REFUGE', depth: '14.5 m' },
-  { name: 'Machilipatnam Port', lat: '16.1875° N', lon: '81.1389° E', status: 'OPEN', depth: '8.5 m' },
-  { name: 'Chennai Harbor Facility', lat: '13.0827° N', lon: '80.2707° E', status: 'OPEN', depth: '16.5 m' },
-];
-
 export const LiveOceanMap: React.FC = () => {
+  const { selectedLocation, validateAndSetCoordinates, isValidating } = useLocationContext();
   const [activeLayer, setActiveLayer] = useState<MapLayer>('sst');
   const [zoomLevel, setZoomLevel] = useState<number>(9.5);
-  const [activePort, setActivePort] = useState<PortMarker | null>(coastalPorts[0]);
-  const [mouseCoords, setMouseCoords] = useState({ lat: '17.6868° N', lon: '83.2185° E' });
+  const [mouseCoords, setMouseCoords] = useState({
+    lat: `${Math.abs(selectedLocation.lat).toFixed(4)}° ${selectedLocation.lat >= 0 ? 'N' : 'S'}`,
+    lon: `${Math.abs(selectedLocation.lon).toFixed(4)}° ${selectedLocation.lon >= 0 ? 'E' : 'W'}`,
+  });
   const [isFullscreen, setIsFullscreen] = useState(false);
+
+  useEffect(() => {
+    setMouseCoords({
+      lat: `${Math.abs(selectedLocation.lat).toFixed(4)}° ${selectedLocation.lat >= 0 ? 'N' : 'S'}`,
+      lon: `${Math.abs(selectedLocation.lon).toFixed(4)}° ${selectedLocation.lon >= 0 ? 'E' : 'W'}`,
+    });
+  }, [selectedLocation.lat, selectedLocation.lon]);
 
   const activeConfig = mapLayers.find((l) => l.id === activeLayer) || mapLayers[0];
 
   const handleZoomIn = () => setZoomLevel((prev) => Math.min(prev + 0.5, 14.0));
   const handleZoomOut = () => setZoomLevel((prev) => Math.max(prev - 0.5, 6.0));
-  const handleReset = () => {
-    setZoomLevel(9.5);
-    setActivePort(coastalPorts[0]);
-  };
+  const handleReset = () => setZoomLevel(9.5);
 
-  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+  const getCoordinatesFromEvent = (e: React.MouseEvent<HTMLDivElement>) => {
     const rect = e.currentTarget.getBoundingClientRect();
     const xRatio = (e.clientX - rect.left) / rect.width;
     const yRatio = (e.clientY - rect.top) / rect.height;
-    const lat = (18.8 - yRatio * 3.2).toFixed(4);
-    const lon = (81.2 + xRatio * 3.2).toFixed(4);
-    setMouseCoords({ lat: `${lat}° N`, lon: `${lon}° E` });
+    const span = 3.2 / (zoomLevel / 9.5);
+    const lat = Number((selectedLocation.lat + span / 2 - yRatio * span).toFixed(4));
+    const lon = Number((selectedLocation.lon - span / 2 + xRatio * span).toFixed(4));
+    return { lat, lon };
+  };
+
+  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    const { lat, lon } = getCoordinatesFromEvent(e);
+    setMouseCoords({
+      lat: `${Math.abs(lat).toFixed(4)}° ${lat >= 0 ? 'N' : 'S'}`,
+      lon: `${Math.abs(lon).toFixed(4)}° ${lon >= 0 ? 'E' : 'W'}`,
+    });
+  };
+
+  const handleMapClick = async (e: React.MouseEvent<HTMLDivElement>) => {
+    const { lat, lon } = getCoordinatesFromEvent(e);
+    await validateAndSetCoordinates(lat, lon, `Waypoint (${lat.toFixed(4)}, ${lon.toFixed(4)})`);
   };
 
   return (
@@ -80,7 +87,9 @@ export const LiveOceanMap: React.FC = () => {
       <div className="map-card-header">
         <div className="map-header-left">
           <h2 className="map-title-text">Live Ocean Intelligence Map</h2>
-          <span className="map-crs-tag">EPSG:3857 • MERCATOR PROJECTION</span>
+          <span className="map-crs-tag">
+            EPSG:3857 • MERCATOR PROJECTION • CENTER: {selectedLocation.name} ({selectedLocation.coordinates})
+          </span>
         </div>
 
         <div className="map-header-actions">
@@ -124,7 +133,17 @@ export const LiveOceanMap: React.FC = () => {
       <div 
         className="map-viewport-container"
         onMouseMove={handleMouseMove}
+        onClick={handleMapClick}
+        style={{ cursor: 'crosshair' }}
+        title="Click anywhere on the map to set waypoint coordinates"
       >
+        {isValidating && (
+          <div className="map-loading-overlay">
+            <span className="map-loading-spinner" />
+            <span>Resolving spatial coordinates...</span>
+          </div>
+        )}
+
         <div className={`map-gis-canvas layer-mode-${activeLayer}`}>
           {/* Cartographic Vector Lines & Contours */}
           <svg className="map-gis-svg" viewBox="0 0 1000 560" preserveAspectRatio="none">
@@ -158,86 +177,71 @@ export const LiveOceanMap: React.FC = () => {
 
             {/* Wave / Wind / Current Flow Vectors */}
             {(activeLayer === 'waves' || activeLayer === 'wind' || activeLayer === 'currents') && (
-              <g className="flow-vector-arrows">
-                <line x1="390" y1="150" x2="450" y2="120" stroke="#0284c7" strokeWidth="2" strokeDasharray="5 3" />
-                <line x1="490" y1="250" x2="550" y2="220" stroke="#0284c7" strokeWidth="2" strokeDasharray="5 3" />
-                <line x1="590" y1="350" x2="650" y2="320" stroke="#0284c7" strokeWidth="2" strokeDasharray="5 3" />
-                <line x1="690" y1="450" x2="750" y2="420" stroke="#0284c7" strokeWidth="2" strokeDasharray="5 3" />
+              <g className="flow-vectors">
+                <line x1="380" y1="120" x2="430" y2="150" className="vector-arrow" />
+                <line x1="520" y1="180" x2="570" y2="210" className="vector-arrow" />
+                <line x1="680" y1="280" x2="730" y2="310" className="vector-arrow" />
+                <line x1="440" y1="320" x2="490" y2="350" className="vector-arrow" />
+                <line x1="600" y1="400" x2="650" y2="430" className="vector-arrow" />
               </g>
             )}
+
+            {/* Dynamic Active Position Beacon centered on active location */}
+            <g className="user-position-beacon" transform="translate(500, 260)">
+              <circle r="18" className="beacon-pulse-ring" />
+              <circle r="6" className="beacon-core-dot" />
+              <text x="14" y="4" className="beacon-label">{selectedLocation.name}</text>
+            </g>
           </svg>
-
-          {/* Port Beacons Overlay */}
-          <div className="ports-overlay">
-            {coastalPorts.map((port, idx) => (
-              <button
-                key={idx}
-                type="button"
-                className={`map-port-marker ${activePort?.name === port.name ? 'active' : ''}`}
-                style={{
-                  left: idx === 0 ? '36%' : idx === 1 ? '29%' : idx === 2 ? '24%' : '19%',
-                  top: idx === 0 ? '25%' : idx === 1 ? '46%' : idx === 2 ? '66%' : '86%',
-                }}
-                onClick={() => setActivePort(port)}
-                title={`${port.name} (${port.lat}, ${port.lon})`}
-              >
-                <span className="port-dot" />
-                <span className="port-name-label">{port.name.split(' ')[0]}</span>
-              </button>
-            ))}
-          </div>
         </div>
 
-        {/* Top-Left: Coordinate HUD */}
-        <div className="map-hud-coords">
-          <span className="hud-coord-item">
-            <strong>LAT/LON:</strong> {mouseCoords.lat}, {mouseCoords.lon}
-          </span>
-          <span className="hud-coord-item">
-            <strong>ZOOM:</strong> {zoomLevel.toFixed(1)}x
-          </span>
-        </div>
-
-        {/* Top-Right: Zoom Controls */}
-        <div className="map-hud-zoom-controls">
-          <button type="button" className="btn-zoom" onClick={handleZoomIn} title="Zoom in">+</button>
-          <button type="button" className="btn-zoom" onClick={handleZoomOut} title="Zoom out">−</button>
-          <button type="button" className="btn-zoom btn-reset" onClick={handleReset} title="Reset view">⟲</button>
-        </div>
-
-        {/* Bottom-Right: Dynamic Legend */}
-        <div className="map-hud-legend-card">
-          <div className="legend-title-row">
-            <span className="legend-label">{activeConfig.legendTitle}</span>
+        {/* Map Legend Overlay */}
+        <div className="map-legend-overlay">
+          <div className="legend-header">
+            <span className="legend-title">{activeConfig.legendTitle}</span>
             <span className="legend-unit">[{activeConfig.unit}]</span>
           </div>
-          <div className="legend-color-bar" />
-          <div className="legend-scale-steps">
-            {activeConfig.legendScale.map((lbl, i) => (
-              <span key={i} className="scale-lbl">{lbl}</span>
+          <div className="legend-gradient-bar">
+            <div className={`gradient-fill gradient-${activeLayer}`} />
+          </div>
+          <div className="legend-scale-labels">
+            {activeConfig.legendScale.map((label, idx) => (
+              <span key={idx}>{label}</span>
             ))}
           </div>
         </div>
 
-        {/* Bottom-Left: Selected Port Refuge Card */}
-        {activePort && (
-          <div className="map-hud-port-refuge-card">
-            <div className="port-refuge-lead">
-              <span className="port-refuge-icon">⚓</span>
-              <div>
-                <h4 className="port-refuge-name">{activePort.name}</h4>
-                <span className="port-refuge-coords">{activePort.lat}, {activePort.lon}</span>
-              </div>
-            </div>
-            <div className="port-refuge-meta">
-              <span>Depth Draft: <strong>{activePort.depth}</strong></span>
-              <span className={`refuge-status-tag status-${activePort.status.toLowerCase()}`}>
-                {activePort.status}
-              </span>
-            </div>
+        {/* Map Controls */}
+        <div className="map-gis-controls">
+          <button type="button" className="gis-ctrl-btn" onClick={handleZoomIn} title="Zoom In">+</button>
+          <button type="button" className="gis-ctrl-btn" onClick={handleZoomOut} title="Zoom Out">−</button>
+          <button type="button" className="gis-ctrl-btn" onClick={handleReset} title="Reset View">⊙</button>
+        </div>
+
+        {/* Coordinates Status Bar */}
+        <div className="map-coords-statusbar">
+          <div className="coords-readout">
+            <span className="coord-tag">CURSOR:</span>
+            <span className="coord-value">{mouseCoords.lat}, {mouseCoords.lon}</span>
           </div>
-        )}
+          <div className="coords-readout">
+            <span className="coord-tag">LOCATION:</span>
+            <span className="coord-value">{selectedLocation.name}</span>
+          </div>
+          <div className="coords-readout">
+            <span className="coord-tag">STATUS:</span>
+            <span className={`coord-badge ${selectedLocation.is_coastal ? 'badge-marine' : 'badge-inland'}`}>
+              {selectedLocation.is_coastal ? 'MARINE ACTIVE' : 'INLAND'}
+            </span>
+          </div>
+          <div className="coords-readout">
+            <span className="coord-tag">ZOOM:</span>
+            <span className="coord-value">{zoomLevel.toFixed(1)}x</span>
+          </div>
+        </div>
       </div>
     </div>
   );
 };
+
+export default LiveOceanMap;

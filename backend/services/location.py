@@ -1,3 +1,4 @@
+from datetime import datetime, timezone
 import json
 import logging
 import math
@@ -9,6 +10,7 @@ import requests
 from schemas.location import (
     LocationCandidate,
     LocationValidationResult,
+    ResolvedLocation,
 )
 
 logger = logging.getLogger("oceanis.services.location")
@@ -1198,6 +1200,8 @@ class LocationService:
             loc_title = custom_name or matched_loc_name or (
                 f"Maritime Waypoint ({coords_fmt})" if dist_to_coast < 2.0 or is_offshore else f"Coastal Area ({coords_fmt})"
             )
+            c_status = "OFFSHORE" if (is_offshore and dist_to_coast > 20.0) else "COASTAL"
+            now_iso = datetime.now(timezone.utc).isoformat()
             return LocationValidationResult(
                 status=status_code,
                 is_coastal=True,
@@ -1214,11 +1218,19 @@ class LocationService:
                 marine_context=marine_ctx,
                 reason="Marine location detected. Oceanographic and marine intelligence available for this area.",
                 coordinates_formatted=coords_fmt,
+                coastal_status=c_status,
+                resolution_source="COORDINATE_INPUT" if not custom_name else "SEARCH_GEOCODING",
+                resolved_at=now_iso,
+                requested_latitude=latitude,
+                requested_longitude=longitude,
+                source_grid_latitude=latitude,
+                source_grid_longitude=longitude,
             )
         else:
             # Try reverse geocode to get real place name if available
             rev_name = cls._try_reverse_geocode_name(latitude, longitude)
             loc_title = custom_name or rev_name or matched_loc_name or f"Inland Coordinate ({coords_fmt})"
+            now_iso = datetime.now(timezone.utc).isoformat()
             return LocationValidationResult(
                 status="INLAND",
                 is_coastal=False,
@@ -1235,6 +1247,13 @@ class LocationService:
                 marine_context=None,
                 reason=f"⚠️ No seashore or marine area found at this location ({dist_to_coast:.0f} km from nearest coast).",
                 coordinates_formatted=coords_fmt,
+                coastal_status="INLAND",
+                resolution_source="COORDINATE_INPUT" if not custom_name else "SEARCH_GEOCODING",
+                resolved_at=now_iso,
+                requested_latitude=latitude,
+                requested_longitude=longitude,
+                source_grid_latitude=None,
+                source_grid_longitude=None,
             )
 
     @classmethod
@@ -1351,3 +1370,38 @@ class LocationService:
             logger.debug("Reverse geocoding timed out: %s", exc)
 
         return None
+
+    @classmethod
+    def resolve_location(
+        cls,
+        latitude: float,
+        longitude: float,
+        display_name: Optional[str] = None,
+        source: str = "COORDINATE_INPUT",
+    ) -> ResolvedLocation:
+        """
+        Creates a standardized authoritative ResolvedLocation instance for downstream services.
+        """
+        val = cls.validate_coordinates(latitude, longitude, custom_name=display_name)
+        now_iso = datetime.now(timezone.utc).isoformat()
+        return ResolvedLocation(
+            latitude=latitude,
+            longitude=longitude,
+            display_name=display_name or val.display_name,
+            location_name=val.location_name,
+            city=val.city,
+            state=val.state,
+            country=val.country,
+            coastal_status=val.coastal_status or ("COASTAL" if val.is_coastal else "INLAND"),
+            is_coastal=val.is_coastal,
+            is_marine=val.is_marine,
+            distance_to_coast_km=val.distance_to_coast_km,
+            resolution_source=source,
+            nearest_port=val.nearest_port,
+            marine_context=val.marine_context,
+            requested_latitude=latitude,
+            requested_longitude=longitude,
+            source_grid_latitude=val.source_grid_latitude,
+            source_grid_longitude=val.source_grid_longitude,
+            resolved_at=now_iso,
+        )

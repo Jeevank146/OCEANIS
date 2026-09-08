@@ -2,6 +2,7 @@ from typing import Optional
 from fastapi import APIRouter, HTTPException, Query, status
 
 from schemas.location import (
+    ResolvedLocation,
     LocationCandidate,
     LocationReverseGeocodeRequest,
     LocationSearchResponse,
@@ -109,4 +110,35 @@ def reverse_geocode(
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Reverse geocode failure: {str(exc)}",
+        )
+
+
+@router.get(
+    "/resolve",
+    response_model=ResolvedLocation,
+    summary="Resolve coordinates to authoritative ResolvedLocation object",
+    description=(
+        "Standardized resolution endpoint that converts arbitrary latitude/longitude "
+        "into an authoritative ResolvedLocation object with coastal/marine classification, "
+        "nearest port, distance to coastline, and spatial sector context."
+    ),
+)
+def resolve_location(
+    latitude: float = Query(..., ge=-90.0, le=90.0, description="Authoritative latitude coordinate"),
+    longitude: float = Query(..., ge=-180.0, le=180.0, description="Authoritative longitude coordinate"),
+    display_name: Optional[str] = Query(None, description="Optional descriptive place name"),
+    source: str = Query("COORDINATE_INPUT", description="Resolution source identifier"),
+):
+    try:
+        result = LocationService.resolve_location(
+            latitude=latitude,
+            longitude=longitude,
+            display_name=display_name,
+            source=source,
+        )
+        return result
+    except Exception as exc:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Location resolution failure: {str(exc)}",
         )

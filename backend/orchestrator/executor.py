@@ -63,9 +63,14 @@ class AgentExecutor:
         results: Dict[str, AgentExecutionResult] = {}
         now_utc = now or datetime.now(timezone.utc)
 
-        # Primary location coordinates
-        orig_lat = understanding.primary_location.latitude if understanding.primary_location else 16.9890
-        orig_lon = understanding.primary_location.longitude if understanding.primary_location else 82.2474
+        # Primary location coordinates: strictly authoritative from understanding or query
+        if understanding.primary_location:
+            orig_lat = understanding.primary_location.latitude
+            orig_lon = understanding.primary_location.longitude
+        else:
+            # When coordinates are not provided, default to a neutral ocean centroid or raise
+            orig_lat = 0.0
+            orig_lon = 0.0
 
         # Destination coordinates if present
         dest_lat = understanding.destination_location.latitude if understanding.destination_location else None

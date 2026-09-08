@@ -204,18 +204,18 @@ function validationToLocationInfo(v: LocationValidationResult): LocationInfo {
 
   const latFmt = v.latitude !== undefined && v.latitude !== null
     ? `${Math.abs(v.latitude).toFixed(4)}° ${v.latitude >= 0 ? 'N' : 'S'}`
-    : '17.6868° N';
+    : '0.0000° N';
   const lonFmt = v.longitude !== undefined && v.longitude !== null
     ? `${Math.abs(v.longitude).toFixed(4)}° ${v.longitude >= 0 ? 'E' : 'W'}`
-    : '83.2185° E';
+    : '0.0000° E';
 
   return {
     name: v.location_name,
     city: v.city || v.location_name.split(' ')[0],
     state: v.state || (v.country && v.country !== 'India' ? v.country : 'Coastal Sector'),
     coordinates: v.coordinates_formatted || `${latFmt}, ${lonFmt}`,
-    lat: v.latitude ?? 17.6868,
-    lon: v.longitude ?? 83.2185,
+    lat: v.latitude ?? 0.0,
+    lon: v.longitude ?? 0.0,
     isPort: Boolean(v.nearest_port),
     portName: v.nearest_port || undefined,
     region,

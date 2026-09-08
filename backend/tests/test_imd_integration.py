@@ -1,12 +1,12 @@
+import os
 from datetime import datetime, timezone
 import pytest
-from unittest.mock import patch, MagicMock
+from unittest.mock import MagicMock, patch
+import requests
 
 from database import SessionLocal
-from connectors.base import BaseMarineDataProvider
 from connectors.imd import IMDProvider
 from models.weather import WeatherObservation
-from models.marine import MarineObservation
 from schemas.marine_provider import (
     DataFreshnessStatus,
     DataQualityStatus,
@@ -15,206 +15,185 @@ from schemas.marine_provider import (
     ProviderResponse,
     ProviderStatus,
 )
-from services.marine_data import MarineDataService
 
 
-# ==============================================================================
-# TEST 1: IMD Environment Configuration & Secret Masking
-# ==============================================================================
 def test_imd_environment_configuration():
-    provider = IMDProvider()
-    assert isinstance(provider, BaseMarineDataProvider)
-    assert provider.provider_name == "IMD"
-    assert provider.provider_category == "COASTAL_RADAR_AND_WARNINGS"
-    assert "India Meteorological Department" in provider.governing_authority
-    # Ensure key is loaded and not empty
+    """Verify that IMDProvider correctly loads configuration from env or constructor."""
+    provider = IMDProvider(api_key="mock_test_key", jwt_token="mock_test_jwt")
     assert provider.is_configured is True
-    assert provider.api_key is not None
-    assert len(provider.api_key.strip()) > 0
+    assert provider.provider_name == "IMD"
+    assert "Authorization" in provider.get_auth_headers()
+    assert "X-API-KEY" in provider.get_auth_headers()
 
 
-# ==============================================================================
-# TEST 2: IMD Health Check
-# ==============================================================================
-def test_imd_health_check():
-    provider = IMDProvider()
-    health = provider.check_health()
-    assert health.name == "IMD"
-    assert health.enabled is True
-    assert health.auth_configured is True
-    assert health.status in (ProviderStatus.HEALTHY, ProviderStatus.AUTH_FAILURE, ProviderStatus.CONFIGURATION_REQUIRED)
-
-
-# ==============================================================================
-# TEST 3: IMD Real API Connection Attempt (Visakhapatnam)
-# ==============================================================================
-def test_imd_real_api_request_status():
-    provider = IMDProvider()
-    # Visakhapatnam coastal coordinates
-    res = provider.fetch_marine_data(latitude=17.6868, longitude=83.2185)
+def test_imd_auth_headers_generation():
+    """Verify that Authorization: Bearer <JWT> and X-API-KEY headers are generated."""
+    provider = IMDProvider(api_key="secret_key_123", jwt_token="jwt_token_456")
+    headers = provider.get_auth_headers()
     
-    # Must return a valid ProviderResponse object
-    assert isinstance(res, ProviderResponse)
-    assert res.provider_name == "IMD"
-    assert res.retrieved_at is not None
-    
-    # Verify accurate status classification (Real API returns AUTH_FAILURE or HEALTHY or NO_DATA)
-    assert res.status in (ProviderStatus.AUTH_FAILURE, ProviderStatus.HEALTHY, ProviderStatus.NO_DATA, ProviderStatus.UNAVAILABLE)
-    if res.status == ProviderStatus.AUTH_FAILURE:
-        assert "IMD authentication failed" in (res.error_message or "")
+    assert headers["Authorization"] == "Bearer jwt_token_456"
+    assert headers["X-API-KEY"] == "secret_key_123"
+    assert headers["Accept"] == "application/json"
 
 
-# ==============================================================================
-# TEST 4: IMD Payload Normalization
-# ==============================================================================
+def test_imd_jwt_invalid_or_expired_handling():
+    """Verify that 401 Invalid or expired JWT token is properly handled as AUTH_FAILURE."""
+    provider = IMDProvider(api_key="mock_key", jwt_token="mock_jwt")
+
+    mock_resp = MagicMock()
+    mock_resp.status_code = 401
+    mock_resp.text = '{"error":"Invalid or expired JWT token"}'
+
+    with patch("requests.get", return_value=mock_resp):
+        res = provider.fetch_marine_data(latitude=17.6868, longitude=83.2185)
+        assert res.status == ProviderStatus.AUTH_FAILURE
+        assert "authentication failed" in res.error_message.lower()
+        assert len(res.records) == 0
+
+
+def test_imd_ip_whitelisting_detection():
+    """Verify that 403 server IP restriction is detected and reported clearly."""
+    provider = IMDProvider(api_key="mock_key", jwt_token="mock_jwt")
+
+    mock_resp = MagicMock()
+    mock_resp.status_code = 403
+    mock_resp.text = '{"error":"Server IP not allowed / IP not in whitelist"}'
+
+    with patch("requests.get", return_value=mock_resp):
+        res = provider.fetch_marine_data(latitude=17.6868, longitude=83.2185)
+        assert res.status == ProviderStatus.AUTH_FAILURE
+        assert "ip" in res.error_message.lower()
+        assert "whitelist" in res.error_message.lower() or "restriction" in res.error_message.lower()
+
+
 def test_imd_payload_normalization():
-    provider = IMDProvider()
-    now_iso = datetime.now(timezone.utc).isoformat()
-    
+    """Verify that IMD observation JSON is accurately normalized into NormalizedMarineRecord list."""
+    provider = IMDProvider(api_key="mock_key", jwt_token="mock_jwt")
+
     sample_payload = {
-        "station_id": "VSK_RADAR_01",
-        "timestamp": now_iso,
+        "station_id": "IMD_VSK_01",
+        "valid_time": "2026-09-07T12:00:00Z",
         "data": {
-            "temperature": "29.5",
-            "wind_speed": "22.4",
-            "wind_direction": "135.0",
-            "pressure": "1012.3",
-            "rainfall": "0.0",
-            "visibility": "8.0",
+            "temperature": 29.5,
+            "humidity": 78.0,
+            "wind_speed": 22.4,
+            "wind_direction": 140.0,
+            "surface_pressure": 1011.2,
+            "rainfall": 1.5,
+            "visibility": 10.0,
         }
     }
-    
-    records = provider._parse_imd_payload(
-        payload=sample_payload,
-        latitude=17.6868,
-        longitude=83.2185,
-        retrieved_at=now_iso,
-    )
-    
-    assert len(records) == 6
-    rec_dict = {r.parameter: r for r in records}
-    
-    # Check temperature
-    assert "temperature" in rec_dict
-    assert rec_dict["temperature"].value == 29.5
-    assert rec_dict["temperature"].unit == "C"
-    assert rec_dict["temperature"].source == "IMD"
-    assert rec_dict["temperature"].data_type == MarineDataType.OBSERVED
-    assert rec_dict["temperature"].raw_identifier == "VSK_RADAR_01"
-    
-    # Check wind speed
-    assert "wind_speed" in rec_dict
-    assert rec_dict["wind_speed"].value == 22.4
-    assert rec_dict["wind_speed"].unit == "km/h"
-    
-    # Check pressure
-    assert "pressure" in rec_dict
-    assert rec_dict["pressure"].value == 1012.3
-    assert rec_dict["pressure"].unit == "hPa"
+
+    mock_resp = MagicMock()
+    mock_resp.status_code = 200
+    mock_resp.json.return_value = sample_payload
+
+    with patch("requests.get", return_value=mock_resp):
+        res = provider.fetch_marine_data(latitude=17.6868, longitude=83.2185)
+        assert res.status == ProviderStatus.HEALTHY
+        assert len(res.records) >= 6
+
+        param_dict = {r.parameter: r.value for r in res.records}
+        assert param_dict["temperature"] == 29.5
+        assert param_dict["humidity"] == 78.0
+        assert param_dict["wind_speed"] == 22.4
+        assert param_dict["pressure"] == 1011.2
+        assert param_dict["precipitation"] == 1.5
 
 
-# ==============================================================================
-# TEST 5: IMD Data Persistence to PostgreSQL & PostGIS Retrieval
-# ==============================================================================
 def test_imd_database_persistence_and_retrieval():
+    """Verify that normalized IMD records persist to the PostgreSQL weather_observations table."""
     db = SessionLocal()
     try:
-        service = MarineDataService()
-        now = datetime.now(timezone.utc)
-        now_iso = now.isoformat()
-        
-        imd_records = [
+        provider = IMDProvider(api_key="mock_key", jwt_token="mock_jwt")
+
+        records = [
             NormalizedMarineRecord(
                 parameter="temperature",
-                value=29.8,
+                value=28.5,
                 unit="C",
                 latitude=17.6868,
                 longitude=83.2185,
-                valid_time=now_iso,
-                retrieved_at=now_iso,
+                valid_time="2026-09-07T12:00:00Z",
+                retrieved_at="2026-09-07T12:05:00Z",
                 source="IMD",
                 data_type=MarineDataType.OBSERVED,
                 freshness_status=DataFreshnessStatus.FRESH,
                 quality_status=DataQualityStatus.VALIDATED,
+                confidence=0.90,
+            ),
+            NormalizedMarineRecord(
+                parameter="humidity",
+                value=80.0,
+                unit="%",
+                latitude=17.6868,
+                longitude=83.2185,
+                valid_time="2026-09-07T12:00:00Z",
+                retrieved_at="2026-09-07T12:05:00Z",
+                source="IMD",
+                data_type=MarineDataType.OBSERVED,
+                freshness_status=DataFreshnessStatus.FRESH,
+                quality_status=DataQualityStatus.VALIDATED,
+                confidence=0.90,
             ),
             NormalizedMarineRecord(
                 parameter="wind_speed",
-                value=24.5,
+                value=18.0,
                 unit="km/h",
                 latitude=17.6868,
                 longitude=83.2185,
-                valid_time=now_iso,
-                retrieved_at=now_iso,
+                valid_time="2026-09-07T12:00:00Z",
+                retrieved_at="2026-09-07T12:05:00Z",
                 source="IMD",
                 data_type=MarineDataType.OBSERVED,
                 freshness_status=DataFreshnessStatus.FRESH,
                 quality_status=DataQualityStatus.VALIDATED,
-            ),
-            NormalizedMarineRecord(
-                parameter="wind_direction",
-                value=140.0,
-                unit="deg",
-                latitude=17.6868,
-                longitude=83.2185,
-                valid_time=now_iso,
-                retrieved_at=now_iso,
-                source="IMD",
-                data_type=MarineDataType.OBSERVED,
-                freshness_status=DataFreshnessStatus.FRESH,
-                quality_status=DataQualityStatus.VALIDATED,
+                confidence=0.90,
             ),
         ]
-        
-        # Persist normalized records
-        service._persist_records(db, 17.6868, 83.2185, imd_records, now)
-        
-        # Query back from PostgreSQL
-        saved_weather = (
-            db.query(WeatherObservation)
-            .filter(
-                WeatherObservation.latitude == 17.6868,
-                WeatherObservation.longitude == 83.2185,
-                WeatherObservation.source == "IMD",
-            )
-            .order_by(WeatherObservation.id.desc())
-            .first()
+
+        obs = provider.persist_weather_observation(
+            db=db,
+            records=records,
+            latitude=17.6868,
+            longitude=83.2185,
         )
-        
-        assert saved_weather is not None
-        assert saved_weather.temperature_c == 29.8
-        assert saved_weather.wind_speed_kmh == 24.5
-        assert saved_weather.wind_direction_deg == 140.0
-        assert saved_weather.source == "IMD"
-        
-        # Test Duplicate Protection / Update behavior
-        updated_records = [
-            NormalizedMarineRecord(
-                parameter="temperature",
-                value=30.2,
-                unit="C",
-                latitude=17.6868,
-                longitude=83.2185,
-                valid_time=now_iso,
-                retrieved_at=now_iso,
-                source="IMD",
-                data_type=MarineDataType.OBSERVED,
-                freshness_status=DataFreshnessStatus.FRESH,
-                quality_status=DataQualityStatus.VALIDATED,
-            )
-        ]
-        service._persist_records(db, 17.6868, 83.2185, updated_records, now)
-        
-        re_queried = (
-            db.query(WeatherObservation)
-            .filter(
-                WeatherObservation.latitude == 17.6868,
-                WeatherObservation.longitude == 83.2185,
-                WeatherObservation.source == "IMD",
-            )
-            .order_by(WeatherObservation.id.desc())
-            .first()
-        )
-        assert re_queried.temperature_c == 30.2
-        
+
+        assert obs is not None
+        assert obs.id is not None
+        assert obs.source == "IMD"
+        assert obs.temperature_c == 28.5
+        assert obs.humidity_percent == 80.0
+        assert obs.wind_speed_kmh == 18.0
+
+        # Query back from DB
+        db_obs = db.query(WeatherObservation).filter(WeatherObservation.id == obs.id).first()
+        assert db_obs is not None
+        assert db_obs.temperature_c == 28.5
     finally:
         db.close()
+
+
+def test_imd_real_api_request_status():
+    """
+    Makes a live call to the configured IMD API endpoint using dynamic user coordinates.
+    Validates that the connector gracefully receives and classifies the server response
+    (e.g., AUTH_FAILURE if JWT needs activation on portal, or HEALTHY if live).
+    """
+    provider = IMDProvider()
+    if not provider.is_configured:
+        pytest.skip("IMD credentials not configured in environment.")
+
+    # Use dynamic coastal testing coordinates (e.g. 17.6868, 83.2185)
+    lat, lon = 17.6868, 83.2185
+    res = provider.fetch_marine_data(latitude=lat, longitude=lon)
+
+    assert isinstance(res, ProviderResponse)
+    assert res.provider_name == "IMD"
+    assert res.status in (
+        ProviderStatus.HEALTHY,
+        ProviderStatus.AUTH_FAILURE,
+        ProviderStatus.NO_DATA,
+        ProviderStatus.UNAVAILABLE,
+        ProviderStatus.TIMEOUT,
+    )

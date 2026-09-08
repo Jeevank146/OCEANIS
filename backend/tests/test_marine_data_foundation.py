@@ -182,46 +182,77 @@ def test_parameter_specific_freshness():
 # TEST 7: Provider Failure Handling (No Fake Data)
 # ==============================================================================
 def test_provider_failure_handling():
-    # Unconfigured provider returns CONFIGURATION_REQUIRED
-    imd_unconfigured = IMDProvider(api_key="   ")
-    resp = imd_unconfigured.fetch_marine_data(latitude=16.9891, longitude=82.2475)
-    assert resp.status == ProviderStatus.CONFIGURATION_REQUIRED
-    assert len(resp.records) == 0
+    # 1. INCOIS Provider: Disabled/unconfigured provider returns CONFIGURATION_REQUIRED
+    incois_disabled = INCOISProvider()
+    incois_disabled.enabled = False
+    assert incois_disabled.is_configured is False
+    resp_incois = incois_disabled.fetch_marine_data(latitude=16.9891, longitude=82.2475)
+    assert resp_incois.status == ProviderStatus.CONFIGURATION_REQUIRED
+    assert len(resp_incois.records) == 0
 
-    # Configured provider encountering 500 error returns UNAVAILABLE
+    # 2. INCOIS Provider: Extraction/network exception returns UNAVAILABLE
+    incois_enabled = INCOISProvider()
+    incois_enabled.enabled = True
+    with patch.object(incois_enabled, "_fetch_from_rsmc_netcdf", side_effect=requests.RequestException("INCOIS RSMC network connection failed")):
+        err_resp_incois = incois_enabled.fetch_marine_data(latitude=16.9891, longitude=82.2475)
+        assert err_resp_incois.status == ProviderStatus.UNAVAILABLE
+        assert len(err_resp_incois.records) == 0
+
+    # 3. IMD Provider: Unconfigured provider (missing key) returns CONFIGURATION_REQUIRED
+    imd_unconfigured = IMDProvider(api_key="   ")
+    resp_imd = imd_unconfigured.fetch_marine_data(latitude=16.9891, longitude=82.2475)
+    assert resp_imd.status == ProviderStatus.CONFIGURATION_REQUIRED
+    assert len(resp_imd.records) == 0
+
+    # 4. IMD Provider: Upstream 502 error returns UNAVAILABLE
     imd_cfg = IMDProvider(api_key="mock_valid_token")
     with patch("requests.get") as mock_get:
         mock_get.return_value.status_code = 502
         mock_get.return_value.raise_for_status.side_effect = requests.HTTPError("502 Bad Gateway")
-        err_resp = imd_cfg.fetch_marine_data(latitude=16.9891, longitude=82.2475)
-        assert err_resp.status == ProviderStatus.UNAVAILABLE
-        assert len(err_resp.records) == 0
-
+        err_resp_imd = imd_cfg.fetch_marine_data(latitude=16.9891, longitude=82.2475)
+        assert err_resp_imd.status == ProviderStatus.UNAVAILABLE
+        assert len(err_resp_imd.records) == 0
 
 
 # ==============================================================================
 # TEST 8: Missing Data Handling
 # ==============================================================================
 def test_missing_data_handling():
+    # 1. INCOIS Provider: Masked/land grid point or empty extraction returns NO_DATA
+    incois_provider = INCOISProvider()
+    with patch.object(incois_provider, "_fetch_from_rsmc_netcdf", return_value=([], {})):
+        resp_incois = incois_provider.fetch_marine_data(latitude=16.9891, longitude=82.2475)
+        assert resp_incois.status == ProviderStatus.NO_DATA
+        assert len(resp_incois.records) == 0
+
+    # 2. IMD Provider: 404 endpoint returns NO_DATA
     imd_cfg = IMDProvider(api_key="mock_valid_token")
     with patch("requests.get") as mock_get:
         mock_get.return_value.status_code = 404
-        resp = imd_cfg.fetch_marine_data(latitude=16.9891, longitude=82.2475)
-        assert resp.status == ProviderStatus.NO_DATA
-        assert len(resp.records) == 0
+        resp_imd = imd_cfg.fetch_marine_data(latitude=16.9891, longitude=82.2475)
+        assert resp_imd.status == ProviderStatus.NO_DATA
+        assert len(resp_imd.records) == 0
 
 
 # ==============================================================================
 # TEST 9: Invalid Provider Response Handling
 # ==============================================================================
 def test_invalid_provider_response_handling():
+    # 1. INCOIS Provider: RSMC extraction unexpected error returns UNAVAILABLE
+    incois_provider = INCOISProvider()
+    with patch.object(incois_provider, "_fetch_from_rsmc_netcdf", side_effect=RuntimeError("Corrupted NetCDF structure")):
+        resp_incois = incois_provider.fetch_marine_data(latitude=16.9891, longitude=82.2475)
+        assert resp_incois.status == ProviderStatus.UNAVAILABLE
+        assert len(resp_incois.records) == 0
+
+    # 2. IMD Provider: Malformed JSON returns INVALID_RESPONSE
     imd_cfg = IMDProvider(api_key="mock_valid_token")
     with patch("requests.get") as mock_get:
         mock_get.return_value.status_code = 200
         mock_get.return_value.json.side_effect = ValueError("Malformed JSON string")
-        resp = imd_cfg.fetch_marine_data(latitude=16.9891, longitude=82.2475)
-        assert resp.status == ProviderStatus.INVALID_RESPONSE
-        assert len(resp.records) == 0
+        resp_imd = imd_cfg.fetch_marine_data(latitude=16.9891, longitude=82.2475)
+        assert resp_imd.status == ProviderStatus.INVALID_RESPONSE
+        assert len(resp_imd.records) == 0
 
 
 # ==============================================================================

@@ -1,116 +1,350 @@
-import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import React, { useState, useMemo, useEffect, useRef } from 'react';
 import { useLocationContext } from '../../context/LocationContext';
 import { LiveOceanMap } from '../../components/LiveOceanMap/LiveOceanMap';
+import { searchLocations, type LocationCandidate } from '../../services/api';
 import './LiveMapPage.css';
 
 interface SafePort {
   id: string;
   name: string;
-  state: string;
-  distanceNm: number;
+  lat: number;
+  lon: number;
   draftDepth: string;
-  berthStatus: 'Available' | 'High Occupancy' | 'Protected Harbor';
-  coordinates: string;
-  bearing: string;
+  berthStatus: 'Protected Harbor' | 'Available' | 'High Occupancy';
   vhfChannel: string;
 }
 
-export const LiveMapPage: React.FC = () => {
-  const { selectedLocation } = useLocationContext();
-  const [selectedPort, setSelectedPort] = useState<string>('vizag');
-  const [activeTab, setActiveTab] = useState<'layers' | 'ports' | 'vessels'>('layers');
+// Reference coastal havens and port facilities along the Indian coastline and maritime bounds
+const ALL_SAFE_PORTS: SafePort[] = [
+  { id: 'vsk', name: 'Visakhapatnam Port (VPT / Outer Harbor)', lat: 17.6868, lon: 83.2185, draftDepth: '18.5m', berthStatus: 'Protected Harbor', vhfChannel: 'Ch 16 / 12' },
+  { id: 'kak', name: 'Kakinada Deepwater Port', lat: 16.9890, lon: 82.2474, draftDepth: '14.5m', berthStatus: 'Available', vhfChannel: 'Ch 16 / 14' },
+  { id: 'mac', name: 'Machilipatnam Anchorage Harbor', lat: 16.1950, lon: 81.1620, draftDepth: '9.0m', berthStatus: 'Available', vhfChannel: 'Ch 16 / 08' },
+  { id: 'kri', name: 'Krishnapatnam Port (KPCL)', lat: 14.2500, lon: 80.1200, draftDepth: '18.0m', berthStatus: 'Protected Harbor', vhfChannel: 'Ch 16 / 71' },
+  { id: 'che', name: 'Chennai Port Trust (CPT / Outer Breakwater)', lat: 13.0827, lon: 80.2707, draftDepth: '17.0m', berthStatus: 'High Occupancy', vhfChannel: 'Ch 16 / 14' },
+  { id: 'enn', name: 'Kamarajar Port (Ennore)', lat: 13.2600, lon: 80.3300, draftDepth: '16.0m', berthStatus: 'Available', vhfChannel: 'Ch 16 / 11' },
+  { id: 'par', name: 'Paradip Major Port (PPT)', lat: 20.2600, lon: 86.6700, draftDepth: '17.1m', berthStatus: 'Protected Harbor', vhfChannel: 'Ch 16 / 12' },
+  { id: 'dha', name: 'Dhamra Deepwater Port', lat: 20.8100, lon: 86.9600, draftDepth: '18.0m', berthStatus: 'Available', vhfChannel: 'Ch 16 / 69' },
+  { id: 'gop', name: 'Gopalpur Port (ArcelorMittal)', lat: 19.3000, lon: 84.9700, draftDepth: '13.5m', berthStatus: 'Available', vhfChannel: 'Ch 16 / 09' },
+  { id: 'tut', name: 'V.O. Chidambaranar Port (Tuticorin)', lat: 8.7500, lon: 78.1800, draftDepth: '14.2m', berthStatus: 'Available', vhfChannel: 'Ch 16 / 12' },
+  { id: 'koc', name: 'Cochin Port (Willingdon Island)', lat: 9.9312, lon: 76.2673, draftDepth: '14.5m', berthStatus: 'Protected Harbor', vhfChannel: 'Ch 16 / 14' },
+  { id: 'mum', name: 'Mumbai Port (MbPT / JNPT Nhava Sheva)', lat: 18.9220, lon: 72.8347, draftDepth: '16.5m', berthStatus: 'Protected Harbor', vhfChannel: 'Ch 16 / 12' },
+  { id: 'mor', name: 'Mormugao Port (Goa)', lat: 15.4100, lon: 73.8000, draftDepth: '14.0m', berthStatus: 'Available', vhfChannel: 'Ch 16 / 14' },
+  { id: 'kan', name: 'Deendayal Port (Kandla / Gulf of Kutch)', lat: 23.0100, lon: 70.2200, draftDepth: '14.5m', berthStatus: 'Protected Harbor', vhfChannel: 'Ch 16 / 10' },
+  { id: 'man', name: 'New Mangalore Port (NMPT)', lat: 12.9141, lon: 74.8560, draftDepth: '15.1m', berthStatus: 'Available', vhfChannel: 'Ch 16 / 12' },
+];
 
-  const safePorts: SafePort[] = [
-    {
-      id: 'vizag',
-      name: 'Visakhapatnam Port (VPT / Outer Harbor)',
-      state: 'Andhra Pradesh',
-      distanceNm: 4.2,
-      draftDepth: '16.5m (Deep Water)',
-      berthStatus: 'Protected Harbor',
-      coordinates: '17.6868° N, 83.2185° E',
-      bearing: '285° WNW',
-      vhfChannel: 'Ch 16 / Ch 12 (VTS)',
-    },
-    {
-      id: 'kakinada',
-      name: 'Kakinada Deepwater & Anchorage Port',
-      state: 'Andhra Pradesh',
-      distanceNm: 68.5,
-      draftDepth: '14.0m',
-      berthStatus: 'Available',
-      coordinates: '16.9891° N, 82.2475° E',
-      bearing: '215° SSW',
-      vhfChannel: 'Ch 16 / Ch 14',
-    },
-    {
-      id: 'gopalpur',
-      name: 'Gopalpur Port Haven',
-      state: 'Odisha',
-      distanceNm: 112.0,
-      draftDepth: '12.5m',
-      berthStatus: 'Available',
-      coordinates: '19.3000° N, 84.9667° E',
-      bearing: '035° NNE',
-      vhfChannel: 'Ch 16 / Ch 68',
-    },
-    {
-      id: 'paradip',
-      name: 'Paradip Port Coastal Sanctuary',
-      state: 'Odisha',
-      distanceNm: 198.4,
-      draftDepth: '17.1m',
-      berthStatus: 'High Occupancy',
-      coordinates: '20.2644° N, 86.6710° E',
-      bearing: '042° NE',
-      vhfChannel: 'Ch 16 / Ch 09',
-    },
-    {
-      id: 'chennai',
-      name: 'Chennai Harbour Coastal Basin',
-      state: 'Tamil Nadu',
-      distanceNm: 310.0,
-      draftDepth: '15.5m',
-      berthStatus: 'Protected Harbor',
-      coordinates: '13.0827° N, 80.2707° E',
-      bearing: '200° SSW',
-      vhfChannel: 'Ch 16 / Ch 11',
-    },
+function calcDistanceNm(lat1: number, lon1: number, lat2: number, lon2: number): number {
+  const R = 6371; // km
+  const dLat = ((lat2 - lat1) * Math.PI) / 180;
+  const dLon = ((lon2 - lon1) * Math.PI) / 180;
+  const a =
+    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+    Math.cos((lat1 * Math.PI) / 180) * Math.cos((lat2 * Math.PI) / 180) * Math.sin(dLon / 2) * Math.sin(dLon / 2);
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  const distKm = R * c;
+  return Number((distKm * 0.539957).toFixed(1)); // convert km to Nautical Miles
+}
+
+function calcBearing(lat1: number, lon1: number, lat2: number, lon2: number): string {
+  const y = Math.sin(((lon2 - lon1) * Math.PI) / 180) * Math.cos((lat2 * Math.PI) / 180);
+  const x =
+    Math.cos((lat1 * Math.PI) / 180) * Math.sin((lat2 * Math.PI) / 180) -
+    Math.sin((lat1 * Math.PI) / 180) * Math.cos((lat2 * Math.PI) / 180) * Math.cos(((lon2 - lon1) * Math.PI) / 180);
+  let brng = (Math.atan2(y, x) * 180) / Math.PI;
+  brng = (brng + 360) % 360;
+
+  const cardinalDirections = [
+    'N', 'NNE', 'NE', 'ENE', 'E', 'ESE', 'SE', 'SSE',
+    'S', 'SSW', 'SW', 'WSW', 'W', 'WNW', 'NW', 'NNW',
   ];
+  const index = Math.round(brng / 22.5) % 16;
+  return `${Math.round(brng)}° ${cardinalDirections[index]}`;
+}
+
+export const LiveMapPage: React.FC = () => {
+  const {
+    selectedLocation,
+    validateAndSetQuery,
+    validateAndSetCoordinates,
+    useCurrentLocation,
+    isValidating,
+    setIsChangeModalOpen,
+  } = useLocationContext();
+
+  const [selectedPort, setSelectedPort] = useState<string>('');
+  const [activeTab, setActiveTab] = useState<'layers' | 'ports' | 'vessels'>('layers');
+  
+  // Search state
+  const [searchQuery, setSearchQuery] = useState<string>('');
+  const [suggestions, setSuggestions] = useState<LocationCandidate[]>([]);
+  const [isDropdownOpen, setIsDropdownOpen] = useState<boolean>(false);
+  const [isSearching, setIsSearching] = useState<boolean>(false);
+  const searchContainerRef = useRef<HTMLDivElement>(null);
+
+  // Close dropdown on outside click
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (searchContainerRef.current && !searchContainerRef.current.contains(event.target as Node)) {
+        setIsDropdownOpen(false);
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  // Fetch location suggestions with debounce
+  useEffect(() => {
+    if (!searchQuery.trim() || searchQuery.trim().length < 2) {
+      setSuggestions([]);
+      return;
+    }
+
+    const timer = setTimeout(async () => {
+      setIsSearching(true);
+      try {
+        const res = await searchLocations(searchQuery.trim(), 8);
+        setSuggestions(res.results || []);
+        setIsDropdownOpen(true);
+      } catch (err) {
+        console.error('Error fetching location suggestions:', err);
+      } finally {
+        setIsSearching(false);
+      }
+    }, 250);
+
+    return () => clearTimeout(timer);
+  }, [searchQuery]);
+
+  const handleSelectCandidate = async (candidate: LocationCandidate) => {
+    setIsDropdownOpen(false);
+    setSearchQuery(candidate.name);
+    await validateAndSetCoordinates(candidate.latitude, candidate.longitude, candidate.name);
+  };
+
+  const handleSearchSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!searchQuery.trim()) return;
+
+    setIsDropdownOpen(false);
+    
+    // Check if input is "latitude, longitude"
+    const coordMatch = searchQuery.match(/^(-?\d+(?:\.\d+)?)[,\s]+(-?\d+(?:\.\d+)?)$/);
+    if (coordMatch) {
+      const lat = parseFloat(coordMatch[1]);
+      const lon = parseFloat(coordMatch[2]);
+      if (!isNaN(lat) && !isNaN(lon) && lat >= -90 && lat <= 90 && lon >= -180 && lon <= 180) {
+        await validateAndSetCoordinates(lat, lon, `Waypoint (${lat.toFixed(4)}, ${lon.toFixed(4)})`);
+        return;
+      }
+    }
+
+    await validateAndSetQuery(searchQuery.trim());
+  };
+
+  const safePorts = useMemo(() => {
+    const userLat = selectedLocation.lat;
+    const userLon = selectedLocation.lon;
+    const ranked = ALL_SAFE_PORTS.map((p) => {
+      const dist = calcDistanceNm(userLat, userLon, p.lat, p.lon);
+      const bearing = calcBearing(userLat, userLon, p.lat, p.lon);
+      return {
+        ...p,
+        distanceNm: dist,
+        bearing,
+        coordinates: `${p.lat.toFixed(4)}° N, ${p.lon.toFixed(4)}° E`,
+      };
+    }).sort((a, b) => a.distanceNm - b.distanceNm);
+
+    if (ranked.length > 0 && (!selectedPort || !ranked.some(r => r.id === selectedPort))) {
+      setSelectedPort(ranked[0].id);
+    }
+    return ranked;
+  }, [selectedLocation.lat, selectedLocation.lon]);
+
+  const nearestRefuge = safePorts[0];
+
+  // Derive coastal status tag
+  const isOffshore = selectedLocation.is_coastal && (selectedLocation.distance_to_coast_km ?? 0) > 20.0;
+  const isInland = selectedLocation.is_coastal === false || selectedLocation.status === 'INLAND';
+  const coastalStatusTag = isInland ? 'INLAND' : isOffshore ? 'OFFSHORE' : 'COASTAL';
 
   return (
-    <div className="ocean-page-container">
-      {/* Header Banner */}
-      <header className="page-header-banner">
-        <div className="page-header-main">
-          <div className="page-breadcrumbs">
-            <Link to="/" className="page-breadcrumb-crumb">Home</Link>
-            <span className="page-breadcrumb-sep">/</span>
-            <span className="page-breadcrumb-current">Maps</span>
+    <div className="live-map-page-container">
+      {/* Top Banner with Active Dynamic Location Context & Search */}
+      <div className="gis-top-banner">
+        <div className="gis-banner-header-row">
+          <div className="gis-banner-left">
+            <div className="gis-pulse-indicator">
+              <span className="pulse-dot" />
+              <span className="pulse-label">LIVE GIS SPATIAL ENGINE</span>
+            </div>
+            <h1 className="gis-main-heading">Geospatial Intelligence & Navigation Map</h1>
+            <p className="gis-subheading">
+              Active Spatial Context: <strong>{selectedLocation.name}</strong> ({selectedLocation.coordinates}) • {selectedLocation.state || selectedLocation.region}
+            </p>
           </div>
-          <h1 className="page-title">
-            Live Ocean Intelligence GIS Map
-            <span className="page-title-badge badge-live">Live Multi-Layer</span>
-          </h1>
-          <p className="page-subtitle">
-            Spatial marine decision layer for <strong>{selectedLocation.name}</strong> ({selectedLocation.coordinates}) integrating INCOIS PFZ, Copernicus SST/Chlorophyll, IMD Storm Track, and PostGIS 12NM/200NM Maritime Boundaries.
-          </p>
-        </div>
-        <div className="page-header-actions">
-          <Link to="/what-if" className="btn-page-action secondary">
-            <span>Simulate Route</span>
-          </Link>
-          <Link to="/ask-oceanis" className="btn-page-action primary">
-            <span>Query GIS Agent</span>
-          </Link>
-        </div>
-      </header>
 
-      {/* Main Workspace: 2-Column GIS Layout */}
+          {/* Integrated Location Search Toolbar */}
+          <div className="gis-search-toolbar" ref={searchContainerRef}>
+            <form onSubmit={handleSearchSubmit} className="gis-search-form">
+              <div className="gis-search-input-wrapper">
+                <svg className="gis-search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <circle cx="11" cy="11" r="8" />
+                  <line x1="21" y1="21" x2="16.65" y2="16.65" />
+                </svg>
+                <input
+                  type="text"
+                  className="gis-search-input"
+                  placeholder="Search port, waypoint or coordinates (e.g. Paradip, 15.2, 80.5)..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  onFocus={() => {
+                    if (suggestions.length > 0) setIsDropdownOpen(true);
+                  }}
+                  autoComplete="off"
+                />
+                {searchQuery && (
+                  <button
+                    type="button"
+                    className="gis-search-clear-btn"
+                    onClick={() => {
+                      setSearchQuery('');
+                      setSuggestions([]);
+                      setIsDropdownOpen(false);
+                    }}
+                    aria-label="Clear search input"
+                  >
+                    ✕
+                  </button>
+                )}
+                <button type="submit" className="gis-search-submit-btn" disabled={isValidating}>
+                  {isValidating ? 'Resolving...' : 'Locate'}
+                </button>
+              </div>
+            </form>
+
+            <button
+              type="button"
+              className="gis-gps-btn"
+              onClick={() => useCurrentLocation()}
+              disabled={isValidating}
+              title="Detect GPS / Current Location"
+            >
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <polygon points="3 11 22 2 13 21 11 13 3 11" />
+              </svg>
+              <span>GPS</span>
+            </button>
+
+            <button
+              type="button"
+              className="gis-modal-btn"
+              onClick={() => setIsChangeModalOpen(true)}
+              title="Open Location Directory Modal"
+            >
+              <span>Change</span>
+            </button>
+
+            {/* Suggestions Dropdown */}
+            {isDropdownOpen && (
+              <div className="gis-search-dropdown">
+                {isSearching ? (
+                  <div className="gis-dropdown-msg">Searching coastal ports & maritime waypoints...</div>
+                ) : suggestions.length > 0 ? (
+                  suggestions.map((s) => (
+                    <button
+                      key={s.id || `${s.latitude}-${s.longitude}`}
+                      type="button"
+                      className={`gis-dropdown-item ${s.is_coastal ? 'is-coastal' : 'is-inland'}`}
+                      onClick={() => handleSelectCandidate(s)}
+                    >
+                      <span className="gis-dropdown-icon">{s.is_coastal ? '⚓' : '📍'}</span>
+                      <div className="gis-dropdown-info">
+                        <div className="gis-dropdown-line1">
+                          <strong>{s.name}</strong>
+                          <span className={`gis-status-badge ${s.is_coastal ? 'badge-coastal' : 'badge-inland'}`}>
+                            {s.is_coastal ? 'Coastal' : 'Inland'}
+                          </span>
+                        </div>
+                        <span className="gis-dropdown-sub">{s.display_name} • {s.distance_to_coast_km} km to coast</span>
+                      </div>
+                    </button>
+                  ))
+                ) : (
+                  <div className="gis-dropdown-msg">No matching locations found. Press enter to search or input coordinates (lat, lon).</div>
+                )}
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Clean Metadata Cards Grid (Requirement E) */}
+        <div className="gis-meta-cards-grid">
+          {/* 1. Active Spatial Context */}
+          <div className="gis-meta-card primary">
+            <span className="gis-meta-label">ACTIVE SPATIAL CONTEXT</span>
+            <span className="gis-meta-value main-title">{selectedLocation.name}</span>
+            <span className="gis-meta-sub">{selectedLocation.coordinates}</span>
+          </div>
+
+          {/* 2. Coastal Status */}
+          <div className="gis-meta-card">
+            <span className="gis-meta-label">COASTAL STATUS</span>
+            <div className="gis-meta-badge-row">
+              <span className={`gis-coastal-tag tag-${coastalStatusTag.toLowerCase()}`}>
+                {coastalStatusTag}
+              </span>
+            </div>
+            <span className="gis-meta-sub">{selectedLocation.marine_context || 'Maritime Sector'}</span>
+          </div>
+
+          {/* 3. Bounds */}
+          <div className="gis-meta-card">
+            <span className="gis-meta-label">BOUNDS</span>
+            <span className="gis-meta-value">PostGIS EPSG:4326</span>
+            <span className="gis-meta-sub">WGS 84 Dynamic Grid</span>
+          </div>
+
+          {/* 4. Nearest Refuge */}
+          <div className="gis-meta-card">
+            <span className="gis-meta-label">NEAREST REFUGE</span>
+            <span className="gis-meta-value port-title">
+              {nearestRefuge ? nearestRefuge.name.split(' ')[0] : 'Scanning...'}
+            </span>
+            <span className="gis-meta-sub">
+              {nearestRefuge ? `${nearestRefuge.distanceNm} NM • Bearing ${nearestRefuge.bearing}` : 'N/A'}
+            </span>
+          </div>
+
+          {/* 5. Status */}
+          <div className="gis-meta-card">
+            <span className="gis-meta-label">STATUS</span>
+            <div className="gis-status-live-pill">
+              <span className="status-live-dot" />
+              <span className="gis-meta-value status-active">REAL-TIME SYNC</span>
+            </div>
+            <span className="gis-meta-sub">PostGIS Spatial Engine</span>
+          </div>
+        </div>
+
+        {/* Inland Protection Banner (if coordinates are inland) */}
+        {isInland && (
+          <div className="gis-inland-alert-banner">
+            <span className="inland-alert-icon">⚠️</span>
+            <div className="inland-alert-body">
+              <strong>Inland Coordinates Detected ({selectedLocation.name} — {selectedLocation.coordinates})</strong>
+              <p>
+                Distance to coast is {selectedLocation.distance_to_coast_km ?? '50+'} km. Oceanographic wave fields, SST radiometry, and marine operational models are protected and blocked for inland coordinates. Please search for a coastal port or click an offshore point on the map.
+              </p>
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* Main Interactive Map Layout */}
       <div className="gis-workspace-grid">
-        {/* Left / Center: Expanded Map Canvas */}
-        <div className="gis-map-canvas-container">
+        {/* Left / Center: Primary Interactive Map Viewport */}
+        <div className="gis-map-viewport-wrapper">
           <LiveOceanMap />
         </div>
 
@@ -200,14 +434,18 @@ export const LiveMapPage: React.FC = () => {
                   <span className="badge-count">{safePorts.length} Ports</span>
                 </div>
                 <p className="gis-ports-subtitle">
-                  Emergency shelter and harbor berths ranked by nautical distance from current position.
+                  Emergency shelter and harbor berths ranked by nautical distance from current position ({selectedLocation.name}).
                 </p>
                 <div className="safe-ports-list">
                   {safePorts.map((port) => (
                     <div
                       key={port.id}
                       className={`port-item-card ${selectedPort === port.id ? 'selected' : ''}`}
-                      onClick={() => setSelectedPort(port.id)}
+                      onClick={() => {
+                        setSelectedPort(port.id);
+                        validateAndSetCoordinates(port.lat, port.lon, port.name);
+                      }}
+                      title="Click to set active map location to this port"
                     >
                       <div className="port-header">
                         <strong className="port-name">{port.name}</strong>
@@ -263,15 +501,15 @@ export const LiveMapPage: React.FC = () => {
                   <div className="vessel-notice-card">
                     <span className="notice-icon">⚓</span>
                     <div className="notice-body">
-                      <strong>ICG ICGS Samarth On Patrol</strong>
-                      <p>Sector B-4 (15 NM ENE of Visakhapatnam), monitoring safety compliance on VHF Ch 16.</p>
+                      <strong>ICG Patrol Vessel Active</strong>
+                      <p>Monitoring maritime safety and fishing compliance on VHF Ch 16.</p>
                     </div>
                   </div>
                   <div className="vessel-notice-card warning">
                     <span className="notice-icon">⚠️</span>
                     <div className="notice-body">
-                      <strong>High Trawler Density</strong>
-                      <p>Kakinada Bank Shoal: 14 small craft operating in close proximity to PFZ waypoint 4.</p>
+                      <strong>Local Craft Advisory</strong>
+                      <p>Active traffic operating in proximity to nearest operational fairway.</p>
                     </div>
                   </div>
                 </div>

@@ -127,15 +127,16 @@ class OrchestratorPlanner:
             primary_location = all_locations[0]
             if len(all_locations) >= 2 and not is_comparison:
                 dest_location = all_locations[1]
-        else:
-            # Fallback default location (Kakinada coast) if completely unspecified
+        elif query.latitude is not None and query.longitude is not None:
             primary_location = LocationContext(
-                name="Kakinada Coast",
-                latitude=16.9890,
-                longitude=82.2474,
-                is_port=True,
-                port_name="Kakinada Deep Water Port",
+                name=query.location_name or f"Coordinates ({query.latitude:.4f}, {query.longitude:.4f})",
+                latitude=query.latitude,
+                longitude=query.longitude,
+                is_port=False,
             )
+        else:
+            # When completely unspecified and no coordinates provided, create an explicit location prompt context
+            primary_location = None
 
         # 4. Temporal extraction (date & time)
         target_date, target_time = self._extract_temporal(q_text, query.target_datetime, now)

@@ -1,3 +1,4 @@
+from datetime import datetime, timezone
 from typing import Any, Dict, List, Optional
 from pydantic import BaseModel, Field
 
@@ -35,6 +36,32 @@ class LocationCandidate(BaseModel):
     marine_context: Optional[str] = None
 
 
+class ResolvedLocation(BaseModel):
+    """
+    Standardized, authoritative resolved location object across OCEANIS.
+    Latitude and Longitude are the authoritative source of truth.
+    """
+    latitude: float = Field(..., description="Authoritative latitude coordinate")
+    longitude: float = Field(..., description="Authoritative longitude coordinate")
+    display_name: str = Field(..., description="Human-readable full location label")
+    location_name: Optional[str] = None
+    city: Optional[str] = None
+    state: Optional[str] = None
+    country: str = "India"
+    coastal_status: str = Field("COASTAL", description="COASTAL | MARINE | INLAND | OFFSHORE | UNRESOLVED")
+    is_coastal: bool = True
+    is_marine: bool = True
+    distance_to_coast_km: Optional[float] = None
+    resolution_source: str = Field("COORDINATE_INPUT", description="COORDINATE_INPUT | BROWSER_GEOLOCATION | SEARCH_GEOCODING | REGISTRY")
+    nearest_port: Optional[str] = None
+    marine_context: Optional[str] = None
+    requested_latitude: Optional[float] = None
+    requested_longitude: Optional[float] = None
+    source_grid_latitude: Optional[float] = None
+    source_grid_longitude: Optional[float] = None
+    resolved_at: str = Field(default_factory=lambda: datetime.now(timezone.utc).isoformat())
+
+
 class LocationValidationResult(BaseModel):
     status: str = Field(..., description="VALID_COASTAL | VALID_MARINE | INLAND | UNRESOLVED")
     is_coastal: bool = Field(..., description="Whether location is within 50km of seashore")
@@ -51,6 +78,13 @@ class LocationValidationResult(BaseModel):
     marine_context: Optional[str] = None
     reason: str
     coordinates_formatted: Optional[str] = None
+    coastal_status: Optional[str] = None
+    resolution_source: Optional[str] = None
+    resolved_at: Optional[str] = None
+    requested_latitude: Optional[float] = None
+    requested_longitude: Optional[float] = None
+    source_grid_latitude: Optional[float] = None
+    source_grid_longitude: Optional[float] = None
 
 
 class LocationSearchResponse(BaseModel):
