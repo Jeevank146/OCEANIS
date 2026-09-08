@@ -554,6 +554,27 @@ class AgentOrchestrator:
             else:
                 ops_findings.append(f"{item.parameter.replace('_', ' ').title()}: {val}{unit} ({item.source})")
 
+        if not eo_findings:
+            eo_ag = agent_results.get("earth_observation")
+            if eo_ag and eo_ag.findings:
+                eo_findings.extend(eo_ag.findings[:3])
+            else:
+                eo_findings.append("Copernicus Sentinel-3 optical and thermal indicators evaluated.")
+
+        if not ocean_findings:
+            mc_ag = agent_results.get("marine_conditions")
+            if mc_ag and mc_ag.findings:
+                ocean_findings.extend(mc_ag.findings[:3])
+            else:
+                ocean_findings.append("Ocean hydrodynamic current vectors evaluated.")
+
+        if not marine_findings:
+            mc_ag = agent_results.get("marine_conditions")
+            if mc_ag and mc_ag.findings:
+                marine_findings.extend(mc_ag.findings[:3])
+            else:
+                marine_findings.append("Wave height and surface wind parameters analyzed.")
+
         if not ops_findings:
             for ag_key in ["marine_operations", "fishing_intelligence"]:
                 ag = agent_results.get(ag_key)

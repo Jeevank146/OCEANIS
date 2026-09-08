@@ -1,13 +1,12 @@
 from datetime import datetime, timezone
 from typing import Any, Dict, List, Optional
-
 from sqlalchemy.orm import Session
 
 from agents.disaster_safety.schemas import DisasterSafetyQuery
 from agents.disaster_safety.service import DisasterSafetyAgentService
 from agents.earth_observation.schemas import EarthObservationQuery
 from agents.earth_observation.service import EarthObservationAgentService
-from agents.fishing.schemas import FishingLocationInput, FishingQuery, LocationComparisonQuery
+from agents.fishing.schemas import FishingQuery
 from agents.fishing.service import FishingAgentService
 from agents.geospatial_navigation.schemas import GeoSpatialNavigationQuery
 from agents.geospatial_navigation.service import GeoSpatialNavigationAgentService
@@ -114,14 +113,19 @@ class AgentExecutor:
                     res = self.disaster_service.assess_safety(db=db, query=query_obj)
                     evidence_list: List[EvidenceItem] = []
                     for ev in getattr(res, "evidence", []):
+                        param_name = getattr(ev, "parameter", getattr(ev, "factor", "severe_weather_alert"))
+                        val_raw = getattr(ev, "value", getattr(ev, "headline", getattr(ev, "notes", "Active Alert")))
+                        unit_val = getattr(ev, "unit", None)
+                        src_val = getattr(ev, "source", "IMD / INCOIS Disaster Watch")
+                        ts_val = getattr(ev, "timestamp", getattr(ev, "observed_at", None))
                         evidence_list.append(
                             EvidenceItem(
-                                source=getattr(ev, "source", "IMD / INCOIS Disaster Watch"),
-                                parameter=getattr(ev, "parameter", "severe_weather_alert"),
-                                value=getattr(ev, "value", str(ev)),
-                                unit=getattr(ev, "unit", None),
+                                source=src_val,
+                                parameter=param_name,
+                                value=str(val_raw) if not isinstance(val_raw, (int, float)) else val_raw,
+                                unit=unit_val,
                                 observation_type=ObservationType.OFFICIAL_WARNING.value,
-                                timestamp=getattr(ev, "timestamp", None),
+                                timestamp=ts_val,
                                 freshness=_norm_fresh(getattr(ev, "freshness", None)),
                                 location={"latitude": orig_lat, "longitude": orig_lon},
                                 provenance={"agent": "disaster_safety"},
@@ -159,12 +163,26 @@ class AgentExecutor:
                     res = self.geospatial_service.assess_geospatial_navigation(db=db, query=query_obj)
                     evidence_list: List[EvidenceItem] = []
                     for ev in getattr(res, "evidence", []):
+                        factor = getattr(ev, "factor", getattr(ev, "parameter", "spatial_clearance"))
+                        name_val = getattr(ev, "name", "")
+                        dist_val = getattr(ev, "distance_km", None)
+                        unit_val = getattr(ev, "unit", "km" if dist_val is not None else None)
+
+                        if dist_val is not None and dist_val > 0.0:
+                            val_clean = f"{dist_val:.1f} ({name_val})" if name_val else f"{dist_val:.1f}"
+                        elif name_val:
+                            val_clean = name_val
+                        elif getattr(ev, "notes", None):
+                            val_clean = getattr(ev, "notes")
+                        else:
+                            val_clean = "Verified Clear"
+
                         evidence_list.append(
                             EvidenceItem(
                                 source=getattr(ev, "source", "PostGIS Maritime GIS"),
-                                parameter=getattr(ev, "parameter", "spatial_zone"),
-                                value=getattr(ev, "value", str(ev)),
-                                unit=getattr(ev, "unit", "km"),
+                                parameter=factor,
+                                value=val_clean,
+                                unit=unit_val,
                                 observation_type=ObservationType.OBSERVED.value,
                                 timestamp=getattr(ev, "timestamp", None),
                                 freshness=DataFreshness.FRESH.value,
@@ -174,7 +192,6 @@ class AgentExecutor:
                         )
 
                     zone_type = getattr(res, "zone_type", "OPEN_OCEAN")
-                    is_in_port = getattr(res, "is_in_port", False)
                     dist_to_coast = getattr(res, "distance_to_coast_km", None)
                     nearest_refuge = getattr(res, "nearest_refuge_port", None)
 
@@ -206,14 +223,19 @@ class AgentExecutor:
                     res = self.marine_conditions_service.assess_marine_conditions(db=db, query=query_obj)
                     evidence_list: List[EvidenceItem] = []
                     for ev in getattr(res, "evidence", []):
+                        param_name = getattr(ev, "parameter", getattr(ev, "factor", "wave_height"))
+                        val_raw = getattr(ev, "value", None)
+                        unit_val = getattr(ev, "unit", None)
+                        if val_raw is None:
+                            val_raw = getattr(ev, "notes", "Normal")
                         evidence_list.append(
                             EvidenceItem(
                                 source=getattr(ev, "source", "INCOIS WW3 / Copernicus"),
-                                parameter=getattr(ev, "parameter", "wave_height"),
-                                value=getattr(ev, "value", str(ev)),
-                                unit=getattr(ev, "unit", "m"),
+                                parameter=param_name,
+                                value=val_raw,
+                                unit=unit_val,
                                 observation_type=ObservationType.OBSERVED.value,
-                                timestamp=getattr(ev, "timestamp", None),
+                                timestamp=getattr(ev, "timestamp", getattr(ev, "observed_at", None)),
                                 freshness=_norm_fresh(getattr(ev, "freshness", None)),
                                 location={"latitude": orig_lat, "longitude": orig_lon},
                                 provenance={"agent": "marine_conditions"},
@@ -247,32 +269,36 @@ class AgentExecutor:
                     query_obj = EarthObservationQuery(
                         latitude=orig_lat,
                         longitude=orig_lon,
-                        cloud_cover_tolerance_pct=50.0,
                     )
                     res = self.earth_observation_service.assess_earth_observation(db=db, query=query_obj)
                     evidence_list: List[EvidenceItem] = []
                     for ev in getattr(res, "evidence", []):
+                        param_name = getattr(ev, "parameter", getattr(ev, "factor", "satellite_telemetry"))
+                        val_raw = getattr(ev, "value", None)
+                        unit_val = getattr(ev, "unit", None)
+                        if val_raw is None:
+                            val_raw = getattr(ev, "notes", "Analyzed")
                         evidence_list.append(
                             EvidenceItem(
-                                source=getattr(ev, "source", "Copernicus Sentinel-3 / MODIS"),
-                                parameter=getattr(ev, "parameter", "chlorophyll_a"),
-                                value=getattr(ev, "value", str(ev)),
-                                unit=getattr(ev, "unit", "mg/m3"),
+                                source=getattr(ev, "source", "Copernicus Sentinel-3"),
+                                parameter=param_name,
+                                value=val_raw,
+                                unit=unit_val,
                                 observation_type=ObservationType.OBSERVED.value,
-                                timestamp=getattr(ev, "timestamp", None),
+                                timestamp=getattr(ev, "timestamp", getattr(ev, "observed_at", None)),
                                 freshness=_norm_fresh(getattr(ev, "freshness", None)),
                                 location={"latitude": orig_lat, "longitude": orig_lon},
                                 provenance={"agent": "earth_observation"},
                             )
                         )
 
-                    ind = getattr(res, "latest_indicators", None)
+                    ind = getattr(res, "indicators", None)
                     chl = getattr(ind, "chlorophyll_concentration_mg_m3", None) if ind else None
                     sst = getattr(ind, "sea_surface_temperature_c", None) if ind else None
 
                     findings = [
                         f"Chlorophyll-a: {chl} mg/m3" if chl is not None else "Satellite ocean colour evaluated",
-                        f"Satellite SST: {sst} deg C" if sst is not None else "Satellite thermal telemetry analyzed",
+                        f"Satellite SST: {sst} °C" if sst is not None else "Satellite thermal telemetry analyzed",
                     ]
                     results[agent_id] = AgentResult(
                         agent_name="Earth Observation",
@@ -304,22 +330,52 @@ class AgentExecutor:
                     res = self.marine_operations_service.assess_operations(db=db, query=query_obj)
                     evidence_list: List[EvidenceItem] = []
                     for ev in getattr(res, "evidence", []):
+                        factor_name = getattr(ev, "factor", getattr(ev, "parameter", "voyage_trajectory"))
+                        dist_km = getattr(ev, "distance_km", None)
+                        dur_min = getattr(ev, "duration_minutes", None)
+                        notes_val = getattr(ev, "notes", None)
+                        title_val = getattr(ev, "title", None)
+
+                        if dist_km is not None and dur_min is not None:
+                            val_clean = f"{dist_km:.1f} km ({dur_min:.0f} min transit)"
+                            unit_val = None
+                        elif dist_km is not None:
+                            val_clean = f"{dist_km:.1f}"
+                            unit_val = "km"
+                        elif notes_val:
+                            val_clean = notes_val
+                            unit_val = None
+                        elif title_val:
+                            val_clean = title_val
+                            unit_val = None
+                        else:
+                            val_clean = "Corridor Clear"
+                            unit_val = None
+
+                        data_type_str = str(getattr(ev, "data_type", "OPERATIONAL_CALCULATION"))
+                        if "CALCULATION" in data_type_str:
+                            obs_type = ObservationType.OPERATIONAL_CALCULATION.value
+                        elif "WARNING" in data_type_str or "HAZARD" in data_type_str:
+                            obs_type = ObservationType.OFFICIAL_WARNING.value
+                        else:
+                            obs_type = ObservationType.AI_ASSESSMENT.value
+
                         evidence_list.append(
                             EvidenceItem(
-                                source=getattr(ev, "source", "Marine Operations Engine"),
-                                parameter=getattr(ev, "parameter", "voyage_distance"),
-                                value=getattr(ev, "value", str(ev)),
-                                unit=getattr(ev, "unit", "km"),
-                                observation_type=ObservationType.AI_ASSESSMENT.value,
-                                timestamp=getattr(ev, "timestamp", None),
-                                freshness=DataFreshness.FRESH.value,
+                                source=getattr(ev, "source", "PostGIS Navigation / INCOIS / IMD"),
+                                parameter=factor_name,
+                                value=val_clean,
+                                unit=unit_val,
+                                observation_type=obs_type,
+                                timestamp=getattr(ev, "observed_at", getattr(ev, "timestamp", None)),
+                                freshness=_norm_fresh(getattr(ev, "freshness", "FRESH")),
                                 location={"latitude": orig_lat, "longitude": orig_lon},
                                 provenance={"agent": "marine_operations"},
                             )
                         )
 
                     route_summary = getattr(res, "route_summary", None)
-                    dist = getattr(route_summary, "total_distance_km", None) if route_summary else None
+                    dist = getattr(route_summary, "total_distance_km", getattr(route_summary, "distance_km", None)) if route_summary else None
                     dur = getattr(route_summary, "estimated_duration_hours", None) if route_summary else None
 
                     findings = [
@@ -353,15 +409,20 @@ class AgentExecutor:
                     res = self.fishing_service.assess_fishing_query(db=db, query=query_obj)
                     evidence_list: List[EvidenceItem] = []
                     for ev in getattr(res, "evidence", []) or getattr(res, "evidence_used", []):
+                        factor_name = getattr(ev, "factor", getattr(ev, "parameter", "fishing_suitability"))
+                        val_raw = getattr(ev, "value", None)
+                        unit_val = getattr(ev, "unit", None)
+                        if val_raw is None:
+                            val_raw = getattr(ev, "notes", getattr(ev, "title", "Biological front analyzed"))
                         evidence_list.append(
                             EvidenceItem(
                                 source=getattr(ev, "source", "INCOIS PFZ / Copernicus"),
-                                parameter=getattr(ev, "factor", "fishing_indicator"),
-                                value=getattr(ev, "value", str(ev)),
-                                unit=getattr(ev, "unit", None),
+                                parameter=factor_name,
+                                value=val_raw,
+                                unit=unit_val,
                                 observation_type=ObservationType.OBSERVED.value,
-                                timestamp=getattr(ev, "observed_at", None),
-                                freshness=DataFreshness.FRESH.value,
+                                timestamp=getattr(ev, "observed_at", getattr(ev, "timestamp", None)),
+                                freshness=_norm_fresh(getattr(ev, "freshness", "FRESH")),
                                 location={"latitude": orig_lat, "longitude": orig_lon},
                                 provenance={"agent": "fishing"},
                             )

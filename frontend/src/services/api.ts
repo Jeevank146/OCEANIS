@@ -562,7 +562,7 @@ export interface EvidenceItemContract {
   parameter: string;
   value: any;
   unit?: string | null;
-  observation_type: 'Observed' | 'Forecast' | 'Official Warning' | 'AI Assessment';
+  observation_type: 'Observed' | 'Forecast' | 'Official Warning' | 'AI Assessment' | 'Operational Calculation' | string;
   timestamp?: string | null;
   freshness: 'Fresh' | 'Aging' | 'Stale' | 'Unavailable';
   location?: Record<string, any> | null;

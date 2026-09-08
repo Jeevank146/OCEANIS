@@ -154,7 +154,7 @@ export const AgentsPage: React.FC = () => {
   ];
 
   const handleAskAgent = (agent: DomainAgentDetail) => {
-    navigate('/ask-oceanis', { state: { initialQuery: agent.sampleQuery } });
+    navigate('/ask', { state: { initialQuery: agent.sampleQuery } });
   };
 
   return (
@@ -172,14 +172,14 @@ export const AgentsPage: React.FC = () => {
             <span className="page-title-badge badge-agent">6/6 Online</span>
           </h1>
           <p className="page-subtitle">
-            OCEANIS coordinates six specialized domain agents orchestrated under a deterministic consensus layer with zero hallucination.
+            OCEANIS coordinates six specialized domain agents orchestrated under a deterministic consensus layer with evidence-grounded reasoning and deterministic safety controls.
           </p>
         </div>
         <div className="page-header-actions">
           <Link to="/decision-intelligence" className="btn-page-action secondary">
             <span>Pipeline Provenance</span>
           </Link>
-          <Link to="/ask-oceanis" className="btn-page-action primary">
+          <Link to="/ask" className="btn-page-action primary">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
               <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
             </svg>

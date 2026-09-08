@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
+import { useLocationContext } from '../../context/LocationContext';
 import './SystemStatus.css';
 
 export const SystemStatus: React.FC = () => {
   const [lastSync, setLastSync] = useState<string>('Just now');
+  const { selectedLocation } = useLocationContext();
 
   useEffect(() => {
     let elapsedSeconds = 0;
@@ -18,6 +20,10 @@ export const SystemStatus: React.FC = () => {
     return () => clearInterval(timer);
   }, []);
 
+  const sectorText = selectedLocation
+    ? (selectedLocation.marine_context || selectedLocation.city || selectedLocation.name)
+    : 'National Maritime Grid';
+
   return (
     <div className="system-status-strip">
       <div className="system-status-container">
@@ -30,17 +36,12 @@ export const SystemStatus: React.FC = () => {
           <span className="status-separator">|</span>
           <span className="system-summary-text">
             <span className="mini-green-dot" />
-            <strong>6/6</strong> Agents Online
+            <strong>6/6</strong> Domain Agents Synchronized
           </span>
           <span className="status-dot-divider">•</span>
           <span className="system-summary-text">
             <span className="mini-green-dot" />
-            <strong>28/28</strong> APIs Online
-          </span>
-          <span className="status-dot-divider">•</span>
-          <span className="system-summary-text">
-            <span className="mini-green-dot" />
-            <strong>PostgreSQL / PostGIS</strong> Connected
+            <strong>PostgreSQL / PostGIS</strong> Spatial Engine Active
           </span>
         </div>
 
@@ -53,16 +54,18 @@ export const SystemStatus: React.FC = () => {
           <span className="feed-tag">GEBCO</span>
         </div>
 
-        {/* Right: Latency & Heartbeat */}
+        {/* Right: Sector & Heartbeat */}
         <div className="status-meta-group">
           <span className="status-sector-indicator">
-            Sector: <strong>Bay of Bengal (Vizag)</strong>
+            Sector: <strong>{sectorText}</strong>
           </span>
           <span className="status-sync-time">
-            Last Sync: <strong>{lastSync}</strong>
+            Heartbeat: <strong>{lastSync}</strong>
           </span>
         </div>
       </div>
     </div>
   );
 };
+
+export default SystemStatus;

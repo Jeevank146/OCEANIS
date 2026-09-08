@@ -1,71 +1,42 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation, Link } from 'react-router-dom';
 import { useLocationContext } from '../../context/LocationContext';
+import { useLanguage } from '../../context/LanguageContext';
 import './Navbar.css';
 
 interface NavbarProps {
-  currentLanguage?: string;
-  onSelectLanguage?: (lang: string) => void;
   onToggleSidebar?: () => void;
 }
 
-export const Navbar: React.FC<NavbarProps> = ({ 
-  currentLanguage = 'en', 
-  onSelectLanguage, 
+export const Navbar: React.FC<NavbarProps> = ({
   onToggleSidebar,
 }) => {
   const navigate = useNavigate();
   const location = useLocation();
   const { selectedLocation, setIsChangeModalOpen, activeValidation } = useLocationContext();
+  const { language, setLanguage, t, languages } = useLanguage();
 
   const [isScrolled, setIsScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [activeLang, setActiveLang] = useState('English');
   const [langDropdownOpen, setLangDropdownOpen] = useState(false);
   const [notificationsOpen, setNotificationsOpen] = useState(false);
 
-  const languages = [
-    { code: 'en', name: 'English', label: 'English' },
-    { code: 'te', name: 'Telugu', label: 'తెలుగు' },
-    { code: 'hi', name: 'Hindi', label: 'हिन्दी' },
-    { code: 'ta', name: 'Tamil', label: 'தமிழ்' },
-  ];
-
-  useEffect(() => {
-    const matched = languages.find(l => l.code === currentLanguage);
-    if (matched) {
-      setActiveLang(matched.label);
-    }
-  }, [currentLanguage]);
-
   useEffect(() => {
     const handleScroll = () => {
-      if (window.scrollY > 20) {
-        setIsScrolled(true);
-      } else {
-        setIsScrolled(false);
-      }
+      setIsScrolled(window.scrollY > 20);
     };
-    window.addEventListener('scroll', handleScroll);
+    window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  const handleLanguageSelect = (lang: { code: string; name: string; label: string }) => {
-    setActiveLang(lang.label);
-    setLangDropdownOpen(false);
-    if (onSelectLanguage) {
-      onSelectLanguage(lang.code);
-    }
-  };
-
   const navLinks = [
-    { path: '/', label: 'Home' },
-    { path: '/dashboard', label: 'Explore' },
-    { path: '/agents', label: 'Agents' },
-    { path: '/maps', label: 'Maps' },
-    { path: '/safety', label: 'Alerts' },
-    { path: '/reports', label: 'Resources' },
-    { path: '/data-sources', label: 'About' },
+    { path: '/', label: t('nav.home', 'Home') },
+    { path: '/dashboard', label: t('nav.dashboard', 'Dashboard') },
+    { path: '/maps', label: t('nav.maps', 'Live Map') },
+    { path: '/agents', label: t('nav.agents', 'Agents') },
+    { path: '/safety', label: t('nav.safety', 'Alerts') },
+    { path: '/reports', label: t('nav.reports', 'Reports') },
+    { path: '/data-sources', label: t('nav.data_sources', 'Data Sources') },
   ];
 
   const isNavActive = (path: string) => {
@@ -92,11 +63,13 @@ export const Navbar: React.FC<NavbarProps> = ({
 
   const locationSectorText = hasLocation
     ? isInland
-      ? `${cleanLocName} • Inland`
+      ? `${cleanLocName} • ${t('nav.inland_sector', 'Inland Sector')}`
       : isOffshore
-      ? 'Offshore Sector'
-      : `${cleanLocName} Sector`
-    : 'Location Not Selected';
+      ? `${cleanLocName ? cleanLocName + ' • ' : ''}${t('nav.offshore_sector', 'Offshore Sector')}`
+      : `${cleanLocName} ${t('nav.sector_suffix', 'Sector')}`
+    : t('nav.loc_not_selected', 'Location Not Selected');
+
+  const currentLangObj = languages.find((l) => l.code === language) || languages[0];
 
   const handleOpenLocationSelector = () => {
     if (location.pathname === '/') {
@@ -117,8 +90,8 @@ export const Navbar: React.FC<NavbarProps> = ({
         {/* Left: Sidebar Toggle + Brand Logo */}
         <div className="navbar-left-group">
           {onToggleSidebar && (
-            <button 
-              type="button" 
+            <button
+              type="button"
               className="btn-sidebar-toggle"
               onClick={onToggleSidebar}
               title="Toggle Navigation Menu"
@@ -175,14 +148,14 @@ export const Navbar: React.FC<NavbarProps> = ({
             >
               <span className="navbar-loc-pin">📍</span>
               <span className="navbar-loc-name">{selectedLocation.city || selectedLocation.name}</span>
-              <span className="navbar-loc-change-tag">Change</span>
+              <span className="navbar-loc-change-tag">{t('nav.change_loc', 'Change')}</span>
             </button>
           )}
 
-          {/* Language Selector Dropdown */}
+          {/* Global Language Selector Dropdown */}
           <div className="lang-selector-wrapper">
-            <button 
-              type="button" 
+            <button
+              type="button"
               className="lang-selector-btn"
               onClick={() => setLangDropdownOpen(!langDropdownOpen)}
               aria-label="Select language"
@@ -191,7 +164,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                 <circle cx="12" cy="12" r="10" />
                 <path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" />
               </svg>
-              <span className="lang-current">{activeLang}</span>
+              <span className="lang-current">{currentLangObj.nativeName}</span>
               <svg className={`lang-chevron ${langDropdownOpen ? 'open' : ''}`} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                 <polyline points="6 9 12 15 18 9" />
               </svg>
@@ -199,15 +172,18 @@ export const Navbar: React.FC<NavbarProps> = ({
 
             {langDropdownOpen && (
               <div className="lang-dropdown-menu">
-                {languages.map((lang) => (
+                {languages.map((l) => (
                   <button
-                    key={lang.code}
+                    key={l.code}
                     type="button"
-                    className={`lang-option ${activeLang === lang.label ? 'active' : ''}`}
-                    onClick={() => handleLanguageSelect(lang)}
+                    className={`lang-option ${language === l.code ? 'active' : ''}`}
+                    onClick={() => {
+                      setLanguage(l.code);
+                      setLangDropdownOpen(false);
+                    }}
                   >
-                    <span className="lang-option-label">{lang.label}</span>
-                    <span className="lang-option-code">{lang.name}</span>
+                    <span className="lang-option-label">{l.nativeName}</span>
+                    <span className="lang-option-code">{l.name}</span>
                   </button>
                 ))}
               </div>
@@ -216,9 +192,9 @@ export const Navbar: React.FC<NavbarProps> = ({
 
           {/* Operational Notification Bell */}
           <div className="notif-wrapper">
-            <button 
-              type="button" 
-              className="navbar-icon-btn" 
+            <button
+              type="button"
+              className="navbar-icon-btn"
               onClick={() => setNotificationsOpen(!notificationsOpen)}
               title="Active Marine Advisories & Notices"
               aria-label="Notifications"
@@ -233,7 +209,7 @@ export const Navbar: React.FC<NavbarProps> = ({
             {notificationsOpen && (
               <div className="notif-dropdown-menu">
                 <div className="notif-menu-header">
-                  <span className="notif-title">Operational Advisories</span>
+                  <span className="notif-title">{t('dash.active_advisories', 'Operational Advisories')}</span>
                   <span className="notif-count">2 Active</span>
                 </div>
                 <div className="notif-item" onClick={() => { setNotificationsOpen(false); navigate('/safety'); }}>
@@ -257,8 +233,8 @@ export const Navbar: React.FC<NavbarProps> = ({
           </div>
 
           {/* Dynamic Operator Profile Badge */}
-          <div 
-            className="operator-profile-badge" 
+          <div
+            className="operator-profile-badge"
             title={`Active Sector: ${locationSectorText}`}
             onClick={handleOpenLocationSelector}
             style={{ cursor: 'pointer' }}
@@ -276,11 +252,11 @@ export const Navbar: React.FC<NavbarProps> = ({
           </div>
 
           {/* Primary Action Button (Ask OCEANIS) */}
-          <Link 
-            to="/ask" 
+          <Link
+            to="/ask"
             className="btn-launch-header"
           >
-            <span>Ask OCEANIS</span>
+            <span>{t('nav.ask', 'Ask OCEANIS')}</span>
             <svg className="btn-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
               <line x1="5" y1="12" x2="19" y2="12" />
               <polyline points="12 5 19 12 12 19" />
@@ -288,8 +264,8 @@ export const Navbar: React.FC<NavbarProps> = ({
           </Link>
 
           {/* Mobile Hamburger Button */}
-          <button 
-            type="button" 
+          <button
+            type="button"
             className={`mobile-toggle-btn ${mobileMenuOpen ? 'open' : ''}`}
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
             aria-label="Toggle mobile menu"
@@ -305,27 +281,23 @@ export const Navbar: React.FC<NavbarProps> = ({
       {mobileMenuOpen && (
         <div className="mobile-nav-drawer">
           <nav className="mobile-nav-links">
-            <Link to="/" className="mobile-link" onClick={() => setMobileMenuOpen(false)}>Home Landing</Link>
-            <Link to="/dashboard" className="mobile-link" onClick={() => setMobileMenuOpen(false)}>Operations Dashboard</Link>
-            <Link to="/maps" className="mobile-link" onClick={() => setMobileMenuOpen(false)}>Live Ocean GIS Map</Link>
-            <Link to="/fishing" className="mobile-link" onClick={() => setMobileMenuOpen(false)}>Fishing Intelligence</Link>
-            <Link to="/marine-conditions" className="mobile-link" onClick={() => setMobileMenuOpen(false)}>Marine Conditions</Link>
-            <Link to="/earth-observation" className="mobile-link" onClick={() => setMobileMenuOpen(false)}>Earth Observation</Link>
-            <Link to="/navigation" className="mobile-link" onClick={() => setMobileMenuOpen(false)}>Geo-Spatial & Navigation</Link>
-            <Link to="/safety" className="mobile-link" onClick={() => setMobileMenuOpen(false)}>Disaster & Safety</Link>
-            <Link to="/operations" className="mobile-link" onClick={() => setMobileMenuOpen(false)}>Marine Operations</Link>
-            <Link to="/agents" className="mobile-link" onClick={() => setMobileMenuOpen(false)}>Domain Agents</Link>
-            <Link to="/reports" className="mobile-link" onClick={() => setMobileMenuOpen(false)}>Reports</Link>
-            <Link to="/data-sources" className="mobile-link" onClick={() => setMobileMenuOpen(false)}>Data Sources</Link>
-            <Link to="/settings" className="mobile-link" onClick={() => setMobileMenuOpen(false)}>Settings</Link>
-            <div className="mobile-drawer-footer">
-              <Link to="/ask" className="btn-mobile-launch" onClick={() => setMobileMenuOpen(false)}>
-                Launch Ask OCEANIS Assistant
-              </Link>
-            </div>
+            <Link to="/" className="mobile-link" onClick={() => setMobileMenuOpen(false)}>{t('nav.home', 'Home')}</Link>
+            <Link to="/dashboard" className="mobile-link" onClick={() => setMobileMenuOpen(false)}>{t('nav.dashboard', 'Dashboard')}</Link>
+            <Link to="/maps" className="mobile-link" onClick={() => setMobileMenuOpen(false)}>{t('nav.maps', 'Live Map')}</Link>
+            <Link to="/fishing" className="mobile-link" onClick={() => setMobileMenuOpen(false)}>{t('nav.fishing', 'Fishing Intelligence')}</Link>
+            <Link to="/marine-conditions" className="mobile-link" onClick={() => setMobileMenuOpen(false)}>{t('nav.marine_conditions', 'Marine Conditions')}</Link>
+            <Link to="/earth-observation" className="mobile-link" onClick={() => setMobileMenuOpen(false)}>{t('nav.earth_observation', 'Earth Observation')}</Link>
+            <Link to="/navigation" className="mobile-link" onClick={() => setMobileMenuOpen(false)}>{t('nav.navigation', 'Geo-Spatial & Nav')}</Link>
+            <Link to="/safety" className="mobile-link" onClick={() => setMobileMenuOpen(false)}>{t('nav.safety', 'Disaster & Safety')}</Link>
+            <Link to="/operations" className="mobile-link" onClick={() => setMobileMenuOpen(false)}>{t('nav.operations', 'Marine Operations')}</Link>
+            <Link to="/agents" className="mobile-link" onClick={() => setMobileMenuOpen(false)}>{t('nav.agents', 'Domain Agents')}</Link>
+            <Link to="/reports" className="mobile-link" onClick={() => setMobileMenuOpen(false)}>{t('nav.reports', 'Reports')}</Link>
+            <Link to="/data-sources" className="mobile-link" onClick={() => setMobileMenuOpen(false)}>{t('nav.data_sources', 'Data Sources')}</Link>
           </nav>
         </div>
       )}
     </header>
   );
 };
+
+export default Navbar;

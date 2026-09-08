@@ -8,12 +8,7 @@ import './MainLayout.css';
 
 export const MainLayout: React.FC = () => {
   const location = useLocation();
-  const [currentLang, setCurrentLang] = useState<string>('en');
   const [sidebarOpen, setSidebarOpen] = useState<boolean>(false);
-
-  const handleLanguageChange = (lang: string) => {
-    setCurrentLang(lang);
-  };
 
   const isLandingPage = location.pathname === '/';
 
@@ -21,8 +16,6 @@ export const MainLayout: React.FC = () => {
     <div className={`oceanis-app ${isLandingPage ? 'landing-mode' : 'operational-mode'}`}>
       {/* 1. Institutional Top Navigation Bar */}
       <Navbar
-        currentLanguage={currentLang}
-        onSelectLanguage={handleLanguageChange}
         onToggleSidebar={!isLandingPage ? () => setSidebarOpen(!sidebarOpen) : undefined}
       />
 
