@@ -28,6 +28,8 @@ export const HomePage: React.FC = () => {
     validateAndSetCoordinates,
     useCurrentLocation,
     setSelectedLocation,
+    validationError,
+    clearValidationError,
   } = useLocationContext();
 
   const [bgIndex, setBgIndex] = useState(0);
@@ -36,7 +38,9 @@ export const HomePage: React.FC = () => {
   const [isSearching, setIsSearching] = useState(false);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isGeoLocating, setIsGeoLocating] = useState(false);
+  const [gpsNotice, setGpsNotice] = useState<string | null>(null);
 
+  const searchInputRef = useRef<HTMLInputElement | null>(null);
   const searchDebounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const searchContainerRef = useRef<HTMLDivElement | null>(null);
 
@@ -82,7 +86,7 @@ export const HomePage: React.FC = () => {
       } finally {
         setIsSearching(false);
       }
-    }, 240);
+    }, 220);
 
     return () => {
       if (searchDebounceRef.current) {
@@ -94,6 +98,8 @@ export const HomePage: React.FC = () => {
   const handleSelectCandidate = async (candidate: LocationCandidate) => {
     setIsDropdownOpen(false);
     setSearchQuery('');
+    setGpsNotice(null);
+    clearValidationError();
     await validateAndSetCoordinates(candidate.latitude, candidate.longitude, candidate.name);
   };
 
@@ -101,37 +107,57 @@ export const HomePage: React.FC = () => {
     e.preventDefault();
     if (!searchQuery.trim()) return;
     setIsDropdownOpen(false);
+    setGpsNotice(null);
+    clearValidationError();
     await validateAndSetQuery(searchQuery.trim());
+  };
+
+  const handleFocusSearch = () => {
+    if (searchInputRef.current) {
+      searchInputRef.current.focus();
+    }
   };
 
   const handleUseCurrentLocation = async () => {
     setIsGeoLocating(true);
+    setGpsNotice(null);
+    clearValidationError();
     try {
-      await useCurrentLocation();
+      const res = await useCurrentLocation();
       setSearchQuery('');
       setIsDropdownOpen(false);
-    } catch (e) {
+      if (res.status === 'UNRESOLVED') {
+        setGpsNotice(res.reason || 'Geolocation access was denied or unavailable.');
+      } else {
+        setGpsNotice(null);
+      }
+    } catch (e: any) {
       console.error('Current location error', e);
+      setGpsNotice('Unable to acquire GPS position. Please select a coastal location manually.');
     } finally {
       setIsGeoLocating(false);
     }
   };
 
   const handleSelectPopular = (loc: LocationInfo) => {
+    setGpsNotice(null);
+    clearValidationError();
     setSelectedLocation(loc);
     setSearchQuery('');
     setIsDropdownOpen(false);
   };
 
-  const isLocationValid = Boolean(
+  // Location validity: must have a resolved name and not be UNRESOLVED
+  const hasSelectedLocation = Boolean(
     selectedLocation &&
     selectedLocation.name &&
-    (selectedLocation.is_coastal !== false && selectedLocation.is_marine !== false) &&
-    activeValidation.status !== 'INLAND' &&
+    activeValidation &&
     activeValidation.status !== 'UNRESOLVED'
   );
 
-  const handleGetLiveInfo = () => {
+  const isLocationValid = hasSelectedLocation;
+
+  const handleViewMarineIntelligence = () => {
     if (!isLocationValid) return;
     const locParam = encodeURIComponent(selectedLocation.city || selectedLocation.name);
     navigate(`/dashboard?location=${locParam}`);
@@ -159,95 +185,99 @@ export const HomePage: React.FC = () => {
         {/* Hero Foreground Content */}
         <div className="landing-hero-container">
           <div className="landing-hero-grid">
-            {/* Left Column: Mission & Capabilities */}
-            <div className="landing-left-content">
-              <div className="landing-eyebrow-pill">
-                <span className="eyebrow-beacon-dot" />
-                <span className="eyebrow-text">INDIAN COASTAL INTELLIGENCE</span>
+            {/* Left Hero Column: Official Maritime Title */}
+            <div className="landing-left-col">
+              <div className="landing-platform-tag">
+                <span className="platform-tag-pulse" />
+                <span className="platform-tag-text">OFFICIAL MARINE DECISION PLATFORM</span>
               </div>
 
               <h1 className="landing-headline">
-                Safer Seas<br />
-                <span className="landing-headline-gradient">Brighter Tomorrows</span>
+                Turning Ocean Data into Intelligent Decisions.
               </h1>
 
               <p className="landing-supporting-text">
-                Real-time ocean conditions, satellite intelligence, safety alerts and decision support for coastal communities, fishermen, and maritime authorities.
+                Multi-agent ocean intelligence synthesizing satellite remote sensing, Doppler radar forecasts, hydrodynamic currents, and navigational safety boundaries.
               </p>
 
-              {/* Action Buttons */}
-              <div className="landing-cta-row">
-                <button
-                  type="button"
-                  className="btn-landing-primary"
-                  onClick={() => navigate('/maps')}
-                >
-                  <span>Explore Live Map</span>
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-                    <line x1="5" y1="12" x2="19" y2="12" />
-                    <polyline points="12 5 19 12 12 19" />
-                  </svg>
-                </button>
+              {/* Verified Maritime Capabilities */}
+              <div className="landing-capabilities-grid">
+                <div className="capability-item">
+                  <div className="cap-icon-box">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                      <path d="M2 12h20M2 12a10 10 0 0 1 20 0M2 12a10 10 0 0 0 20 0" />
+                      <circle cx="12" cy="12" r="4" />
+                    </svg>
+                  </div>
+                  <div className="cap-text">
+                    <strong>Hydrodynamic Forecasts</strong>
+                    <span>Real-time wave height, swell & currents</span>
+                  </div>
+                </div>
 
-                <button
-                  type="button"
-                  className="btn-landing-secondary"
-                  onClick={() => navigate('/ask')}
-                >
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                    <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
-                  </svg>
-                  <span>Ask OCEANIS</span>
-                </button>
-              </div>
+                <div className="capability-item">
+                  <div className="cap-icon-box">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                      <polygon points="12 2 2 7 12 12 22 7 12 2" />
+                      <polyline points="2 17 12 22 22 17" />
+                      <polyline points="2 12 12 17 22 12" />
+                    </svg>
+                  </div>
+                  <div className="cap-text">
+                    <strong>Multi-Agent Fusion</strong>
+                    <span>6 specialized marine AI domain agents</span>
+                  </div>
+                </div>
 
-              {/* Bottom Feature Capabilities Row */}
-              <div className="landing-features-strip">
-                <div className="feature-item">
-                  <span className="feature-title">Satellite Data</span>
-                  <span className="feature-detail">MODIS • Sentinel-3</span>
-                </div>
-                <div className="feature-divider" />
-                <div className="feature-item">
-                  <span className="feature-title">Real-time Conditions</span>
-                  <span className="feature-detail">Waves • Currents • Wind</span>
-                </div>
-                <div className="feature-divider" />
-                <div className="feature-item">
-                  <span className="feature-title">Safety Alerts</span>
-                  <span className="feature-detail">Cyclones • Hazard Zones</span>
-                </div>
-                <div className="feature-divider" />
-                <div className="feature-item">
-                  <span className="feature-title">For Coastal Communities</span>
-                  <span className="feature-detail">Fishermen • Authorities • Fleet</span>
+                <div className="capability-item">
+                  <div className="cap-icon-box">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                      <circle cx="12" cy="12" r="10" />
+                      <line x1="12" y1="8" x2="12" y2="12" />
+                      <line x1="12" y1="16" x2="12.01" y2="16" />
+                    </svg>
+                  </div>
+                  <div className="cap-text">
+                    <strong>Early Hazard Warning</strong>
+                    <span>Cyclone tracking & severe weather watches</span>
+                  </div>
                 </div>
               </div>
             </div>
 
-            {/* Right Column: Location Selection Card */}
+            {/* Right Hero Column: Official Maritime Location Gateway Card */}
             <div className="landing-right-card-wrapper">
-              <div className="landing-location-card" ref={searchContainerRef}>
+              <div className="landing-location-card">
+                {/* Gateway Card Header */}
                 <div className="loc-card-top">
-                  <span className="loc-card-badge">LIVE SECTOR TELEMETRY</span>
+                  <div className="loc-card-header-row">
+                    <span className="loc-card-badge">MARINE INTELLIGENCE</span>
+                    {hasSelectedLocation && (
+                      <span className={`loc-status-pill ${activeValidation.status === 'INLAND' ? 'status-inland' : 'status-coastal'}`}>
+                        {activeValidation.status === 'INLAND' ? 'INLAND' : 'COASTAL READY'}
+                      </span>
+                    )}
+                  </div>
                   <h2 className="loc-card-title">Select Your Location</h2>
                   <p className="loc-card-desc">
-                    Enter a coastal location to view real-time ocean conditions and safety information.
+                    Choose a coastal, offshore, or map location to continue.
                   </p>
                 </div>
 
-                {/* Location Search Box */}
-                <div className="loc-search-box">
-                  <form onSubmit={handleSearchSubmit}>
+                {/* Location Search Input Form */}
+                <div className="loc-search-box" ref={searchContainerRef}>
+                  <form onSubmit={handleSearchSubmit} role="search">
                     <div className="search-input-wrapper">
-                      <svg className="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                      <svg className="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
                         <circle cx="11" cy="11" r="8" />
                         <line x1="21" y1="21" x2="16.65" y2="16.65" />
                       </svg>
                       <input
+                        ref={searchInputRef}
                         type="text"
                         className="loc-search-input"
-                        placeholder="Search coastal area, city, port or coordinates..."
+                        placeholder="Search coastal area, port or coordinates..."
+                        aria-label="Search coastal area, port or coordinates"
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
                         onFocus={() => {
@@ -264,6 +294,7 @@ export const HomePage: React.FC = () => {
                             setSearchResults([]);
                             setIsDropdownOpen(false);
                           }}
+                          aria-label="Clear search query"
                         >
                           ✕
                         </button>
@@ -271,9 +302,9 @@ export const HomePage: React.FC = () => {
                     </div>
                   </form>
 
-                  {/* Dynamic Dropdown Results */}
+                  {/* Dynamic Dropdown Search Results */}
                   {isDropdownOpen && (
-                    <div className="loc-search-dropdown">
+                    <div className="loc-search-dropdown" role="listbox">
                       {isSearching ? (
                         <div className="no-search-results">
                           <span>Searching coastal ports, waters & stations...</span>
@@ -285,11 +316,13 @@ export const HomePage: React.FC = () => {
                             type="button"
                             className="search-result-item"
                             onClick={() => handleSelectCandidate(item)}
+                            role="option"
+                            aria-selected="false"
                           >
-                            <span className="res-icon">⚓</span>
+                            <span className="res-icon" aria-hidden="true">⚓</span>
                             <div className="res-meta">
                               <strong>{item.name}</strong>
-                              <span>{item.display_name} • {item.is_coastal ? 'Coastal' : 'Inland'}</span>
+                              <span>{item.display_name} · {item.is_coastal ? 'Coastal' : 'Inland'}</span>
                             </div>
                           </button>
                         ))
@@ -302,17 +335,15 @@ export const HomePage: React.FC = () => {
                   )}
                 </div>
 
-                {/* Quick Action Options */}
+                {/* Quick Action Buttons */}
                 <div className="loc-quick-actions">
                   <button
                     type="button"
                     className="btn-quick-action"
-                    onClick={() => {
-                      const input = document.querySelector('.loc-search-input') as HTMLInputElement;
-                      if (input) input.focus();
-                    }}
+                    onClick={handleFocusSearch}
+                    aria-label="Search location by text"
                   >
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
                       <circle cx="11" cy="11" r="8" />
                       <line x1="21" y1="21" x2="16.65" y2="16.65" />
                     </svg>
@@ -324,8 +355,9 @@ export const HomePage: React.FC = () => {
                     className="btn-quick-action"
                     onClick={handleUseCurrentLocation}
                     disabled={isGeoLocating}
+                    aria-label="Use my GPS location"
                   >
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
                       <polygon points="3 11 22 2 13 21 11 13 3 11" />
                     </svg>
                     <span>{isGeoLocating ? 'GPS Detecting...' : 'Use My Location'}</span>
@@ -335,28 +367,41 @@ export const HomePage: React.FC = () => {
                     type="button"
                     className="btn-quick-action"
                     onClick={() => navigate('/maps?draw=1')}
+                    aria-label="Draw on interactive map"
                   >
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
                       <polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6" />
                     </svg>
                     <span>Draw on Map</span>
                   </button>
                 </div>
 
-                {/* Popular Locations */}
+                {/* GPS Notice or Validation Error */}
+                {(gpsNotice || validationError) && (
+                  <div className="loc-error-notice" role="alert">
+                    <span className="notice-icon">⚠️</span>
+                    <span className="notice-text">{gpsNotice || validationError}</span>
+                  </div>
+                )}
+
+                {/* Popular Coastal Locations Grid */}
                 <div className="popular-locations-section">
                   <span className="pop-label">Popular Coastal Locations</span>
                   <div className="popular-chips-grid">
-                    {popularLocations.map((loc) => {
-                      const isSelected = (selectedLocation.name === loc.name || selectedLocation.city === loc.city);
+                    {popularLocations.slice(0, 6).map((loc) => {
+                      const isSelected = Boolean(
+                        hasSelectedLocation &&
+                        (selectedLocation.name === loc.name || selectedLocation.city === loc.city)
+                      );
                       return (
                         <button
                           key={loc.name}
                           type="button"
                           className={`pop-chip-btn ${isSelected ? 'active' : ''}`}
                           onClick={() => handleSelectPopular(loc)}
+                          aria-pressed={isSelected}
                         >
-                          {isSelected && <span className="chip-check">✓</span>}
+                          {isSelected && <span className="chip-check" aria-hidden="true">✓</span>}
                           <span>{loc.city || loc.name}</span>
                         </button>
                       );
@@ -364,42 +409,50 @@ export const HomePage: React.FC = () => {
                   </div>
                 </div>
 
-                {/* Active Selected Location Display Card */}
-                {selectedLocation && selectedLocation.name && (
+                {/* Selected Location Summary or Initial Empty Prompt */}
+                {hasSelectedLocation ? (
                   <div className="selected-location-display">
                     <div className="sel-loc-header">
-                      <span className="sel-loc-label">Active Coastal Station</span>
-                      <span className="sel-loc-status">VALIDATED COASTAL</span>
+                      <span className="sel-loc-label">SELECTED LOCATION</span>
+                      <span className={`sel-loc-status ${activeValidation.status === 'INLAND' ? 'status-inland' : 'status-coastal'}`}>
+                        {activeValidation.status === 'INLAND' ? 'INLAND TERRITORY' : (selectedLocation.isPort ? 'PORT & HARBOUR' : 'COASTAL WATERS')}
+                      </span>
                     </div>
                     <div className="sel-loc-body">
-                      <svg className="sel-loc-pin" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                      <svg className="sel-loc-pin" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
                         <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
                         <circle cx="12" cy="10" r="3" />
                       </svg>
                       <div className="sel-loc-details">
-                        <strong className="sel-loc-name">{selectedLocation.name}, {selectedLocation.state}</strong>
-                        <span className="sel-loc-coords">{selectedLocation.coordinates} • {selectedLocation.portName || 'Coastal Sector'}</span>
+                        <strong className="sel-loc-name">{selectedLocation.name}{selectedLocation.state ? `, ${selectedLocation.state}` : ''}</strong>
+                        <span className="sel-loc-coords">
+                          {selectedLocation.coordinates} · {selectedLocation.portName || selectedLocation.marine_context || (selectedLocation.is_coastal ? 'Coastal Marine Zone' : 'Inland Sector')}
+                        </span>
                       </div>
                     </div>
                   </div>
+                ) : (
+                  <div className="no-location-prompt">
+                    <span className="no-loc-icon" aria-hidden="true">⚓</span>
+                    <span className="no-loc-text">
+                      Select a location above or search to view marine intelligence.
+                    </span>
+                  </div>
                 )}
 
-                {/* Card Footer & Action Button */}
+                {/* Card Footer & Primary Action Button */}
                 <div className="loc-card-footer">
                   <button
                     type="button"
                     className="btn-get-live-info"
-                    onClick={handleGetLiveInfo}
+                    onClick={handleViewMarineIntelligence}
                     disabled={!isLocationValid}
+                    aria-disabled={!isLocationValid}
                   >
-                    <span>Get Live Information</span>
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-                      <line x1="5" y1="12" x2="19" y2="12" />
-                      <polyline points="12 5 19 12 12 19" />
-                    </svg>
+                    <span>View Marine Intelligence →</span>
                   </button>
                   <span className="telemetry-notice">
-                    Direct live feeds from INCOIS, IMD Doppler Radar, ISRO & Copernicus Sentinel-3
+                    Authoritative observational & forecast data from INCOIS, IMD, and Copernicus Marine
                   </span>
                 </div>
               </div>
@@ -407,15 +460,16 @@ export const HomePage: React.FC = () => {
           </div>
         </div>
 
-        {/* Subtle Scroll / Enter Indicator */}
+        {/* Subtle Bottom Scroll / Explore Indicator */}
         <div className="landing-bottom-indicator">
           <button
             type="button"
             className="btn-scroll-indicator"
             onClick={() => navigate('/dashboard')}
+            aria-label="Explore dashboard"
           >
-            <span className="scroll-text">Scroll to explore</span>
-            <svg className="scroll-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <span className="scroll-text">Explore Marine Platform</span>
+            <svg className="scroll-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
               <polyline points="6 9 12 15 18 9" />
             </svg>
           </button>

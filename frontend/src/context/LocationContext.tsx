@@ -145,22 +145,22 @@ export interface LocationContextType {
   clearValidationError: () => void;
 }
 
-const DEFAULT_VALIDATION: LocationValidationResult = {
-  status: 'VALID_COASTAL',
-  is_coastal: true,
-  is_marine: true,
-  location_name: 'Visakhapatnam Coast',
-  display_name: 'Visakhapatnam, Andhra Pradesh, India',
-  city: 'Visakhapatnam',
-  state: 'Andhra Pradesh',
+export const EMPTY_VALIDATION: LocationValidationResult = {
+  status: 'UNRESOLVED',
+  is_coastal: false,
+  is_marine: false,
+  location_name: '',
+  display_name: '',
+  city: '',
+  state: '',
   country: 'India',
-  latitude: 17.6868,
-  longitude: 83.2185,
-  distance_to_coast_km: 0.5,
-  nearest_port: 'Visakhapatnam Port (VPT)',
-  marine_context: 'Bay of Bengal • Andhra Coastal Shelf',
-  reason: 'Coastal location detected. Marine intelligence available for this area.',
-  coordinates_formatted: '17.6868° N, 83.2185° E',
+  latitude: undefined,
+  longitude: undefined,
+  distance_to_coast_km: null,
+  nearest_port: undefined,
+  marine_context: null,
+  reason: 'Select a location to view marine spatial intelligence.',
+  coordinates_formatted: '',
 };
 
 function candidateToValidation(candidate: LocationCandidate): LocationValidationResult {
@@ -190,6 +190,22 @@ function candidateToValidation(candidate: LocationCandidate): LocationValidation
 }
 
 function validationToLocationInfo(v: LocationValidationResult): LocationInfo {
+  if (!v || !v.location_name || v.status === 'UNRESOLVED') {
+    return {
+      name: '',
+      city: '',
+      state: '',
+      coordinates: '',
+      lat: 0,
+      lon: 0,
+      isPort: false,
+      region: 'East Coast',
+      is_coastal: false,
+      is_marine: false,
+      status: 'UNRESOLVED',
+    };
+  }
+
   let region: 'East Coast' | 'West Coast' | 'Island Territory' | 'Inland Area' | 'International Waters' = 'East Coast';
   if (v.country && v.country !== 'India' && v.country !== 'Global Marine') {
     region = 'International Waters';
@@ -234,12 +250,15 @@ export const LocationProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     const saved = localStorage.getItem('oceanis_active_validation_v2');
     if (saved) {
       try {
-        return JSON.parse(saved);
+        const parsed = JSON.parse(saved);
+        if (parsed && parsed.status && parsed.location_name && parsed.status !== 'UNRESOLVED') {
+          return parsed;
+        }
       } catch (e) {
         console.warn('Failed to parse saved active location validation', e);
       }
     }
-    return DEFAULT_VALIDATION;
+    return EMPTY_VALIDATION;
   });
 
   const [suggestions, setSuggestions] = useState<LocationCandidate[]>([]);

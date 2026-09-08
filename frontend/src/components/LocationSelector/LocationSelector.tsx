@@ -342,7 +342,7 @@ export const LocationSelector: React.FC<LocationSelectorProps> = ({
       )}
 
       {/* 3. UNRESOLVED / ERROR LOCATION */}
-      {isUnresolved && (
+      {isUnresolved && valToDisplay.location_name && (
         <div className="loc-validation-panel unresolved-block">
           <div className="loc-val-header">
             <span className="loc-val-icon">⚠️</span>
