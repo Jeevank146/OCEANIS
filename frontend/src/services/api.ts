@@ -685,6 +685,7 @@ export async function getOrchestratorDecision(
   whatIfLat?: number | null,
   whatIfLon?: number | null,
   whatIfLocName?: string | null,
+  language?: string | null,
 ): Promise<FinalDecisionObjectContract> {
   const params = new URLSearchParams();
   if (whatIfTime) params.append('what_if_time', whatIfTime);
@@ -701,6 +702,7 @@ export async function getOrchestratorDecision(
       latitude: latitude ?? null,
       longitude: longitude ?? null,
       target_datetime: targetDatetime ?? null,
+      language: language || 'en',
     }),
   });
 

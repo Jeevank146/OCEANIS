@@ -1189,3 +1189,10 @@
     grid-template-columns: 1fr;
   }
 }
+
+
+.agent-conf-badge.conf-unavailable {
+  background: #F1F5F9;
+  color: #64748B;
+  border-color: #CBD5E1;
+}
