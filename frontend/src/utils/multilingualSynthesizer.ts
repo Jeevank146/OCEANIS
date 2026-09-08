@@ -109,74 +109,103 @@ export const INTENT_LABELS: Record<string, Record<string, string>> = {
   gu: { DECISION: 'નિર્ણય ઇન્ટેલિજન્સ (Decision)', INFORMATION: 'ટેલિમેટ્રી અને પરિસ્થિતિ (Information)', SAFETY: 'આપત્તિ અને સુરક્ષા સલાહ (Safety)', COMPARISON: 'સ્થળોની સરખામણી (Comparison)', ROUTE: 'નેવિગેશન અને રૂટ (Route)', WHAT_IF: 'વ્હોટ-ઇફ સિમ્યુલેશન (What-If)' },
 };
 
-// 3. Follow-up Context Suggestions Chips
+// 3. Dynamic Location-Aware Follow-up Generator
+
+/**
+ * Generates dynamic, location-aware and query-aware follow-up suggestion chips.
+ * Strictly adheres to requirement: NO hardcoded 'What about Visakhapatnam?' or fixed cities.
+ */
+export function getDynamicFollowUpSuggestions(
+  locName: string = 'Current Sector',
+  lang: string = 'en',
+  _queryIntent: string = 'DECISION'
+): Array<{ label: string; query: string }> {
+  const l = (lang || 'en').toLowerCase();
+  const cleanLoc = (locName || 'Current Sector').replace(/\s*\([^)]*\)/g, '').trim() || 'here';
+
+  switch (l) {
+    case 'te':
+      return [
+        { label: `🕒 ${cleanLoc} లో రేపు ఉదయం పరిస్థితి?`, query: `${cleanLoc} లో రేపు ఉదయం సముద్ర పరిస్థితులు ఎలా ఉన్నాయి?` },
+        { label: `🧠 ఈ నిర్ణయం వెనుక గల కారణాలు`, query: `Why this decision for ${cleanLoc}?` },
+        { label: `⏱️ 9 గంటలకు బయలుదేరితే ఏమి జరుగుతుంది?`, query: `What if I leave at 9 AM from ${cleanLoc}?` },
+        { label: `🌊 ${cleanLoc} అలలు & గాలి వివరాలు`, query: `Show wave and wind telemetry near ${cleanLoc}` },
+        { label: `🛰️ శాటిలైట్ SST & క్లోరోఫిల్`, query: `Show satellite SST and Chlorophyll-a near ${cleanLoc}` },
+      ];
+    case 'hi':
+      return [
+        { label: `🕒 ${cleanLoc} में कल सुबह क्या स्थिति होगी?`, query: `${cleanLoc} में कल सुबह समुद्र की स्थिति कैसी होगी?` },
+        { label: `🧠 यह निर्णय क्यों लिया गया?`, query: `Why this decision for ${cleanLoc}?` },
+        { label: `⏱️ यदि 9 बजे प्रस्थान करें तो?`, query: `What if I leave at 9 AM from ${cleanLoc}?` },
+        { label: `🌊 ${cleanLoc} के लहर और हवा के आंकड़े`, query: `Show wave and wind telemetry near ${cleanLoc}` },
+        { label: `🛰️ उपग्रह SST और क्लोरोफिल`, query: `Show satellite SST and Chlorophyll-a near ${cleanLoc}` },
+      ];
+    case 'ta':
+      return [
+        { label: `🕒 ${cleanLoc} பகுதியில் நாளை காலை நிலை என்ன?`, query: `${cleanLoc} பகுதியில் நாளை காலை கடல் நிலை எப்படி உள்ளது?` },
+        { label: `🧠 இந்த முடிவின் காரணங்கள்`, query: `Why this decision for ${cleanLoc}?` },
+        { label: `⏱️ காலை 9 மணிக்கு புறப்பட்டால் என்ன?`, query: `What if I leave at 9 AM from ${cleanLoc}?` },
+        { label: `🌊 ${cleanLoc} அலை & காற்று அளவீடுகள்`, query: `Show wave and wind telemetry near ${cleanLoc}` },
+      ];
+    case 'kn':
+      return [
+        { label: `🕒 ${cleanLoc} ನಲ್ಲಿ ನಾಳೆ ಬೆಳಗಿನ ಪರಿಸ್ಥಿತಿ?`, query: `${cleanLoc} ನಲ್ಲಿ ನಾಳೆ ಬೆಳಗಿನ ಸಾಗರ ಪರಿಸ್ಥಿತಿ ಹೇಗಿದೆ?` },
+        { label: `🧠 ಈ ನಿರ್ಧಾರದ ವಿವರಣೆ`, query: `Why this decision for ${cleanLoc}?` },
+        { label: `⏱️ ಬೆಳಗ್ಗೆ 9 ಗಂಟೆಗೆ ಹೊರಟರೆ ಏನು?`, query: `What if I leave at 9 AM from ${cleanLoc}?` },
+        { label: `🌊 ${cleanLoc} ಅಲೆ ಮತ್ತು ಗಾಳಿಯ ವಿವರ`, query: `Show wave and wind telemetry near ${cleanLoc}` },
+      ];
+    case 'ml':
+      return [
+        { label: `🕒 ${cleanLoc} ൽ നാളെ രാവിലത്തെ സ്ഥിതി?`, query: `${cleanLoc} ൽ നാളെ രാവിലത്തെ സമുദ്രാവస్థ ఎങ്ങനെയുണ്ട്?` },
+        { label: `🧠 ഈ തീരുമാനത്തിന്റെ കാരണം`, query: `Why this decision for ${cleanLoc}?` },
+        { label: `⏱️ രാവിലെ 9 മണിക്ക് പുറപ്പെട്ടാൽ?`, query: `What if I leave at 9 AM from ${cleanLoc}?` },
+        { label: `🌊 ${cleanLoc} തിരമാല വിവരങ്ങൾ`, query: `Show wave and wind telemetry near ${cleanLoc}` },
+      ];
+    case 'mr':
+      return [
+        { label: `🕒 ${cleanLoc} मध्ये उद्या सकाळी स्थिती?`, query: `${cleanLoc} मध्ये उद्या सकाळी समुद्राची स्थिती कशी असेल?` },
+        { label: `🧠 या निर्णयाचे स्पष्टीकरण`, query: `Why this decision for ${cleanLoc}?` },
+        { label: `⏱️ सकाळी 9 वाजता निघालो तर?`, query: `What if I leave at 9 AM from ${cleanLoc}?` },
+        { label: `🌊 ${cleanLoc} लाटा व वाऱ्याचा वेग`, query: `Show wave and wind telemetry near ${cleanLoc}` },
+      ];
+    case 'bn':
+      return [
+        { label: `🕒 ${cleanLoc}-এ আগামীকাল সকালের অবস্থা?`, query: `${cleanLoc}-এ আগামীকাল সকালে সমুদ্র পরিস্থিতি কেমন?` },
+        { label: `🧠 এই সিদ্ধান্তের কারণ কী?`, query: `Why this decision for ${cleanLoc}?` },
+        { label: `⏱️ সকাল ৯টায় রওনা দিলে কী হবে?`, query: `What if I leave at 9 AM from ${cleanLoc}?` },
+        { label: `🌊 ${cleanLoc} ঢেউ ও বাতাসের তথ্য`, query: `Show wave and wind telemetry near ${cleanLoc}` },
+      ];
+    case 'gu':
+      return [
+        { label: `🕒 ${cleanLoc} ખાતે આવતીકાલે સવારે સ્થિતિ?`, query: `${cleanLoc} ખાતે આવતીકાલે સવારે દરિયાઈ સ્થિતિ કેવી રહેશે?` },
+        { label: `🧠 આ નિર્ણયનું કારણ શું છે?`, query: `Why this decision for ${cleanLoc}?` },
+        { label: `⏱️ સવારે 9 વાગ્યે નીકળીએ તો?`, query: `What if I leave at 9 AM from ${cleanLoc}?` },
+        { label: `🌊 ${cleanLoc} મોજાં અને પવન ડેટા`, query: `Show wave and wind telemetry near ${cleanLoc}` },
+      ];
+    default:
+      return [
+        { label: `🕒 What about tomorrow morning near ${cleanLoc}?`, query: `What about tomorrow morning near ${cleanLoc}?` },
+        { label: `🧠 Why this decision?`, query: `Why this decision for ${cleanLoc}?` },
+        { label: `⏱️ What if I leave at 9 AM instead?`, query: `What if I leave at 9 AM from ${cleanLoc}?` },
+        { label: `🌊 Show wave and wind telemetry for ${cleanLoc}`, query: `Show wave and wind telemetry for ${cleanLoc}` },
+        { label: `🛰️ Show satellite SST & Chlorophyll near ${cleanLoc}`, query: `Show satellite SST and Chlorophyll-a near ${cleanLoc}` },
+      ];
+  }
+}
+
 export const FOLLOW_UP_SUGGESTIONS: Record<string, Array<{ label: string; query: string }>> = {
-  en: [
-    { label: '🕒 What about tomorrow morning?', query: 'What about tomorrow morning?' },
-    { label: '❓ Why this decision?', query: 'Why this decision?' },
-    { label: '⏰ What if I leave at 9 AM instead?', query: 'What if I leave at 9 AM instead?' },
-    { label: '📍 What about Visakhapatnam?', query: 'What about Visakhapatnam?' },
-    { label: '🌊 Show wave and wind telemetry', query: 'Show wave and wind telemetry' },
-  ],
-  te: [
-    { label: '🕒 రేపు ఉదయం పరిస్థితి ఏమిటి?', query: 'What about tomorrow morning?' },
-    { label: '❓ ఈ నిర్ణయం ఎందుకు తీసుకున్నారు?', query: 'Why this decision?' },
-    { label: '⏰ 9 గంటలకు బయలుదేరితే ఎలా ఉంటుంది?', query: 'What if I leave at 9 AM instead?' },
-    { label: '📍 విశాఖపట్నం పరిస్థితి ఏమిటి?', query: 'What about Visakhapatnam?' },
-    { label: '🌊 అలల మరియు గాలి టెలిమెట్రీ చూపించండి', query: 'Show wave and wind telemetry' },
-  ],
-  hi: [
-    { label: '🕒 कल सुबह की स्थिति क्या है?', query: 'What about tomorrow morning?' },
-    { label: '❓ यह निर्णय क्यों लिया गया?', query: 'Why this decision?' },
-    { label: '⏰ अगर मैं सुबह 9 बजे निकलूं तो?', query: 'What if I leave at 9 AM instead?' },
-    { label: '📍 विशाखापत्तनम के बारे में क्या?', query: 'What about Visakhapatnam?' },
-    { label: '🌊 लहर और हवा की टेलीमेट्री दिखाएं', query: 'Show wave and wind telemetry' },
-  ],
-  ta: [
-    { label: '🕒 நாளை காலை நிலை என்ன?', query: 'What about tomorrow morning?' },
-    { label: '❓ இந்த முடிவு ஏன் எடுக்கப்பட்டது?', query: 'Why this decision?' },
-    { label: '⏰ காலை 9 மணிக்கு புறப்பட்டால் என்ன?', query: 'What if I leave at 9 AM instead?' },
-    { label: '📍 விசாகப்பட்டினம் பற்றி என்ன?', query: 'What about Visakhapatnam?' },
-    { label: '🌊 அலை மற்றும் காற்றின் விவரங்களைக் காட்டு', query: 'Show wave and wind telemetry' },
-  ],
-  kn: [
-    { label: '🕒 ನಾಳೆ ಬೆಳಗಿನ ಪರಿಸ್ಥಿತಿ ಏನು?', query: 'What about tomorrow morning?' },
-    { label: '❓ ಈ ನಿರ್ಧಾರ ಏಕೆ ತೆಗೆದುಕೊಳ್ಳಲಾಗಿದೆ?', query: 'Why this decision?' },
-    { label: '⏰ ನಾನು ಬೆಳಿಗ್ಗೆ 9 ಗಂಟೆಗೆ ಹೊರಟರೆ ಹೇಗೆ?', query: 'What if I leave at 9 AM instead?' },
-    { label: '📍 ವಿಶಾಖಪಟ್ಟಣಂ ಬಗ್ಗೆ ಏನು?', query: 'What about Visakhapatnam?' },
-    { label: '🌊 ಅಲೆ ಮತ್ತು ಗಾಳಿಯ ಟೆಲಿಮೆಟ್ರಿ ತೋರಿಸಿ', query: 'Show wave and wind telemetry' },
-  ],
-  ml: [
-    { label: '🕒 നാളെ രാവിലത്തെ സ്ഥിതി എന്താണ്?', query: 'What about tomorrow morning?' },
-    { label: '❓ ഈ തീരുമാനം എന്തുകൊണ്ട് എടുത്തു?', query: 'Why this decision?' },
-    { label: '⏰ ഞാൻ രാവിലെ 9 മണിക്ക് പുറപ്പെട്ടാൽ എങ്ങനെയുണ്ടാകും?', query: 'What if I leave at 9 AM instead?' },
-    { label: '📍 വിശാഖപട്ടണത്തിന്റെ സ്ഥിതി എന്താണ്?', query: 'What about Visakhapatnam?' },
-    { label: '🌊 തിരമാലയുടെയും കാറ്റിന്റെയും വിവരങ്ങൾ കാണിക്കുക', query: 'Show wave and wind telemetry' },
-  ],
-  mr: [
-    { label: '🕒 उद्या सकाळची परिस्थिती काय आहे?', query: 'What about tomorrow morning?' },
-    { label: '❓ हा निर्णय का घेण्यात आला?', query: 'Why this decision?' },
-    { label: '⏰ मी सकाळी 9 वाजता निघालो तर?', query: 'What if I leave at 9 AM instead?' },
-    { label: '📍 विशाखापट्टणमबद्दल काय?', query: 'What about Visakhapatnam?' },
-    { label: '🌊 लाटा आणि वाऱ्याची टेलिमेट्री दाखवा', query: 'Show wave and wind telemetry' },
-  ],
-  bn: [
-    { label: '🕒 আগামীকাল সকালের পরিস্থিতি কী?', query: 'What about tomorrow morning?' },
-    { label: '❓ এই সিদ্ধান্ত কেন নেওয়া হলো?', query: 'Why this decision?' },
-    { label: '⏰ আমি যদি সকাল ৯টায় রওনা দিই তবে কেমন হবে?', query: 'What if I leave at 9 AM instead?' },
-    { label: '📍 বিশাখাপত্তনম সম্পর্কে কী?', query: 'What about Visakhapatnam?' },
-    { label: '🌊 ঢেউ এবং বাতাসের টেলিমেট্রি দেখান', query: 'Show wave and wind telemetry' },
-  ],
-  gu: [
-    { label: '🕒 આવતીકાલે સવારે પરિસ્થિતિ કેવી રહેશે?', query: 'What about tomorrow morning?' },
-    { label: '❓ આ નિર્ણય શા માટે લેવામાં આવ્યો?', query: 'Why this decision?' },
-    { label: '⏰ જો હું સવારે 9 વાગ્યે નીકળું તો?', query: 'What if I leave at 9 AM instead?' },
-    { label: '📍 વિશાખાપટ્ટનમ વિશે શું?', query: 'What about Visakhapatnam?' },
-    { label: '🌊 મોજા અને પવનની ટેલિમેટ્રી બતાવો', query: 'Show wave and wind telemetry' },
-  ],
+  en: getDynamicFollowUpSuggestions('Active Sector', 'en'),
+  te: getDynamicFollowUpSuggestions('యాక్టివ్ సెక్టార్', 'te'),
+  hi: getDynamicFollowUpSuggestions('सक्रिय क्षेत्र', 'hi'),
+  ta: getDynamicFollowUpSuggestions('செயலில் உள்ள துறை', 'ta'),
+  kn: getDynamicFollowUpSuggestions('ಸಕ್ರಿಯ ವಲಯ', 'kn'),
+  ml: getDynamicFollowUpSuggestions('സജീവ മേഖല', 'ml'),
+  mr: getDynamicFollowUpSuggestions('सक्रिय क्षेत्र', 'mr'),
+  bn: getDynamicFollowUpSuggestions('সক্রিয় সেক্টর', 'bn'),
+  gu: getDynamicFollowUpSuggestions('સક્રિય ક્ષેત્ર', 'gu'),
 };
 
-// Helper to sanitize raw technical backend strings
+
 export function sanitizeEvidenceText(raw: string): string {
   if (!raw) return '';
   let s = String(raw);
@@ -211,9 +240,8 @@ export function synthesizeMultilingualResponse(
   
   const rawIntent = (decisionData.query_intent || 'DECISION').toUpperCase();
   const intentBadge = INTENT_LABELS[l]?.[rawIntent] || INTENT_LABELS.en[rawIntent] || rawIntent;
-  const followUps = FOLLOW_UP_SUGGESTIONS[l] || FOLLOW_UP_SUGGESTIONS.en;
-
   const locName = decisionData.location?.name || 'Selected Coastal Sector';
+  const followUps = getDynamicFollowUpSuggestions(locName, l, rawIntent);
   const reqTime = decisionData.requested_time || '06:00';
 
   // Extract key telemetry
