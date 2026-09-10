@@ -1,85 +1,103 @@
-# OCEANIS — Ocean Intelligence & Decision System
+# 🌊 OCEANIS — Ocean Intelligence & Decision System
 
 > **Turning Ocean Data into Intelligent Decisions.**
 
-OCEANIS is an AI-powered marine intelligence and decision-support platform designed to integrate marine observations, satellite Earth Observation, weather, ocean conditions, geospatial intelligence, safety information, and Potential Fishing Zone (PFZ) intelligence into a single decision-support workflow.
+OCEANIS (Ocean Intelligence & Decision System) is an AI-powered Marine Intelligence and Decision Support Platform designed to transform complex ocean, weather, satellite, geospatial, fishing, and marine safety data into actionable, evidence-based maritime intelligence.
 
-## SIH 2026
+OCEANIS brings together real marine observations, satellite Earth Observation, oceanographic data, weather information, Potential Fishing Zone (PFZ) intelligence, geospatial information, disaster warnings, and operational constraints through a collaborative multi-agent architecture.
 
-- **Problem Statement:** SIH26176 — ORCA: Marine Ecosystem Reasoning with Collaborative Agents
+The platform is designed to support fishermen, maritime operators, rescue and safety teams, disaster-management authorities, fisheries stakeholders, researchers, and other marine decision-makers.
+
+---
+
+## 🏆 Smart India Hackathon 2026
+
+- **Problem Statement:** SIH26176
+- **Problem:** ORCA — Marine EcOsystem Reasoning with Collaborative Agents
 - **Theme:** Disaster Management
 - **Category:** Software
 - **Project:** OCEANIS — Ocean Intelligence & Decision System
 
-## What OCEANIS Does
+---
 
-OCEANIS follows an intelligence workflow:
+# 🎯 Problem Statement
 
-**UNDERSTAND → PLAN → RETRIEVE → REASON → SIMULATE → EXPLAIN → RECOMMEND → ALERT**
+Marine decision-making requires information from many different sources.
 
-The platform combines real marine data with six specialized domain agents and a decision/safety layer to provide evidence-backed marine intelligence.
+A fisherman, vessel operator, rescue team, or maritime authority may need to consider:
 
-## Six Domain Agents
+- Weather conditions
+- Wind
+- Rain
+- Waves
+- Swell
+- Ocean currents
+- Sea Surface Temperature (SST)
+- Chlorophyll-a
+- Satellite observations
+- Potential Fishing Zones
+- Cyclone and marine warnings
+- Storm surge and hazard zones
+- Maritime boundaries
+- Restricted and protected areas
+- Navigation routes
+- Vessel operating conditions
 
-1. **Fishing Intelligence Agent**
-   - PFZ intelligence and fishing suitability
-   - SST and chlorophyll-based indicators
-   - Fishing-ground comparison
-   - Safety-aware fishing recommendations
+These datasets are often distributed across different systems and are difficult to interpret together.
 
-2. **Marine Conditions Agent**
-   - Wind and atmospheric conditions
-   - Waves and swell
-   - Ocean currents
-   - SST and marine conditions
+Traditional applications generally focus on one individual problem such as weather, maps, fishing, satellite imagery, or route planning.
 
-3. **Earth Observation Agent**
-   - Satellite-derived marine intelligence
-   - SST and chlorophyll-a
-   - Spatial and temporal analysis
-   - Ocean-condition indicators
+OCEANIS addresses this limitation by creating a unified marine intelligence layer where multiple specialized AI agents collaborate with real marine data and a safety-aware decision engine.
 
-4. **Geo-Spatial & Navigation Agent**
-   - Coordinates and spatial queries
-   - Maritime boundaries
-   - Restricted/protected areas
-   - Routes, distance and spatial intersections
+---
 
-5. **Disaster & Safety Agent**
-   - Marine warnings and hazards
-   - Cyclone and severe-weather intelligence
-   - Hazard-zone assessment
-   - Safety-first decision support
+# 💡 Proposed Solution
 
-6. **Marine Operations Agent**
-   - Route planning
-   - Travel distance and estimated time
-   - Departure-time analysis
-   - Operational what-if scenarios
+OCEANIS converts a user's natural-language marine question into an intelligent decision-support workflow.
 
-The **Agent Orchestrator** coordinates these domain agents and is not counted as a seventh domain agent.
+The system understands:
 
-## Intelligence Architecture
+- What the user is asking
+- Where the user is operating
+- Which marine domains are relevant
+- Which data sources are required
+- What evidence is available
+- How fresh that evidence is
+- How confident the system should be
+- Whether safety constraints affect the decision
+- Whether a What-If scenario should be simulated
+
+The final response is generated from structured evidence rather than relying only on free-form AI generation.
+
+---
+
+# 🧠 OCEANIS Intelligence Workflow
 
 ```text
-User Query / Location
+USER QUERY / LOCATION
         ↓
-Intent & Query Understanding
+QUERY UNDERSTANDING
         ↓
-Agent Orchestrator
+INTENT + LOCATION RESOLUTION
         ↓
-Six Domain Agents
+AGENT ORCHESTRATOR
         ↓
-Real Marine Data Retrieval
+SIX DOMAIN AGENTS
         ↓
-Evidence Fusion
+REAL MARINE DATA RETRIEVAL
         ↓
-Freshness & Confidence Assessment
+DOMAIN-SPECIFIC REASONING
         ↓
-Safety Guardrails
+EVIDENCE FUSION
         ↓
-Risk / Decision Engine
+DATA FRESHNESS ASSESSMENT
         ↓
-What-If Simulation
+CONFIDENCE / UNCERTAINTY
         ↓
-Explainable Recommendation
+SAFETY GUARDRAILS
+        ↓
+RISK / DECISION ENGINE
+        ↓
+WHAT-IF SIMULATION
+        ↓
+EXPLAINABLE RECOMMENDATION
