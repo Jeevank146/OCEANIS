@@ -87,7 +87,7 @@ export const DisasterSafetyPage: React.FC = () => {
           </p>
         </div>
         <div className="page-header-actions">
-          <div className="coverage-pill" style={{ background: 'rgba(8, 42, 67, 0.7)', border: '1px solid rgba(22, 184, 216, 0.3)', padding: '6px 12px', borderRadius: '20px', color: '#16B8D8', fontSize: '0.8125rem', fontWeight: 600 }}>
+          <div className="coverage-pill">
             📍 Location: {locName} {isInland ? '(INLAND)' : ''}
           </div>
           <Link to="/ask" className="btn-page-action primary">
@@ -98,7 +98,7 @@ export const DisasterSafetyPage: React.FC = () => {
 
       {/* Inland Banner if applicable */}
       {isInland && (
-        <div className="inland-alert-notice" style={{ background: 'rgba(245, 158, 11, 0.15)', border: '1px solid #f59e0b', borderRadius: '10px', padding: '14px 20px', marginBottom: '20px', color: '#fbbf24' }}>
+        <div className="inland-alert-notice">
           <strong>📍 INLAND LOCATION DETECTED ({locName}):</strong> Marine swell, PFZ, and oceanographic hazard alerts are not applicable inland. Inland severe rainfall and wind monitoring active.
         </div>
       )}

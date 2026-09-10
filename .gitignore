@@ -75,3 +75,7 @@ Thumbs.db
 *.swo
 *.log
 logs/
+
+# Generated frontend files
+frontend/output/
+frontend/tmp/

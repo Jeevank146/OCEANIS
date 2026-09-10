@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useLocationContext } from '../../context/LocationContext';
 import { useLanguage } from '../../context/LanguageContext';
+import { downloadOceanisReport, type OceanisReportType } from '../../utils/oceanisPdf';
 import './ReportsPage.css';
 
 export const ReportsPage: React.FC = () => {
@@ -9,11 +10,13 @@ export const ReportsPage: React.FC = () => {
   const { t } = useLanguage();
 
   const initialSector = selectedLocation?.city || selectedLocation?.name || 'Operational Sector';
-  const [reportType, setReportType] = useState<string>('pfz-briefing');
+  const [reportType, setReportType] = useState<OceanisReportType>('pfz-briefing');
   const [sector, setSector] = useState<string>(initialSector);
   const [includeProvenance, setIncludeProvenance] = useState<boolean>(true);
   const [isGenerating, setIsGenerating] = useState<boolean>(false);
   const [downloadSuccess, setDownloadSuccess] = useState<boolean>(false);
+  const [downloadedFilename, setDownloadedFilename] = useState<string>('');
+  const [downloadError, setDownloadError] = useState<string>('');
 
   useEffect(() => {
     if (selectedLocation?.name || selectedLocation?.city) {
@@ -21,15 +24,27 @@ export const ReportsPage: React.FC = () => {
     }
   }, [selectedLocation]);
 
-  const handleGenerateReport = (e: React.FormEvent) => {
+  const handleGenerateReport = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsGenerating(true);
     setDownloadSuccess(false);
+    setDownloadError('');
 
-    setTimeout(() => {
-      setIsGenerating(false);
+    try {
+      const filename = await downloadOceanisReport({
+        reportType,
+        sector,
+        coordinates: coordsText,
+        includeProvenance,
+      });
+      setDownloadedFilename(filename);
       setDownloadSuccess(true);
-    }, 800);
+    } catch (error) {
+      console.error('Failed to generate OCEANIS PDF report:', error);
+      setDownloadError(t('reports.error_msg', 'The PDF could not be generated. Please review the report settings and try again.'));
+    } finally {
+      setIsGenerating(false);
+    }
   };
 
   const formattedDate = new Date().toLocaleDateString('en-GB', {
@@ -87,7 +102,7 @@ export const ReportsPage: React.FC = () => {
                 <label>{t('reports.template_label', 'Report Template')}</label>
                 <select
                   value={reportType}
-                  onChange={(e) => setReportType(e.target.value)}
+                  onChange={(e) => setReportType(e.target.value as OceanisReportType)}
                   className="report-select"
                 >
                   <option value="pfz-briefing">Daily Fishery & PFZ Advisory Briefing</option>
@@ -128,9 +143,14 @@ export const ReportsPage: React.FC = () => {
               </button>
 
               {downloadSuccess && (
-                <div className="report-success-box">
+                <div className="report-success-box" role="status">
                   <span>✓ {t('reports.success_msg', 'Report compiled successfully for')} {sector}. {t('reports.ready_msg', 'Ready for maritime dispatch.')}</span>
+                  <code>{downloadedFilename}</code>
                 </div>
+              )}
+
+              {downloadError && (
+                <div className="report-error-box" role="alert">{downloadError}</div>
               )}
             </form>
           </div>

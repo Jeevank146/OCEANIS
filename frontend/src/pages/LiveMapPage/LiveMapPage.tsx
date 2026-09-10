@@ -66,7 +66,7 @@ export const LiveMapPage: React.FC = () => {
     selectedLocation,
     validateAndSetQuery,
     validateAndSetCoordinates,
-    useCurrentLocation,
+    useCurrentLocation: requestCurrentLocation,
     isValidating,
     setIsChangeModalOpen,
   } = useLocationContext();
@@ -226,7 +226,7 @@ export const LiveMapPage: React.FC = () => {
             <button
               type="button"
               className="gis-gps-btn"
-              onClick={() => useCurrentLocation()}
+              onClick={() => requestCurrentLocation()}
               disabled={isValidating}
               title="Detect GPS / Current Location"
             >

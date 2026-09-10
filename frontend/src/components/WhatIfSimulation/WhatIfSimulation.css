@@ -57,6 +57,10 @@
   margin-bottom: 24px;
 }
 
+.scenario-query-label { display: block; margin: 18px 0 8px; font-family: var(--font-mono); font-size: 0.6875rem; font-weight: 700; color: var(--text-muted); letter-spacing: 0.05em; }
+.scenario-query-input { width: 100%; resize: vertical; padding: 12px 14px; border: 1px solid var(--border-medium); border-radius: var(--radius-md); background: #ffffff; color: var(--text-primary); font: inherit; line-height: 1.5; }
+.scenario-query-input:focus { outline: 2px solid rgba(0, 168, 150, 0.18); border-color: var(--marine-teal); }
+
 .selector-title {
   font-family: var(--font-mono);
   font-size: 0.6875rem;
@@ -161,6 +165,8 @@
   color: var(--primary-navy);
 }
 
+.scenario-location-name { color: var(--text-secondary); font-size: 0.8125rem; }
+
 .scenario-metrics-list {
   display: flex;
   flex-direction: column;
@@ -194,6 +200,8 @@
 .s-val.text-green {
   color: #047857;
 }
+
+.s-val.insufficient { max-width: 62%; color: #b45309; font-family: var(--font-mono); font-size: 0.6875rem; text-align: right; }
 
 .s-val-badge {
   font-family: var(--font-mono);

@@ -114,6 +114,8 @@
   overflow-x: auto;
   padding-bottom: 2px;
   scrollbar-width: none;
+  min-width: 0;
+  width: 100%;
 }
 
 .map-layer-pills-bar::-webkit-scrollbar {
@@ -133,6 +135,7 @@
   align-items: center;
   gap: 6px;
   flex-wrap: nowrap;
+  min-width: 0;
 }
 
 .layer-pill {
@@ -149,6 +152,7 @@
   cursor: pointer;
   transition: all 0.15s ease;
   white-space: nowrap;
+  flex: 0 0 auto;
 }
 
 .layer-pill:hover {
@@ -184,6 +188,7 @@
   overflow: hidden;
   border: 1px solid #E2E8F0;
   background: #0B1728;
+  min-width: 0;
 }
 
 .leaflet-map-root {
@@ -191,6 +196,42 @@
   height: 100%;
   min-height: 420px;
   z-index: 1;
+  max-width: 100%;
+}
+
+@media (max-width: 600px) {
+  .live-ocean-map-card {
+    padding: 10px;
+  }
+
+  .map-card-header {
+    align-items: flex-start;
+  }
+
+  .btn-map-fullscreen {
+    min-width: var(--touch-target, 44px);
+    min-height: var(--touch-target, 44px);
+    justify-content: center;
+    padding: 6px;
+  }
+
+  .btn-map-fullscreen span {
+    display: none;
+  }
+
+  .map-layer-pills-bar {
+    overscroll-behavior-inline: contain;
+  }
+
+  .map-viewport-container,
+  .leaflet-map-root {
+    min-height: 360px;
+  }
+
+  .map-legend-overlay {
+    bottom: 8px;
+    left: 8px;
+  }
 }
 
 /* Custom Marker Styling */

@@ -343,6 +343,131 @@
   color: #FBBF24;
 }
 
+/* High-priority operational overview */
+.dashboard-overview {
+  margin-bottom: 24px;
+}
+
+.dashboard-overview-heading {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 20px;
+  margin-bottom: 14px;
+}
+
+.overview-location-label {
+  max-width: 38%;
+  padding: 5px 10px;
+  border: 1px solid #CBD5E1;
+  border-radius: 999px;
+  color: #475569;
+  background: #FFFFFF;
+  font-size: 0.75rem;
+  font-weight: 700;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.dashboard-summary-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.dashboard-summary-card {
+  min-width: 0;
+  min-height: 126px;
+  padding: 17px 18px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 5px;
+  background: #FFFFFF;
+  border: 1px solid #DBE5EE;
+  border-left: 4px solid #64748B;
+  border-radius: 12px;
+  color: #0F172A;
+  text-decoration: none;
+  box-shadow: 0 1px 2px rgba(11, 33, 55, 0.04);
+  transition: border-color 150ms ease, box-shadow 150ms ease, transform 150ms ease;
+}
+
+.dashboard-summary-card:hover {
+  color: #0F172A;
+  border-color: #B9CBD9;
+  box-shadow: 0 8px 22px rgba(11, 33, 55, 0.08);
+  transform: translateY(-2px);
+}
+
+.dashboard-summary-card.status-positive { border-left-color: #16A34A; }
+.dashboard-summary-card.status-advisory { border-left-color: #D97706; }
+.dashboard-summary-card.status-info { border-left-color: #0284C7; }
+.dashboard-summary-card.status-neutral { border-left-color: #64748B; }
+
+.summary-card-label {
+  color: #64748B;
+  font-size: 0.7rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.summary-card-value {
+  color: #0B2137;
+  font-size: 1.05rem;
+  line-height: 1.3;
+  overflow-wrap: anywhere;
+}
+
+.summary-card-detail {
+  color: #526478;
+  font-size: 0.78rem;
+  line-height: 1.45;
+}
+
+.dashboard-quick-actions {
+  margin-top: 14px;
+  padding: 12px 14px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  background: #EEF5FA;
+  border: 1px solid #DBE5EE;
+  border-radius: 12px;
+}
+
+.quick-actions-label {
+  margin-right: 4px;
+  color: #334155;
+  font-size: 0.75rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.dashboard-quick-actions a {
+  min-height: 38px;
+  padding: 8px 12px;
+  display: inline-flex;
+  align-items: center;
+  border: 1px solid #CBD5E1;
+  border-radius: 8px;
+  background: #FFFFFF;
+  color: #075985;
+  font-size: 0.78rem;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.dashboard-quick-actions a:hover {
+  border-color: #0284C7;
+  background: #F0F9FF;
+  color: #0369A1;
+}
+
 /* ==========================================================================
    2. Main Body & Section Containers
    ========================================================================== */
@@ -366,6 +491,7 @@
   justify-content: space-between;
   gap: 12px;
   margin-bottom: 14px;
+  flex-wrap: wrap;
 }
 
 .dash-title-group {
@@ -547,6 +673,12 @@
   gap: 16px;
   margin-bottom: 18px;
   align-items: stretch;
+  min-width: 0;
+}
+
+.dash-two-col-grid > * {
+  width: 100%;
+  min-width: 0;
 }
 
 .map-view-card,
@@ -555,6 +687,7 @@
   margin-bottom: 0;
   display: flex;
   flex-direction: column;
+  min-width: 0;
 }
 
 .map-embed-wrapper {
@@ -567,6 +700,7 @@
   background: #0B1728;
   min-height: 440px;
   height: 100%;
+  min-width: 0;
 }
 
 .map-view-card .live-ocean-map-card,
@@ -1059,6 +1193,9 @@
    8. Responsive Grid Breakpoints
    ========================================================================== */
 @media (max-width: 1200px) {
+  .dashboard-summary-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
   .marine-six-grid {
     grid-template-columns: repeat(3, 1fr);
     gap: 10px;
@@ -1085,6 +1222,27 @@
     flex-direction: column;
     align-items: stretch;
   }
+  .dashboard-overview-heading {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .overview-location-label {
+    max-width: 100%;
+  }
+  .dashboard-summary-grid {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+  .dashboard-summary-card {
+    min-height: 0;
+  }
+  .dashboard-quick-actions {
+    align-items: stretch;
+  }
+  .quick-actions-label {
+    width: 100%;
+  }
   .location-control-card,
   .telemetry-status-pill {
     width: 100%;
@@ -1107,6 +1265,28 @@
 }
 
 @media (max-width: 480px) {
+  .dashboard-quick-actions a {
+    width: 100%;
+    min-height: var(--touch-target, 44px);
+    justify-content: center;
+  }
+
+  .location-control-card {
+    align-items: stretch;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .loc-actions-group,
+  .btn-change-loc-header {
+    width: 100%;
+  }
+
+  .btn-change-loc-header {
+    justify-content: space-between;
+    min-height: var(--touch-target, 44px);
+  }
+
   .marine-six-grid {
     grid-template-columns: 1fr;
   }

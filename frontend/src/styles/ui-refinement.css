@@ -1,0 +1,817 @@
+/* ========================================================================== 
+   OCEANIS UI REFINEMENT LAYER
+   Shared hierarchy, spacing, surface, navigation, form, table and responsive
+   rules. Page-specific data and interaction logic remain untouched.
+   ========================================================================== */
+
+:root {
+  --navbar-height: 72px;
+  --sidebar-width: 232px;
+  --content-max: 1360px;
+  --page-gutter: clamp(16px, 2.4vw, 32px);
+  --section-gap: clamp(24px, 3vw, 36px);
+  --surface-radius: 14px;
+  --nested-radius: 10px;
+  --control-radius: 9px;
+  --surface-padding: 24px;
+  --nested-padding: 16px;
+  --surface-border: #dbe5ee;
+  --surface-shadow: 0 1px 2px rgba(6, 24, 39, 0.04), 0 8px 24px rgba(6, 24, 39, 0.035);
+}
+
+body {
+  font-size: 16px;
+  line-height: 1.6;
+}
+
+/* Shared operational page rhythm */
+.ocean-page-container,
+.ask-oceanis-container,
+.live-map-page-container,
+.dash-main-body > .dash-container {
+  width: 100%;
+  max-width: var(--content-max);
+  margin-inline: auto;
+}
+
+.ocean-page-container,
+.ask-oceanis-container {
+  gap: var(--section-gap);
+  padding: 32px var(--page-gutter) 56px;
+}
+
+.page-header-banner,
+.oceanis-page-header {
+  padding: 4px 0 24px;
+  background: transparent;
+  border: 0;
+  border-bottom: 1px solid var(--surface-border);
+  border-radius: 0;
+  box-shadow: none;
+}
+
+.page-header-main,
+.header-left {
+  gap: 8px;
+}
+
+.page-title,
+.oceanis-title {
+  font-size: clamp(1.65rem, 2.4vw, 2.15rem);
+  line-height: 1.15;
+  letter-spacing: -0.025em;
+}
+
+.page-subtitle,
+.oceanis-subtitle,
+.card-desc,
+.dash-section-sub {
+  font-size: 0.9375rem;
+  line-height: 1.6;
+  color: #526478;
+}
+
+.page-subtitle,
+.oceanis-subtitle {
+  max-width: 760px;
+}
+
+.page-breadcrumbs,
+.section-tag,
+.dash-kicker-tag,
+.oceanis-badge {
+  font-size: 0.75rem;
+  letter-spacing: 0.075em;
+}
+
+/* Calm, consistent surfaces */
+.ocean-card,
+.dash-section-card,
+.query-card-container,
+.primary-answer-card,
+.agents-consulted-card,
+.comparison-results-card,
+.risk-confidence-card,
+.what-if-sandbox-card,
+.evidence-table-section,
+.conversation-history-card,
+.gis-top-banner,
+.gis-meta-card,
+.gis-sidebar-panel {
+  border: 1px solid var(--surface-border);
+  border-radius: var(--surface-radius);
+  box-shadow: var(--surface-shadow);
+}
+
+.ocean-card:hover,
+.dash-section-card:hover {
+  border-color: #c8d8e6;
+  box-shadow: 0 8px 26px rgba(6, 24, 39, 0.06);
+}
+
+/* Consistent primary panels across operational workspaces. */
+.report-config-card,
+.report-preview-card,
+.settings-card,
+.system-diag-card,
+.fishing-zones-card,
+.fuel-calc-card,
+.geo-calc-card,
+.geo-zones-card,
+.scenario-planning-card,
+.voyage-calc-card,
+.port-readiness-card,
+.forecast-timeline-card,
+.pass-list-card,
+.audit-matrix-card,
+.guardrails-policy-card,
+.guidance-card {
+  min-width: 0;
+  padding: var(--surface-padding);
+  border-radius: var(--surface-radius);
+}
+
+/* Nested data groups share a quieter, tighter rhythm than primary panels. */
+.kpi-card,
+.species-card,
+.param-metric-card,
+.hourly-card,
+.port-item-card,
+.agent-mini-card,
+.scenario-card,
+.advisory-item-card,
+.provider-status-item,
+.decision-pill-item,
+.fishing-kpi-box,
+.zone-card-item {
+  min-width: 0;
+  padding: var(--nested-padding);
+  border-radius: var(--nested-radius);
+}
+
+.report-config-card,
+.report-preview-card,
+.settings-card,
+.system-diag-card,
+.fishing-zones-card,
+.fuel-calc-card,
+.geo-calc-card,
+.geo-zones-card,
+.scenario-planning-card,
+.voyage-calc-card,
+.port-readiness-card,
+.forecast-timeline-card,
+.pass-list-card,
+.audit-matrix-card,
+.guardrails-policy-card,
+.guidance-card,
+.kpi-card,
+.species-card,
+.param-metric-card,
+.hourly-card,
+.port-item-card,
+.agent-mini-card,
+.scenario-card,
+.advisory-item-card,
+.provider-status-item,
+.decision-pill-item,
+.fishing-kpi-box,
+.zone-card-item {
+  border-color: var(--surface-border);
+  box-shadow: none;
+}
+
+.card-top-header,
+.dash-card-header-row,
+.card-header-flex {
+  gap: 16px;
+}
+
+.card-top-header h3,
+.dash-section-title {
+  font-size: 1.125rem;
+  line-height: 1.3;
+}
+
+/* Shared buttons and fields */
+.btn-page-action,
+.dash-action-link,
+.filter-btn,
+.sector-pill-btn,
+.btn-compute-geo,
+.btn-generate-report,
+.btn-save-settings,
+.gis-tab-btn,
+.panel-tab-btn,
+.suggested-chip,
+.query-submit-btn {
+  min-height: 42px;
+  padding-inline: 16px;
+  border-radius: var(--control-radius);
+  font-size: 0.8125rem;
+  line-height: 1.25;
+}
+
+.btn-agent-query,
+.btn-apply-whatif,
+.btn-sync-loc,
+.btn-query-safety,
+.btn-modal-query,
+.btn-view-analysis,
+.btn-run-whatif-fishing,
+.btn-ops-whatif,
+.btn-action-marine {
+  min-height: 42px;
+  border-radius: var(--control-radius);
+  font-size: 0.8125rem;
+  line-height: 1.25;
+}
+
+:where(input:not([type='checkbox']):not([type='radio']):not([type='range']), select, textarea) {
+  min-height: 44px;
+  border-radius: var(--control-radius);
+}
+
+:where(input, select, textarea):focus {
+  border-color: #0284c7;
+  outline: 0;
+  box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.12);
+}
+
+.form-field,
+.coord-field,
+.settings-field {
+  gap: 8px;
+}
+
+.form-field label,
+.coord-field label,
+.settings-field label {
+  font-size: 0.875rem;
+}
+
+/* Status labels stay compact but readable across pages. */
+.page-title-badge,
+.badge-tool,
+.badge-provenance,
+.badge-live-stream,
+.adv-badge,
+.prov-badge,
+.source-status-badge,
+.src-status-badge {
+  line-height: 1.2;
+  letter-spacing: 0.04em;
+}
+
+.card-top-header,
+.card-header-flex,
+.dash-card-header-row {
+  margin-bottom: 18px;
+}
+
+.card-top-header h3,
+.card-header-flex h3,
+.dash-section-title {
+  margin: 0;
+}
+
+/* Top navigation: landing owns primary navigation; operational pages use sidebar. */
+.navbar-header-light {
+  height: var(--navbar-height);
+  box-shadow: 0 2px 14px rgba(2, 12, 23, 0.22);
+}
+
+.navbar-container {
+  padding-inline: clamp(16px, 2vw, 28px);
+  gap: 18px;
+}
+
+.navbar-header-light.is-operational .navbar-right-group {
+  margin-left: auto;
+}
+
+.navbar-header-light.is-operational .brand-tagline {
+  display: none;
+}
+
+.navbar-active-loc-btn,
+.lang-selector-btn,
+.operator-profile-badge,
+.btn-launch-header {
+  min-height: 38px;
+}
+
+.navbar-active-loc-btn {
+  max-width: min(260px, 24vw);
+  padding-inline: 12px;
+}
+
+.navbar-loc-name {
+  max-width: 150px;
+}
+
+.operator-profile-empty {
+  padding-inline: 8px 12px;
+}
+
+/* Sidebar groups are spaced and scannable instead of one dense list. */
+.sidebar-scroll-container {
+  padding: 18px 12px 24px;
+}
+
+.sidebar-group,
+.sidebar-nav {
+  gap: 4px;
+}
+
+.sidebar-group-title {
+  padding: 10px 10px 6px;
+  font-size: 0.6875rem;
+  color: #8194a8;
+}
+
+.sidebar-link {
+  min-height: 42px;
+  padding: 9px 10px;
+  border-radius: 9px;
+  font-size: 0.8125rem;
+}
+
+.sidebar-link.active {
+  box-shadow: inset 3px 0 0 #38bdf8;
+}
+
+.sidebar-divider {
+  margin: 14px 8px;
+}
+
+.engine-status-pill {
+  background: rgba(56, 189, 248, 0.08);
+  border-color: rgba(56, 189, 248, 0.18);
+}
+
+.engine-status-text {
+  color: #a8c6da;
+}
+
+.engine-status-pill .pulse-indicator-dot {
+  width: 5px;
+  height: 5px;
+  background: #38bdf8;
+  box-shadow: none;
+  animation: none;
+}
+
+/* Dashboard hierarchy: 3 summary cards, dominant map, quieter secondary areas. */
+.oceanis-dashboard-root {
+  background: #f3f7fa;
+}
+
+.oceanis-dash-header {
+  padding: 24px 0;
+  border-bottom-color: var(--surface-border);
+  box-shadow: none;
+}
+
+.dash-container {
+  max-width: var(--content-max);
+  padding-inline: var(--page-gutter);
+}
+
+.header-title-block {
+  gap: 6px;
+  max-width: 560px;
+}
+
+.dash-primary-heading {
+  font-size: clamp(1.55rem, 2.2vw, 2rem);
+  line-height: 1.15;
+}
+
+.dash-primary-description {
+  max-width: 560px;
+  color: #64748b;
+  font-size: 0.875rem;
+  line-height: 1.55;
+}
+
+.header-meta-cluster {
+  gap: 16px;
+}
+
+.location-control-card {
+  padding: 10px 12px;
+  border-color: var(--surface-border);
+  border-radius: 12px;
+  background: #f8fbfd;
+}
+
+.dash-main-body {
+  padding-block: 32px 56px;
+}
+
+.dash-main-body > .dash-container {
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+}
+
+.dash-section-card {
+  margin: 0;
+  padding: 24px;
+  background: #fff;
+}
+
+.marine-six-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.telemetry-card {
+  min-height: 132px;
+  padding: 16px;
+  border-radius: 12px;
+  box-shadow: none;
+}
+
+.telem-card-label {
+  font-size: 0.75rem;
+}
+
+.telem-main-val {
+  font-size: 1.35rem;
+}
+
+.telem-card-footer {
+  padding-top: 10px;
+}
+
+.dash-two-col-grid {
+  grid-template-columns: minmax(0, 2fr) minmax(320px, 0.85fr);
+  gap: 24px;
+  margin: 0;
+}
+
+.map-embed-wrapper,
+.map-preview-card .map-viewport-container,
+.map-preview-card .leaflet-map-root {
+  min-height: 520px;
+}
+
+.advisory-cards-grid {
+  gap: 12px;
+}
+
+.fishing-kpi-grid,
+.decision-kpi-row {
+  gap: 14px;
+}
+
+.fishing-kpi-box,
+.decision-pill-item,
+.provider-status-item {
+  padding: 16px;
+  border-radius: 11px;
+}
+
+.badge-live-stream {
+  padding: 7px 11px;
+}
+
+.badge-live-stream.is-updating {
+  color: #475569;
+  background: #f1f5f9;
+  border-color: #cbd5e1;
+}
+
+/* Keep major visualizations readable. */
+.analytics-charts-grid {
+  gap: 24px;
+}
+
+.analytics-chart-card {
+  min-height: 320px;
+  padding: 24px;
+}
+
+.gis-workspace-grid {
+  grid-template-columns: minmax(0, 1fr) 360px;
+  gap: 24px;
+  align-items: start;
+}
+
+.gis-map-viewport-wrapper,
+.live-map-page-container .map-viewport-container,
+.live-map-page-container .leaflet-map-root {
+  min-height: 620px;
+}
+
+.gis-sidebar-panel {
+  max-height: 620px;
+  overflow-y: auto;
+}
+
+/* Tables stay usable at narrow widths. */
+.evidence-table-wrapper,
+.table-wrapper,
+.data-table-wrapper {
+  max-width: 100%;
+  overflow-x: auto;
+  overscroll-behavior-inline: contain;
+  border-radius: 10px;
+}
+
+table {
+  border-collapse: separate;
+  border-spacing: 0;
+}
+
+th {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  background: #eef4f8;
+}
+
+th,
+td {
+  padding: 13px 16px;
+  text-align: left;
+  vertical-align: top;
+}
+
+/* Landing: keep the location task primary, quieten decorative controls. */
+.landing-hero-section {
+  min-height: calc(100vh - var(--navbar-height));
+  padding-top: var(--navbar-height);
+}
+
+.landing-hero-container {
+  max-width: var(--content-max);
+  padding: 48px var(--page-gutter) 32px;
+}
+
+.landing-hero-grid {
+  grid-template-columns: minmax(0, 1fr) minmax(420px, 500px);
+  gap: clamp(40px, 5vw, 72px);
+}
+
+.landing-left-col {
+  max-width: 680px;
+}
+
+.landing-headline {
+  font-size: clamp(2.75rem, 5vw, 4.5rem);
+  line-height: 1.03;
+  letter-spacing: -0.045em;
+}
+
+.landing-supporting-text {
+  max-width: 620px;
+  font-size: 1.0625rem;
+  line-height: 1.7;
+}
+
+.landing-capabilities-grid {
+  gap: 12px;
+}
+
+.capability-card {
+  padding: 16px;
+  border-radius: 12px;
+  box-shadow: none;
+}
+
+.marine-operating-panel {
+  padding: 24px;
+  border-radius: 18px;
+}
+
+.panel-header-section,
+.coastal-operating-section,
+.location-state-container,
+.panel-footer-section {
+  margin-top: 18px;
+}
+
+.panel-action-buttons,
+.coastal-buttons-grid {
+  gap: 10px;
+}
+
+.carousel-controls-bar {
+  opacity: 0.72;
+}
+
+.landing-bottom-data-strip {
+  position: relative;
+}
+
+/* Compact footer removes repeated site navigation from operational workspaces. */
+.ocean-footer.footer-compact {
+  padding: 0;
+  background: #071827;
+}
+
+.footer-compact .container {
+  max-width: var(--content-max);
+  padding-inline: var(--page-gutter);
+}
+
+.footer-compact .footer-bottom {
+  min-height: 64px;
+  padding-block: 16px;
+  border-top: 0;
+}
+
+/* Responsive rules */
+@media (max-width: 1199px) {
+  .ocean-page-container,
+  .ask-oceanis-container {
+    padding-top: 28px;
+  }
+
+  .dash-two-col-grid,
+  .gis-workspace-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .gis-sidebar-panel {
+    max-height: none;
+  }
+
+  .landing-hero-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .landing-left-col,
+  .marine-operating-panel {
+    max-width: 720px;
+  }
+}
+
+@media (max-width: 900px) {
+  .page-header-banner {
+    gap: 18px;
+  }
+
+  .marine-six-grid,
+  .analytics-kpi-grid,
+  .providers-grid,
+  .audit-rules-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .analytics-charts-grid,
+  .fishing-layout-grid,
+  .geospatial-layout-grid,
+  .ops-layout-grid,
+  .reports-layout-grid,
+  .settings-layout-grid,
+  .alerts-layout-grid,
+  .eo-analysis-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .landing-capabilities-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 700px) {
+  :root {
+    --page-gutter: 16px;
+    --section-gap: 24px;
+  }
+
+  .navbar-container {
+    gap: 8px;
+  }
+
+  .brand-text-block {
+    display: none;
+  }
+
+  .ocean-page-container,
+  .ask-oceanis-container {
+    padding-top: 22px;
+    padding-bottom: 40px;
+  }
+
+  .page-header-banner,
+  .oceanis-page-header {
+    padding-bottom: 20px;
+  }
+
+  .page-header-actions,
+  .dash-card-header-row,
+  .card-top-header {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .dash-main-body {
+    padding-block: 24px 40px;
+  }
+
+  .dash-section-card,
+  .analytics-chart-card {
+    padding: 18px;
+  }
+
+  .report-config-card,
+  .report-preview-card,
+  .settings-card,
+  .system-diag-card,
+  .fishing-zones-card,
+  .fuel-calc-card,
+  .geo-calc-card,
+  .geo-zones-card,
+  .scenario-planning-card,
+  .voyage-calc-card,
+  .port-readiness-card,
+  .forecast-timeline-card,
+  .pass-list-card,
+  .audit-matrix-card,
+  .guardrails-policy-card,
+  .guidance-card {
+    padding: 18px;
+  }
+
+  .marine-six-grid,
+  .analytics-kpi-grid,
+  .providers-grid,
+  .audit-rules-grid,
+  .settings-fields-grid,
+  .coord-inputs-row,
+  .calc-inputs-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .map-embed-wrapper,
+  .map-preview-card .map-viewport-container,
+  .map-preview-card .leaflet-map-root,
+  .gis-map-viewport-wrapper,
+  .live-map-page-container .map-viewport-container,
+  .live-map-page-container .leaflet-map-root {
+    min-height: 430px;
+  }
+
+  .landing-hero-container {
+    padding-top: 32px;
+  }
+
+  .landing-hero-grid {
+    gap: 32px;
+  }
+
+  .landing-headline {
+    font-size: clamp(2.35rem, 12vw, 3.2rem);
+  }
+
+  .marine-operating-panel {
+    padding: 20px;
+  }
+
+  .carousel-controls-bar {
+    display: none;
+  }
+
+  .footer-compact .footer-bottom {
+    align-items: flex-start;
+  }
+}
+
+@media (max-width: 430px) {
+  .navbar-active-loc-btn,
+  .operator-profile-empty {
+    display: none;
+  }
+
+  .lang-selector-btn,
+  .navbar-icon-btn,
+  .mobile-toggle-btn,
+  .btn-sidebar-toggle {
+    min-width: 42px;
+    min-height: 42px;
+  }
+
+  .page-title,
+  .oceanis-title,
+  .dash-primary-heading {
+    font-size: 1.55rem;
+  }
+
+  .footer-legal {
+    gap: 8px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    scroll-behavior: auto !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

@@ -22,8 +22,8 @@
   display: flex;
   flex-direction: column;
   flex: 1;
-  width: calc(100% - 200px);
-  margin-left: 200px;
+  width: calc(100% - var(--sidebar-width, 216px));
+  margin-left: var(--sidebar-width, 216px);
   box-sizing: border-box;
   overflow-x: hidden;
   min-width: 0;
@@ -32,8 +32,8 @@
 
 /* Full-width landing mode without sidebar */
 .oceanis-layout-wrapper.is-landing {
-  width: 100% !important;
-  margin-left: 0 !important;
+  width: 100%;
+  margin-left: 0;
 }
 
 .oceanis-main {
@@ -42,7 +42,7 @@
   flex-direction: column;
   width: 100%;
   box-sizing: border-box;
-  padding-top: 70px; /* Offset for fixed 70px top navbar */
+  padding-top: var(--navbar-height, 70px);
   min-width: 0;
 }
 
@@ -176,6 +176,27 @@
   flex-shrink: 0;
 }
 
+.coverage-pill {
+  display: inline-flex;
+  align-items: center;
+  max-width: 100%;
+  min-width: 0;
+  padding: 6px 12px;
+  overflow-wrap: anywhere;
+  background: rgba(8, 42, 67, 0.7);
+  border: 1px solid rgba(22, 184, 216, 0.3);
+  border-radius: 20px;
+  color: #16B8D8;
+  font-size: 0.8125rem;
+  font-weight: 600;
+}
+
+.page-header-main,
+.page-title,
+.page-subtitle {
+  min-width: 0;
+}
+
 .btn-page-action {
   display: inline-flex;
   align-items: center;
@@ -246,5 +267,22 @@
 
   .page-title {
     font-size: 1.25rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .page-header-actions,
+  .btn-page-action {
+    width: 100%;
+  }
+
+  .btn-page-action {
+    justify-content: center;
+    min-height: var(--touch-target, 44px);
+  }
+
+  .page-title {
+    align-items: flex-start;
+    flex-direction: column;
   }
 }

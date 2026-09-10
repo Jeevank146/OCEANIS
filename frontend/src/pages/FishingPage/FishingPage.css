@@ -202,6 +202,39 @@
   border-color: #0284C7;
 }
 
+.zone-empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 24px 16px;
+  background: #F8FAFC;
+  border: 1px dashed #CBD5E1;
+  border-radius: 8px;
+  gap: 8px;
+}
+
+.zone-empty-icon {
+  font-size: 1.6rem;
+  margin-bottom: 2px;
+}
+
+.zone-empty-title {
+  margin: 0;
+  font-size: 0.92rem;
+  font-weight: 700;
+  color: #1E293B;
+}
+
+.zone-empty-desc {
+  margin: 0;
+  font-size: 0.78rem;
+  color: #64748B;
+  line-height: 1.45;
+  max-width: 380px;
+}
+
+
 .zone-btn-left {
   display: flex;
   align-items: center;

@@ -1,6 +1,4 @@
-from datetime import datetime, timezone
-from typing import Any, Dict, List, Optional
-from sqlalchemy.orm import Session
+from typing import Any, List, Optional
 
 from schemas.agent_contract import (
     DecisionType,
@@ -75,31 +73,6 @@ class WhatIfEngine:
                 confidence_difference=0,
             )
 
-        # In a real environment, forecast temporal indexes (e.g. OpenMeteo / INCOIS hourly)
-        # determine whether wind/waves increase or decrease at the new hour.
-        # If no forecast records exist for the shifted time:
-        simulated_decision = base_decision
-        simulated_confidence = base_confidence
-        simulated_conditions = list(base_conditions)
-        simulated_risk = "LOW" if base_decision == DecisionType.SUITABLE.value else "MODERATE"
-
-        # Apply deterministic shift logic if time is shifted later
-        if modified_time:
-            try:
-                # E.g. afternoon thermal winds might slightly increase swell/wind
-                hour = int(modified_time.split(":")[0]) if ":" in modified_time else 12
-                if 12 <= hour <= 16:
-                    simulated_conditions.append("Afternoon sea-breeze thermal enhancement modeled (+5-8 km/h wind)")
-                    if base_decision == DecisionType.SUITABLE.value:
-                        simulated_decision = DecisionType.CAUTION.value
-                        simulated_confidence = max(base_confidence - 5, 10)
-                        simulated_risk = "MODERATE"
-                elif 5 <= hour <= 9:
-                    simulated_conditions.append("Early morning calm window (optimal sea state)")
-                    simulated_confidence = min(base_confidence + 5, 98)
-            except Exception:
-                pass
-
         base_scen = ScenarioDetails(
             departure_time=base_time,
             location_name=base_location_name,
@@ -110,19 +83,61 @@ class WhatIfEngine:
             key_conditions=base_conditions,
         )
 
+        # A modified location must be evaluated by a fresh orchestrator dispatch, and a
+        # modified time requires evidence indexed to that time. Reusing base evidence or
+        # applying assumed time-of-day deltas would fabricate marine conditions.
+        matching_forecasts = []
+        if modified_time and fused_forecast_items:
+            target_hour = modified_time.split(":", 1)[0].zfill(2)
+            matching_forecasts = [
+                item for item in fused_forecast_items
+                if str(getattr(item, "observation_type", "")).lower() == "forecast"
+                and target_hour in str(getattr(item, "timestamp", ""))[11:16]
+            ]
+
+        needs_location_reanalysis = modified_lat is not None or modified_lon is not None
+        if needs_location_reanalysis or (modified_time and not matching_forecasts):
+            reason = (
+                "Alternative location requires a separate evidence and safety-engine evaluation."
+                if needs_location_reanalysis
+                else f"No forecast evidence is available for the requested alternative time {modified_time}."
+            )
+            return WhatIfComparison(
+                status="insufficient_evidence",
+                message=f"INSUFFICIENT EVIDENCE — {reason}",
+                base_scenario=base_scen,
+                what_if_scenario=ScenarioDetails(
+                    departure_time=target_time,
+                    location_name=target_loc_name,
+                    latitude=target_lat,
+                    longitude=target_lon,
+                    decision=DecisionType.INSUFFICIENT_EVIDENCE.value,
+                    confidence_score=0,
+                    risk_level="INSUFFICIENT EVIDENCE",
+                    key_conditions=[],
+                ),
+                changed_factors=changed_factors,
+                decision_difference=f"{base_decision} -> {DecisionType.INSUFFICIENT_EVIDENCE.value}",
+                confidence_difference=-base_confidence,
+            )
+
+        simulated_conditions = [
+            f"{getattr(item, 'parameter', 'Forecast')}: {getattr(item, 'value', '')} {getattr(item, 'unit', '')}".strip()
+            for item in matching_forecasts
+        ] or list(base_conditions)
         what_if_scen = ScenarioDetails(
             departure_time=target_time,
             location_name=target_loc_name,
             latitude=target_lat,
             longitude=target_lon,
-            decision=simulated_decision,
-            confidence_score=simulated_confidence,
-            risk_level=simulated_risk,
+            decision=base_decision,
+            confidence_score=base_confidence,
+            risk_level=None,
             key_conditions=simulated_conditions,
         )
 
-        dec_diff = f"{base_decision} -> {simulated_decision}" if base_decision != simulated_decision else f"Maintained {base_decision}"
-        conf_diff = simulated_confidence - base_confidence
+        dec_diff = f"Maintained {base_decision}"
+        conf_diff = 0
 
         return WhatIfComparison(
             status="success",

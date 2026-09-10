@@ -174,9 +174,9 @@
   font-weight: 600;
   text-align: right;
   max-width: 60%;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  min-width: 0;
+  overflow-wrap: anywhere;
+  white-space: normal;
 }
 
 .btn-view-analysis {

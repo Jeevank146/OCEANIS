@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation, Link } from 'react-router-dom';
 import { useLocationContext } from '../../context/LocationContext';
 import { useLanguage } from '../../context/LanguageContext';
-import { getOperatorIdentity } from '../../utils/operatorIdentity';
 import './Navbar.css';
 
 interface NavbarProps {
@@ -14,7 +13,7 @@ export const Navbar: React.FC<NavbarProps> = ({
 }) => {
   const navigate = useNavigate();
   const location = useLocation();
-  const { selectedLocation, setIsChangeModalOpen, activeValidation } = useLocationContext();
+  const { selectedLocation, setIsChangeModalOpen } = useLocationContext();
   const { language, setLanguage, t, languages } = useLanguage();
 
   const [isScrolled, setIsScrolled] = useState(false);
@@ -30,14 +29,32 @@ export const Navbar: React.FC<NavbarProps> = ({
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
+  useEffect(() => {
+    setMobileMenuOpen(false);
+    setLangDropdownOpen(false);
+    setNotificationsOpen(false);
+  }, [location.pathname]);
+
+  useEffect(() => {
+    const closeMenus = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        setMobileMenuOpen(false);
+        setLangDropdownOpen(false);
+        setNotificationsOpen(false);
+      }
+    };
+    window.addEventListener('keydown', closeMenus);
+    return () => window.removeEventListener('keydown', closeMenus);
+  }, []);
+
   const navLinks = [
     { path: '/', label: t('nav.home', 'Home') },
     { path: '/dashboard', label: t('nav.dashboard', 'Dashboard') },
-    { path: '/maps', label: t('nav.maps', 'Live Map') },
-    { path: '/agents', label: t('nav.agents', 'Domain Agents') },
+    { path: '/fishing', label: t('nav.fishing', 'Fishing Intelligence') },
+    { path: '/marine-conditions', label: t('nav.marine_conditions', 'Marine Conditions') },
     { path: '/safety', label: t('nav.safety', 'Disaster & Safety') },
+    { path: '/maps', label: t('nav.maps', 'Live Map') },
     { path: '/reports', label: t('nav.reports', 'Reports') },
-    { path: '/data-sources', label: t('nav.data_sources', 'Data Sources') },
   ];
 
   const isNavActive = (path: string) => {
@@ -46,31 +63,8 @@ export const Navbar: React.FC<NavbarProps> = ({
   };
 
   const hasLocation = Boolean(selectedLocation && selectedLocation.name && selectedLocation.lat !== undefined);
-  const isInland = Boolean(
-    activeValidation && (activeValidation.status === 'INLAND' || activeValidation.is_coastal === false || activeValidation.is_marine === false)
-  );
-  const isOffshore = Boolean(
-    hasLocation && !isInland && (
-      (selectedLocation.distance_to_coast_km && selectedLocation.distance_to_coast_km > 20.0) ||
-      (activeValidation && activeValidation.status === 'VALID_MARINE' && !activeValidation.is_coastal) ||
-      (selectedLocation.name && selectedLocation.name.toLowerCase().includes('offshore')) ||
-      (selectedLocation.name && selectedLocation.name.toLowerCase().includes('waypoint'))
-    )
-  );
-
-  const cleanLocName = selectedLocation
-    ? (selectedLocation.city || selectedLocation.name.replace(/\s*\([^)]*\)/g, '').trim())
-    : '';
-
-  const operator = getOperatorIdentity(
-    cleanLocName,
-    selectedLocation?.city,
-    isOffshore,
-    isInland,
-    activeValidation?.status
-  );
-
   const currentLangObj = languages.find((l) => l.code === language) || languages[0];
+  const isOperationalPage = location.pathname !== '/';
 
   const handleOpenLocationSelector = () => {
     if (location.pathname === '/') {
@@ -86,7 +80,7 @@ export const Navbar: React.FC<NavbarProps> = ({
   };
 
   return (
-    <header className={`navbar-header-light ${isScrolled ? 'scrolled' : ''}`}>
+    <header className={`navbar-header-light ${isScrolled ? 'scrolled' : ''} ${isOperationalPage ? 'is-operational' : 'is-landing'}`}>
       <div className="navbar-container">
         {/* Left: Sidebar Toggle + Brand Logo */}
         <div className="navbar-left-group">
@@ -125,17 +119,20 @@ export const Navbar: React.FC<NavbarProps> = ({
         </div>
 
         {/* Center: Desktop Navigation Links */}
-        <nav className="navbar-nav desktop-nav">
-          {navLinks.map((link) => (
-            <Link
-              key={link.path}
-              to={link.path}
-              className={`nav-link ${isNavActive(link.path) ? 'active' : ''}`}
-            >
-              {link.label}
-            </Link>
-          ))}
-        </nav>
+        {!isOperationalPage && (
+          <nav className="navbar-nav desktop-nav" aria-label="Primary navigation">
+            {navLinks.map((link) => (
+              <Link
+                key={link.path}
+                to={link.path}
+                className={`nav-link ${isNavActive(link.path) ? 'active' : ''}`}
+                aria-current={isNavActive(link.path) ? 'page' : undefined}
+              >
+                {link.label}
+              </Link>
+            ))}
+          </nav>
+        )}
 
         {/* Right: Actions Cluster */}
         <div className="navbar-right-group">
@@ -160,6 +157,8 @@ export const Navbar: React.FC<NavbarProps> = ({
               className="lang-selector-btn"
               onClick={() => setLangDropdownOpen(!langDropdownOpen)}
               aria-label="Select language"
+              aria-expanded={langDropdownOpen}
+              aria-controls="language-menu"
             >
               <svg className="lang-globe-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                 <circle cx="12" cy="12" r="10" />
@@ -172,7 +171,7 @@ export const Navbar: React.FC<NavbarProps> = ({
             </button>
 
             {langDropdownOpen && (
-              <div className="lang-dropdown-menu">
+              <div className="lang-dropdown-menu" id="language-menu">
                 {languages.map((l) => (
                   <button
                     key={l.code}
@@ -199,6 +198,8 @@ export const Navbar: React.FC<NavbarProps> = ({
               onClick={() => setNotificationsOpen(!notificationsOpen)}
               title="Active Marine Advisories and Notices"
               aria-label="Notifications"
+              aria-expanded={notificationsOpen}
+              aria-controls="notifications-menu"
             >
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                 <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
@@ -208,49 +209,48 @@ export const Navbar: React.FC<NavbarProps> = ({
             </button>
 
             {notificationsOpen && (
-              <div className="notif-dropdown-menu">
+              <div className="notif-dropdown-menu" id="notifications-menu">
                 <div className="notif-menu-header">
                   <span className="notif-title">{t('dash.active_advisories', 'Operational Advisories')}</span>
                   <span className="notif-count">2 Active</span>
                 </div>
-                <div className="notif-item" onClick={() => { setNotificationsOpen(false); navigate('/safety'); }}>
+                <button type="button" className="notif-item" onClick={() => { setNotificationsOpen(false); navigate('/safety'); }}>
                   <span className="notif-icon advisory">⚠️</span>
                   <div className="notif-body">
                     <strong className="notif-heading">Coastal Swell Advisory</strong>
                     <p className="notif-desc">Wave surge monitoring active for inshore shelf waters</p>
                     <span className="notif-time">12 min ago • INCOIS</span>
                   </div>
-                </div>
-                <div className="notif-item" onClick={() => { setNotificationsOpen(false); navigate('/earth-observation'); }}>
+                </button>
+                <button type="button" className="notif-item" onClick={() => { setNotificationsOpen(false); navigate('/earth-observation'); }}>
                   <span className="notif-icon normal">🛰️</span>
                   <div className="notif-body">
                     <strong className="notif-heading">Sentinel-3 Pass Synchronized</strong>
                     <p className="notif-desc">Chlorophyll-a and SST gradients updated</p>
                     <span className="notif-time">45 min ago • Copernicus</span>
                   </div>
-                </div>
+                </button>
               </div>
             )}
           </div>
 
-          {/* Dynamic Operator Profile Badge (Location-Aware) */}
-          <div
-            className="operator-profile-badge"
-            title={`Active Sector: ${operator.displayLabel}`}
-            onClick={handleOpenLocationSelector}
-            style={{ cursor: 'pointer' }}
-          >
-            <div className="operator-avatar">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
-                <circle cx="12" cy="7" r="4" />
-              </svg>
-            </div>
-            <div className="operator-info">
-              <span className="operator-name">{operator.operatorName}</span>
-              <span className="operator-role">{operator.role}</span>
-            </div>
-          </div>
+          {/* One location control is enough; avoid repeating the same sector twice. */}
+          {!hasLocation && (
+            <button
+              type="button"
+              className="operator-profile-badge operator-profile-empty"
+              title="Select an operating area"
+              onClick={handleOpenLocationSelector}
+            >
+              <div className="operator-avatar" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
+                  <circle cx="12" cy="10" r="3" />
+                </svg>
+              </div>
+              <span className="operator-name">Select area</span>
+            </button>
+          )}
 
           {/* Primary Action Button (Ask OCEANIS CTA) */}
           <Link
@@ -270,6 +270,8 @@ export const Navbar: React.FC<NavbarProps> = ({
             className={`mobile-toggle-btn ${mobileMenuOpen ? 'open' : ''}`}
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
             aria-label="Toggle mobile menu"
+            aria-expanded={mobileMenuOpen}
+            aria-controls="mobile-navigation"
           >
             <span className="hamburger-bar"></span>
             <span className="hamburger-bar"></span>
@@ -280,21 +282,21 @@ export const Navbar: React.FC<NavbarProps> = ({
 
       {/* Mobile Drawer Navigation */}
       {mobileMenuOpen && (
-        <div className="mobile-nav-drawer">
+        <div className="mobile-nav-drawer" id="mobile-navigation">
           <nav className="mobile-nav-links">
             <Link to="/" className="mobile-link" onClick={() => setMobileMenuOpen(false)}>{t('nav.home', 'Home')}</Link>
             <Link to="/dashboard" className="mobile-link" onClick={() => setMobileMenuOpen(false)}>{t('nav.dashboard', 'Dashboard')}</Link>
-            <Link to="/maps" className="mobile-link" onClick={() => setMobileMenuOpen(false)}>{t('nav.maps', 'Live Map')}</Link>
-            <Link to="/agents" className="mobile-link" onClick={() => setMobileMenuOpen(false)}>{t('nav.agents', 'Domain Agents')}</Link>
-            <Link to="/safety" className="mobile-link" onClick={() => setMobileMenuOpen(false)}>{t('nav.safety', 'Disaster & Safety')}</Link>
-            <Link to="/reports" className="mobile-link" onClick={() => setMobileMenuOpen(false)}>{t('nav.reports', 'Reports')}</Link>
-            <Link to="/data-sources" className="mobile-link" onClick={() => setMobileMenuOpen(false)}>{t('nav.data_sources', 'Data Sources')}</Link>
             <Link to="/fishing" className="mobile-link" onClick={() => setMobileMenuOpen(false)}>{t('nav.fishing', 'Fishing Intelligence')}</Link>
             <Link to="/marine-conditions" className="mobile-link" onClick={() => setMobileMenuOpen(false)}>{t('nav.marine_conditions', 'Marine Conditions')}</Link>
+            <Link to="/safety" className="mobile-link" onClick={() => setMobileMenuOpen(false)}>{t('nav.safety', 'Disaster & Safety')}</Link>
+            <Link to="/maps" className="mobile-link" onClick={() => setMobileMenuOpen(false)}>{t('nav.maps', 'Live Map')}</Link>
+            <Link to="/ask" className="mobile-link" onClick={() => setMobileMenuOpen(false)}>{t('nav.ask', 'Ask OCEANIS')}</Link>
             <Link to="/earth-observation" className="mobile-link" onClick={() => setMobileMenuOpen(false)}>{t('nav.earth_observation', 'Earth Observation')}</Link>
             <Link to="/navigation" className="mobile-link" onClick={() => setMobileMenuOpen(false)}>{t('nav.navigation', 'Geo-Spatial & Nav')}</Link>
             <Link to="/operations" className="mobile-link" onClick={() => setMobileMenuOpen(false)}>{t('nav.operations', 'Marine Operations')}</Link>
-            <Link to="/ask" className="mobile-link" onClick={() => setMobileMenuOpen(false)}>{t('nav.ask', 'Ask OCEANIS')}</Link>
+            <Link to="/reports" className="mobile-link" onClick={() => setMobileMenuOpen(false)}>{t('nav.reports', 'Reports')}</Link>
+            <Link to="/data-sources" className="mobile-link" onClick={() => setMobileMenuOpen(false)}>{t('nav.data_sources', 'Data Sources')}</Link>
+            <Link to="/agents" className="mobile-link" onClick={() => setMobileMenuOpen(false)}>{t('nav.agents', 'Domain Agents')}</Link>
           </nav>
         </div>
       )}

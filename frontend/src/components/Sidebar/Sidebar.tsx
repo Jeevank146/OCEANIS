@@ -212,6 +212,32 @@ export const Sidebar: React.FC<SidebarProps> = ({
     return location.pathname === path;
   };
 
+  const orderItems = (items: SidebarNavItem[], ids: string[]) =>
+    ids
+      .map((id) => items.find((item) => item.id === id))
+      .filter((item): item is SidebarNavItem => Boolean(item));
+
+  const operationsNavItems = orderItems(primaryNavItems, [
+    'dashboard',
+    'fishing-intelligence',
+    'marine-conditions',
+    'disaster-safety',
+    'live-map',
+  ]);
+  const decisionSupportNavItems = orderItems(primaryNavItems, [
+    'earth-observation',
+    'geospatial',
+    'marine-operations',
+    'query',
+  ]);
+  const planningNavItems = orderItems(secondaryNavItems, [
+    'reports',
+    'data-sources',
+    'analytics',
+    'agents',
+    'settings',
+  ]);
+
   return (
     <>
       {/* Mobile Backdrop */}
@@ -226,16 +252,42 @@ export const Sidebar: React.FC<SidebarProps> = ({
       {/* Main Sidebar Shell */}
       <aside className={`oceanis-sidebar ${isMobileOpen ? 'mobile-open' : ''}`}>
         <div className="sidebar-scroll-container">
-          {/* Section: Operational Core Navigation */}
+          {/* Section: high-frequency operational navigation */}
           <div className="sidebar-group">
-            <div className="sidebar-group-title">{t('sidebar.operations', 'OPERATIONS')}</div>
-            <nav className="sidebar-nav">
-              {primaryNavItems.map((item) => (
+            <div className="sidebar-group-title">CORE OPERATIONS</div>
+            <nav className="sidebar-nav" aria-label="Core operations">
+              {operationsNavItems.map((item) => (
                 <Link
                   key={item.id}
                   to={item.path}
                   className={`sidebar-link ${isNavActive(item.path) ? 'active' : ''}`}
                   onClick={onCloseMobile}
+                  aria-current={isNavActive(item.path) ? 'page' : undefined}
+                >
+                  <span className="sidebar-icon">{item.icon}</span>
+                  <span className="sidebar-label">{t(item.labelKey, item.defaultLabel)}</span>
+                  {item.badge && (
+                    <span className={`sidebar-badge badge-${item.badge.toLowerCase()}`}>
+                      {item.badge}
+                    </span>
+                  )}
+                </Link>
+              ))}
+            </nav>
+          </div>
+
+          <div className="sidebar-divider" />
+
+          <div className="sidebar-group">
+            <div className="sidebar-group-title">DECISION SUPPORT</div>
+            <nav className="sidebar-nav" aria-label="Decision support">
+              {decisionSupportNavItems.map((item) => (
+                <Link
+                  key={item.id}
+                  to={item.path}
+                  className={`sidebar-link ${isNavActive(item.path) ? 'active' : ''}`}
+                  onClick={onCloseMobile}
+                  aria-current={isNavActive(item.path) ? 'page' : undefined}
                 >
                   <span className="sidebar-icon">{item.icon}</span>
                   <span className="sidebar-label">{t(item.labelKey, item.defaultLabel)}</span>
@@ -253,14 +305,15 @@ export const Sidebar: React.FC<SidebarProps> = ({
 
           {/* Section: System & Analytical Tools */}
           <div className="sidebar-group">
-            <div className="sidebar-group-title">{t('sidebar.intelligence_config', 'INTELLIGENCE & CONFIG')}</div>
-            <nav className="sidebar-nav">
-              {secondaryNavItems.map((item) => (
+            <div className="sidebar-group-title">PLANNING &amp; DATA</div>
+            <nav className="sidebar-nav" aria-label="Planning and data">
+              {planningNavItems.map((item) => (
                 <Link
                   key={item.id}
                   to={item.path}
                   className={`sidebar-link ${isNavActive(item.path) ? 'active' : ''}`}
                   onClick={onCloseMobile}
+                  aria-current={isNavActive(item.path) ? 'page' : undefined}
                 >
                   <span className="sidebar-icon">{item.icon}</span>
                   <span className="sidebar-label">{t(item.labelKey, item.defaultLabel)}</span>
@@ -274,7 +327,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
         <div className="sidebar-footer">
           <div className="engine-status-pill">
             <span className="pulse-indicator-dot" />
-            <span className="engine-status-text">{t('sidebar.agents_online', '6/6 Domain Agents Online')}</span>
+            <span className="engine-status-text">6 intelligence domains</span>
           </div>
         </div>
       </aside>

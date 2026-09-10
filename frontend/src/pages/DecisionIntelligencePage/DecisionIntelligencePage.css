@@ -4,6 +4,7 @@
 
 .decision-pipeline-wrapper {
   width: 100%;
+  min-width: 0;
 }
 
 .audit-matrix-card {

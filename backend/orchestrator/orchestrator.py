@@ -90,7 +90,7 @@ class AgentOrchestrator:
         if loc_missing and understanding.primary_location is None:
             return FinalDecisionObject(
                 query_intent=intent,
-                primary_answer="Please specify a coastal location name (e.g. 'near Chennai', 'from Kakinada', 'around Paradip') or select a position on the map to evaluate marine conditions.",
+                primary_answer="Please specify a coastal location name or select a position on the map to evaluate marine conditions.",
                 decision=DecisionType.INSUFFICIENT_EVIDENCE.value,
                 summary="Location required: Geographic coordinates or place name not provided.",
                 confidence=0,
@@ -174,14 +174,12 @@ class AgentOrchestrator:
             sim_time = what_if_time
             if not sim_time and intent == QueryIntent.WHAT_IF.value:
                 factor = understanding.entities_extracted.get("what_if_factor", "")
-                if "09:00" in factor:
-                    sim_time = "09:00"
-                elif "08:00" in factor:
-                    sim_time = "08:00"
-                else:
-                    sim_time = "09:00"
+                for token in str(factor).split():
+                    if len(token) == 5 and token[2] == ":" and token.replace(":", "").isdigit():
+                        sim_time = token
+                        break
 
-            base_time = understanding.target_time or "06:00"
+            base_time = understanding.target_time or now_utc.strftime("%H:%M")
             what_if_res = self.what_if_engine.simulate(
                 base_decision=risk_decision,
                 base_confidence=confidence_score,
@@ -194,6 +192,7 @@ class AgentOrchestrator:
                 modified_lat=what_if_lat,
                 modified_lon=what_if_lon,
                 modified_location_name=what_if_loc_name,
+                fused_forecast_items=fused_evidence.evidence_items,
             )
 
         # -----------------------------------------------------------------

@@ -347,9 +347,7 @@
   font-size: 0.88rem;
   font-weight: 800;
   color: #0F172A;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  overflow-wrap: anywhere;
 }
 
 .gis-meta-value.main-title {
@@ -363,9 +361,7 @@
 .gis-meta-sub {
   font-size: 0.72rem;
   color: #64748B;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  overflow-wrap: anywhere;
 }
 
 .gis-meta-badge-row {
@@ -778,5 +774,11 @@
 
   .gis-search-toolbar {
     max-width: 100%;
+  }
+
+  .gis-banner-left,
+  .gis-search-toolbar {
+    min-width: 0;
+    width: 100%;
   }
 }

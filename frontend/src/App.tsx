@@ -25,6 +25,7 @@ import { ReportsPage } from './pages/ReportsPage/ReportsPage';
 import { SettingsPage } from './pages/SettingsPage/SettingsPage';
 
 import './App.css';
+import './styles/ui-refinement.css';
 
 export const App: React.FC = () => {
   return (
@@ -72,7 +73,8 @@ export const App: React.FC = () => {
 
               {/* 10. Ask OCEANIS Conversational Multi-Agent AI */}
               <Route path="/ask" element={<AskOceanisPage />} />
-              <Route path="/ask-oceanis" element={<Navigate to="/ask" replace />} />
+              <Route path="/ask-oceanis" element={<AskOceanisPage />} />
+              <Route path="/chat" element={<Navigate to="/ask" replace />} />
 
               {/* 11. Decision Intelligence Pipeline & Provenance */}
               <Route path="/decision-intelligence" element={<DecisionIntelligencePage />} />

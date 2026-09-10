@@ -34,7 +34,7 @@ export const MainLayout: React.FC = () => {
         </main>
 
         {/* 4. Institutional Maritime Footer (Render on all pages) */}
-        <Footer />
+        <Footer compact={!isLandingPage} />
       </div>
 
       {/* 5. Global Location Switcher Modal */}

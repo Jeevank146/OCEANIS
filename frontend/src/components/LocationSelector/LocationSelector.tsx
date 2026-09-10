@@ -26,7 +26,7 @@ export const LocationSelector: React.FC<LocationSelectorProps> = ({
     isValidating,
     validateAndSetQuery,
     validateAndSetCoordinates,
-    useCurrentLocation,
+    useCurrentLocation: requestCurrentLocation,
   } = useLocationContext();
 
   const [query, setQuery] = useState('');
@@ -103,7 +103,7 @@ export const LocationSelector: React.FC<LocationSelectorProps> = ({
   const handleUseCurrentLocation = async () => {
     setIsGeoLocating(true);
     try {
-      const res = await useCurrentLocation();
+      const res = await requestCurrentLocation();
       setCurrentValResult(res);
       setQuery('');
       setIsDropdownOpen(false);

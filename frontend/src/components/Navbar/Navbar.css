@@ -17,7 +17,7 @@
   border-bottom: 1px solid rgba(8, 127, 181, 0.25);
   transition: all 0.25s ease;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.35);
-  height: 70px;
+  height: var(--navbar-height, 70px);
 }
 
 .navbar-header-light.scrolled {
@@ -48,6 +48,7 @@
   gap: 10px;
   flex-shrink: 0;
   white-space: nowrap;
+  min-width: 0;
 }
 
 .btn-sidebar-toggle {
@@ -195,6 +196,7 @@
   gap: 7px;
   flex-shrink: 0;
   white-space: nowrap;
+  min-width: 0;
 }
 
 /* Dynamic Active Location Button */
@@ -438,6 +440,10 @@
   cursor: pointer;
   border-radius: 6px;
   transition: background 0.15s ease;
+  width: 100%;
+  border: 0;
+  background: transparent;
+  text-align: left;
 }
 
 .notif-item:hover {
@@ -610,6 +616,9 @@
   padding: 18px;
   box-shadow: 0 16px 40px rgba(0, 0, 0, 0.7);
   z-index: 999;
+  max-height: calc(100dvh - var(--navbar-height, 70px));
+  overflow-y: auto;
+  overscroll-behavior: contain;
 }
 
 .mobile-nav-links {
@@ -703,4 +712,62 @@
   .mobile-toggle-btn {
     display: flex;
   }
+}
+
+@media (max-width: 900px) {
+  .operator-profile-badge { display: none; }
+}
+
+@media (max-width: 700px) {
+  .navbar-container {
+    padding-inline: 12px;
+  }
+
+  .btn-launch-header { display: none; }
+
+  .navbar-active-loc-btn {
+    width: 38px;
+    height: 38px;
+    justify-content: center;
+    padding: 0;
+  }
+
+  .navbar-loc-name,
+  .navbar-loc-change-tag { display: none; }
+
+  .lang-selector-btn,
+  .navbar-icon-btn {
+    min-width: 38px;
+    min-height: 38px;
+    justify-content: center;
+  }
+
+  .lang-dropdown-menu,
+  .notif-dropdown-menu {
+    position: fixed;
+    top: calc(var(--navbar-height, 70px) + 8px);
+    right: 12px;
+    width: min(300px, calc(100vw - 24px));
+    min-width: 0;
+  }
+
+  .mobile-toggle-btn {
+    width: 38px;
+    height: 38px;
+    padding: 10px 7px;
+  }
+}
+
+@media (max-width: 480px) {
+  .navbar-container { gap: 4px; }
+  .navbar-left-group { gap: 7px; }
+  .navbar-right-group { gap: 4px; }
+  .brand-icon-wrapper,
+  .brand-icon { width: 26px; height: 26px; }
+  .brand-name { font-size: 0.98rem; }
+  .lang-current,
+  .lang-chevron { display: none; }
+  .lang-selector-btn { padding: 0; }
+  .mobile-nav-drawer { padding: 14px 16px; }
+  .mobile-link { min-height: 42px; display: flex; align-items: center; }
 }

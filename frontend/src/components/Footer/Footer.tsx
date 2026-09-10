@@ -2,23 +2,26 @@ import { API_BASE_URL } from '../../services/api';
 import React from 'react';
 import './Footer.css';
 
-export const Footer: React.FC = () => {
+interface FooterProps {
+  compact?: boolean;
+}
+
+export const Footer: React.FC<FooterProps> = ({ compact = false }) => {
   return (
-    <footer className="ocean-footer">
+    <footer className={`ocean-footer ${compact ? 'footer-compact' : ''}`}>
       <div className="container">
         {/* Top Status Banner */}
-        <div className="footer-top glass-panel">
+        {!compact && <div className="footer-top glass-panel">
           <div className="footer-status-pill">
-            <span className="live-dot pulse"></span>
-            <span className="footer-status-text">SYSTEM STATUS: ALL 6 DOMAIN AGENTS OPERATIONAL (28/28 APIS ONLINE)</span>
+            <span className="footer-status-text">MARINE INTELLIGENCE &amp; DECISION SUPPORT</span>
           </div>
           <div className="footer-quick-actions">
             <span className="footer-coverage">COASTAL COVERAGE: BAY OF BENGAL • ARABIAN SEA • INDIAN OCEAN EEZ</span>
           </div>
-        </div>
+        </div>}
 
         {/* Main Footer Grid */}
-        <div className="footer-grid">
+        {!compact && <div className="footer-grid">
           {/* Brand Col */}
           <div className="footer-brand-col">
             <a href="#" className="footer-logo">
@@ -74,17 +77,17 @@ export const Footer: React.FC = () => {
               <li><a href="#trust">Maritime Safety Guardrails</a></li>
             </ul>
           </div>
-        </div>
+        </div>}
 
         {/* Institutional Disclaimers */}
-        <div className="footer-disclaimers">
+        {!compact && <div className="footer-disclaimers">
           <p className="disclaimer-text">
             <strong>Data Source Disclaimer:</strong> Environmental telemetry and oceanographic parameters are ingested from official public observing agencies including INCOIS, IMD, and Copernicus Sentinel missions. Data is intended for operational decision support and situational awareness.
           </p>
           <p className="disclaimer-text">
             <strong>Safety Notice:</strong> Deterministic safety rules strictly enforce non-overridable navigation barriers for designated naval exclusion zones and active tropical cyclone paths. Maritime vessel masters retain ultimate navigational responsibility under international maritime law (SOLAS).
           </p>
-        </div>
+        </div>}
 
         {/* Footer Bottom */}
         <div className="footer-bottom">

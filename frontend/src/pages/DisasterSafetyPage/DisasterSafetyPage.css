@@ -1,288 +1,273 @@
-/* ==========================================================================
-   DISASTER & SAFETY COMMAND CENTER STYLES
-   ========================================================================== */
-
-.emergency-hotline-bar {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 16px;
+/* Disaster and maritime safety command center */
+.badge-alert {
+  color: #9F1239;
   background: #FFF1F2;
   border: 1px solid #FECDD3;
-  border-radius: 10px;
-  padding: 14px 20px;
 }
 
-.hotline-item {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-
-.hotline-icon {
-  font-size: 1.5rem;
-}
-
-.hotline-info {
-  display: flex;
-  flex-direction: column;
-}
-
-.hotline-label {
-  font-size: 0.72rem;
-  font-weight: 700;
-  color: #9F1239;
-  text-transform: uppercase;
-}
-
-.hotline-num {
-  font-size: 0.95rem;
-  font-weight: 800;
-  color: #BE123C;
-}
-
-.safety-layout-grid {
-  display: grid;
-  grid-template-columns: minmax(0, 1.4fr) minmax(320px, 1fr);
-  gap: 20px;
-  align-items: start;
-}
-
-.alerts-feed-card,
-.cyclone-track-card,
-.safety-checklist-card {
-  padding: 20px;
-  background: #FFFFFF;
-}
-
-.alerts-card-top {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  margin-bottom: 16px;
-}
-
-.alerts-card-top h3 {
-  margin: 0;
-  font-size: 1.05rem;
-  font-weight: 800;
-  color: #0F172A;
-}
-
-.severity-filters {
-  display: flex;
-  gap: 8px;
-  flex-wrap: wrap;
-}
-
-.sev-filter-btn {
-  padding: 6px 12px;
-  font-size: 0.75rem;
-  font-weight: 700;
-  background: #F8FAFC;
-  border: 1px solid #CBD5E1;
-  border-radius: 6px;
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.sev-filter-btn.active {
-  background: #0284C7;
-  color: #FFFFFF;
-  border-color: #0284C7;
-}
-
-.alerts-bulletin-list {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-}
-
-.safety-bulletin-card {
-  border-radius: 10px;
-  padding: 16px;
-  border: 1px solid #E2E8F0;
-  background: #FFFFFF;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-
-.safety-bulletin-card.sev-warning {
-  border-left: 4px solid #E11D48;
-  background: #FFF5F5;
-}
-
-.safety-bulletin-card.sev-alert {
-  border-left: 4px solid #F59E0B;
-  background: #FFFDF0;
-}
-
-.safety-bulletin-card.sev-advisory {
-  border-left: 4px solid #0284C7;
-  background: #F0F9FF;
-}
-
-.bulletin-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.bulletin-badge {
-  font-size: 0.72rem;
-  font-weight: 800;
-  padding: 3px 8px;
-  border-radius: 4px;
-}
-
-.bulletin-badge.badge-warning {
-  background: #FEE2E2;
-  color: #991B1B;
-}
-
-.bulletin-badge.badge-alert {
-  background: #FEF3C7;
-  color: #92400E;
-}
-
-.bulletin-badge.badge-advisory {
-  background: #E0F2FE;
-  color: #075985;
-}
-
-.bulletin-agency {
-  font-size: 0.72rem;
-  font-weight: 600;
-  color: #64748B;
-}
-
-.bulletin-title {
-  margin: 0;
-  font-size: 0.95rem;
-  font-weight: 800;
-  color: #0F172A;
-  line-height: 1.35;
-}
-
-.bulletin-meta-row {
-  display: flex;
-  justify-content: space-between;
-  font-size: 0.74rem;
-  color: #64748B;
-}
-
-.bulletin-affected,
-.bulletin-params {
-  font-size: 0.78rem;
-  color: #334155;
-}
-
-.bulletin-action-box {
-  background: #FFFFFF;
-  border: 1px solid #E2E8F0;
-  border-radius: 6px;
-  padding: 10px;
-}
-
-.bulletin-action-box strong {
-  display: block;
-  font-size: 0.76rem;
-  color: #991B1B;
+.inland-alert-notice {
   margin-bottom: 2px;
+  padding: 14px 18px;
+  border: 1px solid #F59E0B;
+  border-radius: 10px;
+  color: #92400E;
+  background: #FFFBEB;
+  font-size: 0.82rem;
+  line-height: 1.45;
 }
 
-.bulletin-action-box p {
-  margin: 0;
-  font-size: 0.75rem;
-  color: #475569;
-  line-height: 1.4;
-}
-
-.cyclone-telemetry-box {
+.alerts-filter-bar {
   display: flex;
-  flex-direction: column;
+  flex-wrap: wrap;
   gap: 8px;
-  background: #F8FAFC;
-  padding: 14px;
+  min-width: 0;
+}
+
+.filter-btn {
+  min-height: 38px;
+  padding: 7px 12px;
+  border: 1px solid #CBD5E1;
   border-radius: 8px;
-  margin-bottom: 14px;
+  color: #475569;
+  background: #FFFFFF;
+  font-size: 0.75rem;
+  font-weight: 700;
+  transition: color 150ms ease, background 150ms ease, border-color 150ms ease;
 }
 
-.cyc-stat-row {
-  display: flex;
-  justify-content: space-between;
-  font-size: 0.76rem;
+.filter-btn:hover { border-color: #7DD3FC; color: #0369A1; }
+.filter-btn.active { color: #FFFFFF; background: #0284C7; border-color: #0284C7; }
+.filter-btn.warning.active { background: #BE123C; border-color: #BE123C; }
+.filter-btn.alert.active { background: #D97706; border-color: #D97706; }
+.filter-btn.advisory.active { background: #0369A1; border-color: #0369A1; }
+
+.alerts-layout-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.55fr) minmax(290px, 0.8fr);
+  align-items: start;
+  gap: 20px;
+  min-width: 0;
 }
 
-.cyc-stat-row span {
-  color: #64748B;
-}
-
-.cyc-stat-row strong {
-  color: #0F172A;
-}
-
-.cyclone-guidance {
-  display: flex;
-  align-items: flex-start;
-  gap: 10px;
-  padding: 12px;
-  background: #EFF6FF;
-  border: 1px solid #BFDBFE;
-  border-radius: 8px;
-}
-
-.cyclone-guidance p {
-  margin: 0;
-  font-size: 0.76rem;
-  color: #1E40AF;
-  line-height: 1.4;
-}
-
-.sop-checklist {
+.alerts-list-col,
+.alerts-sidebar-col {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 14px;
+  min-width: 0;
 }
 
-.sop-item {
+.alert-stream-card {
+  display: flex;
+  flex-direction: column;
+  gap: 13px;
+  min-width: 0;
+  overflow: hidden;
+  padding: 18px;
+  border-left-width: 4px;
+}
+
+.alert-stream-card.severity-warning { border-left-color: #BE123C; background: #FFF9FA; }
+.alert-stream-card.severity-alert { border-left-color: #D97706; background: #FFFCF5; }
+.alert-stream-card.severity-advisory { border-left-color: #0284C7; background: #F8FCFF; }
+
+.alert-card-top,
+.card-top-header,
+.alert-card-footer {
   display: flex;
   align-items: flex-start;
+  justify-content: space-between;
   gap: 10px;
-  padding: 10px;
-  background: #F8FAFC;
+  min-width: 0;
+}
+
+.alert-severity-badge,
+.alert-agency-tag,
+.badge-provenance {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  width: fit-content;
+  border-radius: 999px;
+  font-size: 0.66rem;
+  font-weight: 800;
+}
+
+.alert-severity-badge {
+  padding: 4px 8px;
+  color: #9F1239;
+  background: #FFE4E6;
+}
+
+.severity-alert .alert-severity-badge { color: #92400E; background: #FEF3C7; }
+.severity-advisory .alert-severity-badge { color: #075985; background: #E0F2FE; }
+
+.alert-severity-badge .pulse-dot {
+  width: 7px;
+  height: 7px;
+  flex: 0 0 auto;
+}
+
+.alert-agency-tag {
+  max-width: 66%;
+  padding: 4px 8px;
+  color: #475569;
+  background: #F1F5F9;
+  overflow-wrap: anywhere;
+}
+
+.alert-item-title {
+  margin: 0;
+  color: #0F172A;
+  font-size: 1rem;
+  line-height: 1.35;
+  overflow-wrap: anywhere;
+}
+
+.alert-meta-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px 14px;
+}
+
+.alert-meta-item {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.alert-meta-item.full { grid-column: 1 / -1; }
+.alert-meta-item .meta-lbl { color: #64748B; font-size: 0.68rem; font-weight: 700; }
+.alert-meta-item .meta-val { color: #1E293B; font-size: 0.77rem; overflow-wrap: anywhere; }
+
+.alert-parameters-box,
+.alert-action-box {
+  padding: 11px 12px;
   border: 1px solid #E2E8F0;
   border-radius: 8px;
+  background: #FFFFFF;
 }
 
-.sop-item.checked {
-  background: #F0FDF4;
-  border-color: #BBF7D0;
-}
+.alert-action-box { border-color: #FDE68A; background: #FFFBEB; }
 
-.sop-check {
-  font-weight: 800;
-  color: #16A34A;
-}
-
-.sop-text strong {
+.alert-parameters-box strong,
+.alert-action-box strong {
   display: block;
-  font-size: 0.82rem;
-  color: #0F172A;
+  margin-bottom: 3px;
+  color: #334155;
+  font-size: 0.72rem;
 }
 
-.sop-text p {
+.alert-action-box strong { color: #92400E; }
+
+.alert-parameters-box p,
+.alert-action-box p {
   margin: 0;
-  font-size: 0.74rem;
   color: #475569;
+  font-size: 0.76rem;
+  line-height: 1.45;
 }
 
-@media (max-width: 1199px) {
-  .emergency-hotline-bar {
-    grid-template-columns: 1fr;
+.btn-query-safety {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: var(--touch-target, 44px);
+  max-width: 100%;
+  padding: 8px 12px;
+  border: 1px solid #BAE6FD;
+  border-radius: 8px;
+  color: #0369A1;
+  background: #F0F9FF;
+  font-size: 0.76rem;
+  font-weight: 700;
+}
+
+.btn-query-safety:hover { color: #FFFFFF; background: #0284C7; border-color: #0284C7; }
+
+.guardrails-policy-card {
+  position: sticky;
+  top: calc(var(--navbar-height, 70px) + 18px);
+  padding: 18px;
+  background: #FFFFFF;
+}
+
+.card-top-header h3 { margin: 0; color: #0F172A; font-size: 1rem; }
+
+.badge-provenance {
+  flex: 0 0 auto;
+  padding: 3px 7px;
+  border: 1px solid #FCA5A5;
+  border-radius: 5px;
+  color: #991B1B;
+  background: #FEE2E2;
+}
+
+.guardrail-desc {
+  margin: 12px 0;
+  color: #475569;
+  font-size: 0.78rem;
+  line-height: 1.5;
+}
+
+.guardrail-rule-list {
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.guardrail-rule-list li {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  padding: 10px;
+  border: 1px solid #E2E8F0;
+  border-left: 3px solid #E11D48;
+  border-radius: 7px;
+  background: #F8FAFC;
+}
+
+.guardrail-rule-list strong { color: #0F172A; font-size: 0.76rem; }
+.guardrail-rule-list span { color: #64748B; font-size: 0.72rem; line-height: 1.4; }
+
+.guardrail-disclaimer {
+  margin-top: 12px;
+  padding: 10px;
+  border: 1px solid #FDE68A;
+  border-radius: 7px;
+  color: #92400E;
+  background: #FFFBEB;
+  font-size: 0.7rem;
+  line-height: 1.4;
+}
+
+@media (max-width: 1050px) {
+  .alerts-layout-grid { grid-template-columns: 1fr; }
+  .guardrails-policy-card { position: static; }
+}
+
+@media (max-width: 600px) {
+  .alerts-filter-bar {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
-  .safety-layout-grid {
-    grid-template-columns: 1fr;
-  }
+  .filter-btn { min-height: var(--touch-target, 44px); }
+  .alert-stream-card,
+  .guardrails-policy-card { padding: 14px; }
+  .alert-card-top,
+  .card-top-header { flex-direction: column; }
+  .alert-agency-tag { max-width: 100%; }
+  .alert-meta-grid { grid-template-columns: 1fr; }
+  .alert-meta-item.full { grid-column: auto; }
+  .btn-query-safety { width: 100%; }
+}
+
+@media (max-width: 360px) {
+  .alerts-filter-bar { grid-template-columns: 1fr; }
 }

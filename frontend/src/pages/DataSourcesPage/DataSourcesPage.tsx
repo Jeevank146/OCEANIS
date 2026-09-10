@@ -123,7 +123,7 @@ export const DataSourcesPage: React.FC = () => {
           </p>
         </div>
         <div className="page-header-actions">
-          <div className="coverage-pill" style={{ background: 'rgba(8, 42, 67, 0.7)', border: '1px solid rgba(22, 184, 216, 0.3)', padding: '6px 12px', borderRadius: '20px', color: '#16B8D8', fontSize: '0.8125rem', fontWeight: 600 }}>
+          <div className="coverage-pill">
             📍 Operational Coverage: {locName}
           </div>
           <Link to="/reports" className="btn-page-action secondary">
@@ -137,10 +137,19 @@ export const DataSourcesPage: React.FC = () => {
         <TrustedSources />
       </div>
 
-      {/* Detailed Agency Table / Cards */}
-      <div className="data-sources-grid">
-        {sourcesDetail.map((src, idx) => (
-          <div key={idx} className="ocean-card source-card">
+      {/* Detailed provider cards */}
+      <section className="data-sources-directory" aria-labelledby="data-source-directory-title">
+        <div className="data-sources-directory-header">
+          <div>
+            <span className="section-tag">PROVIDER DIRECTORY</span>
+            <h2 id="data-source-directory-title">Institutional Feed Details</h2>
+          </div>
+          <p>Technical connection, synchronization, parameter, and attribution information for each OCEANIS provider.</p>
+        </div>
+
+        <div className="data-sources-grid">
+          {sourcesDetail.map((src) => (
+          <article key={src.acronym} className="ocean-card source-card">
             <div className="source-card-header">
               <div className="source-acronym-badge">
                 <span>{src.acronym}</span>
@@ -149,7 +158,7 @@ export const DataSourcesPage: React.FC = () => {
                 <h3>{src.name}</h3>
                 <span className="source-agency-type">{src.agencyType}</span>
               </div>
-              <div className="source-status-badge">
+              <div className="source-status-badge" aria-label={`Connection status: ${src.status}`}>
                 <span className="status-dot-green"></span>
                 <span>{src.status}</span>
               </div>
@@ -174,7 +183,7 @@ export const DataSourcesPage: React.FC = () => {
               <span className="params-heading">Parameters Provided to OCEANIS Domain Agents:</span>
               <ul className="params-list">
                 {src.parametersProvided.map((param, pIdx) => (
-                  <li key={pIdx}>• {param}</li>
+                  <li key={pIdx}>{param}</li>
                 ))}
               </ul>
             </div>
@@ -183,9 +192,10 @@ export const DataSourcesPage: React.FC = () => {
               <span className="attribution-tag">Official Attribution:</span>
               <p>{src.attributionStatement}</p>
             </div>
-          </div>
-        ))}
-      </div>
+          </article>
+          ))}
+        </div>
+      </section>
     </div>
   );
 };

@@ -4,7 +4,7 @@
  * Base URL is configurable via VITE_API_BASE_URL.
  */
 
-export const API_BASE_URL = (import.meta.env.VITE_API_BASE_URL || 'http://127.0.0.1:8000').replace(/\/+$/, '');
+export const API_BASE_URL = (import.meta.env.VITE_API_BASE_URL || 'http://127.0.0.1:8001').replace(/\/+$/, '');
 
 export interface LocationEntity {
   name?: string;
@@ -733,3 +733,94 @@ export async function runWhatIfSimulation(
 
   return response.json();
 }
+
+export interface FishingSuitabilityFactorContract {
+  name: string;
+  status: string;
+  impact: string;
+  summary: string;
+}
+
+export interface PFZZoneContract {
+  id?: string;
+  name: string;
+  distance?: number;
+  bearing?: string;
+  score?: number;
+  sst?: string;
+  sstGrad?: string;
+  chlorophyll?: string;
+  depth?: string;
+  fuelEstimate?: string;
+  recommendation?: string;
+  latitude?: number;
+  longitude?: number;
+}
+
+export interface PFZAssessmentContract {
+  status: string;
+  zones: PFZZoneContract[];
+  notes: string;
+}
+
+export interface FishingAssessmentContract {
+  query: Record<string, any>;
+  location: { latitude: number; longitude: number };
+  overall_suitability: {
+    status: string;
+    score?: number | null;
+    factors: FishingSuitabilityFactorContract[];
+  };
+  safety_status: string;
+  risk_level: string;
+  confidence: {
+    level: string;
+    reasons: string[];
+  };
+  key_conditions: Record<string, any>;
+  evidence_used: EvidenceItemContract[];
+  recommendation: string;
+  explanation: string;
+  reasons: string[];
+  pfz: PFZAssessmentContract;
+  marine_conditions?: Record<string, any> | null;
+  weather?: Record<string, any> | null;
+  earth_observation?: Record<string, any> | null;
+  safety: Record<string, any>;
+}
+
+export interface FishingQueryPayload {
+  latitude: number;
+  longitude: number;
+  destination_latitude?: number | null;
+  destination_longitude?: number | null;
+  date?: string | null;
+  departure_time?: string | null;
+  duration_hours?: number | null;
+  vessel_type?: string;
+  fishing_method?: string | null;
+  target_species?: string | null;
+  question?: string | null;
+  language?: string;
+}
+
+/**
+ * Fetch deterministic multi-domain fishing suitability, PFZ status, and environmental conditions
+ */
+export async function assessFishingOperation(
+  payload: FishingQueryPayload
+): Promise<FishingAssessmentContract> {
+  const response = await fetch(`${API_BASE_URL}/api/v1/agents/fishing/assess`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+    body: JSON.stringify(payload),
+  });
+
+  if (!response.ok) {
+    const errDetail = await response.text();
+    throw new Error(`Fishing assessment API error (${response.status}): ${errDetail}`);
+  }
+
+  return response.json();
+}
+

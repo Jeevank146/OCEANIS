@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { useLocation } from 'react-router-dom';
 import { useLocationContext } from '../../context/LocationContext';
 import { useLanguage } from '../../context/LanguageContext';
@@ -38,13 +38,23 @@ export const AskOceanisPage: React.FC = () => {
   const { selectedLocation } = useLocationContext();
   const { language, t } = useLanguage();
 
-  // Active query & input states (Zero hardcoding)
-  const [queryInput, setQueryInput] = useState<string>('');
+  // 1. Current query being executed or active (strictly separated)
   const [currentQuery, setCurrentQuery] = useState<string>('');
+  const [queryInput, setQueryInput] = useState<string>('');
+
+  // 2. Current analysis result strictly bound to currentQuery (zero stale retention)
+  const [currentAnalysisResult, setCurrentAnalysisResult] = useState<FinalDecisionObjectContract | null>(null);
+  const decisionData = currentAnalysisResult; // Template alias for clean JSX binding
+
+  // 3. Conversational history for multi-turn session recall
+  const [conversationHistory, setConversationHistory] = useState<ConversationTurn[]>([]);
+
+  // 4. Loading & error states
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
-  const [decisionData, setDecisionData] = useState<FinalDecisionObjectContract | null>(null);
-  const [conversationHistory, setConversationHistory] = useState<ConversationTurn[]>([]);
+
+  // Track last executed initial query to prevent duplicate executions while enabling navigation updates
+  const lastExecutedInitialQueryRef = useRef<string | null>(null);
 
   // What-If scenario states
   const [whatIfTime, setWhatIfTime] = useState<string>('09:00');
@@ -58,117 +68,132 @@ export const AskOceanisPage: React.FC = () => {
   const [voiceState, setVoiceState] = useState<'IDLE' | 'LISTENING' | 'PROCESSING' | 'SPEAKING' | 'ERROR'>('IDLE');
   const [voiceLanguage, setVoiceLanguage] = useState<string>('auto');
   const [voiceErrorText, setVoiceErrorText] = useState<string | null>(null);
+
+  // TTS audio playback state
   const [isSpeaking, setIsSpeaking] = useState<boolean>(false);
+
+  // Speech Recognition ref
   const recognitionRef = useRef<any>(null);
 
-  // Handle route-level initial queries if passed via navigation
+  // Initial auto-query support when navigated via URL search param (?q=...) or router state (state?.initialQuery)
   useEffect(() => {
-    if (location.state && (location.state as any).initialQuery) {
-      const q = (location.state as any).initialQuery;
-      setQueryInput(q);
-      executeDecisionQuery(q);
+    const params = new URLSearchParams(location.search);
+    const queryFromParam = params.get('q');
+    const queryFromState = (location.state as any)?.initialQuery || (location.state as any)?.query;
+    const initialQuery =
+      (queryFromParam && queryFromParam.trim()) ||
+      (queryFromState && typeof queryFromState === 'string' && queryFromState.trim());
+
+    if (initialQuery && initialQuery !== lastExecutedInitialQueryRef.current) {
+      lastExecutedInitialQueryRef.current = initialQuery;
+      setQueryInput(initialQuery);
+      executeDecisionQuery(initialQuery);
     }
-  }, [location.state]);
+  }, [location.search, location.state]);
 
-  // Cleanup speech synthesis on unmount
-  useEffect(() => {
-    return () => {
-      if (window.speechSynthesis) {
-        window.speechSynthesis.cancel();
-      }
-      if (recognitionRef.current) {
-        recognitionRef.current.abort();
-      }
-    };
-  }, []);
-
-  /**
-   * Submits and executes a dynamic multi-agent query atomically.
-   */
-  const executeDecisionQuery = async (queryText: string) => {
-    const cleanQuery = queryText.trim();
+  // Main decision orchestration query execution
+  const executeDecisionQuery = async (queryToRun: string) => {
+    const cleanQuery = queryToRun.trim();
     if (!cleanQuery) return;
 
-    // Atomically set loading and record the new CURRENT QUERY
-    setCurrentQuery(cleanQuery);
-    setIsLoading(true);
-    setErrorMsg(null);
-    setWhatIfResult(null);
-    // Clear previous decision data while loading so stale results are NEVER shown under the new query
-    setDecisionData(null);
-
-    // Stop active TTS playback
-    if (window.speechSynthesis) {
+    // Reset voice & speaking states
+    if (isSpeaking && window.speechSynthesis) {
       window.speechSynthesis.cancel();
       setIsSpeaking(false);
     }
+    if (voiceState === 'LISTENING' && recognitionRef.current) {
+      recognitionRef.current.abort();
+      setVoiceState('IDLE');
+    }
+
+    // 1. Capture the new query
+    setCurrentQuery(cleanQuery);
+    // 2. Clear previous analysis result immediately - NEVER display old result for a new query
+    setCurrentAnalysisResult(null);
+    setWhatIfResult(null);
+    setErrorMsg(null);
+    setIsLoading(true);
 
     try {
-      const res = await getOrchestratorDecision(
+      // 3. Resolve location:
+      // Priority 1: Explicit location mentioned in query text (handled by backend NLP planner)
+      // Priority 2: Current LocationContext (selectedLocation?.lat, selectedLocation?.lon)
+      // Priority 3: Ask user for location (backend returns LOCATION_REQUIRED if missing)
+      const lat = selectedLocation?.lat ?? null;
+      const lon = selectedLocation?.lon ?? null;
+      const locName = selectedLocation?.city || selectedLocation?.name;
+
+      // 4. Dispatch query to multi-agent orchestrator
+      const response: FinalDecisionObjectContract = await getOrchestratorDecision(
         cleanQuery,
-        selectedLocation?.lat,
-        selectedLocation?.lon,
+        lat,
+        lon,
         null,
         null,
         null,
         null,
         null,
-        language
+        language,
       );
 
-      // Atomically bind the fresh result to the current query
-      setDecisionData(res);
-      if (res.what_if_comparison) {
-        setWhatIfResult(res.what_if_comparison);
-      }
+      // 5. Replace currentAnalysisResult with ONLY the fresh new result
+      setCurrentAnalysisResult(response);
 
-      // Add to session conversational history without duplicating identical consecutive queries
+      // 6. Record in conversation history for multi-turn session recall
+      const resolvedLocName = response.location?.name || locName || 'Indian Coast';
       const newTurn: ConversationTurn = {
-        id: `turn-${Date.now()}`,
+        id: `turn_${Date.now()}`,
         query: cleanQuery,
-        response: res,
+        response: response,
         timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-        locationName: res.location?.name || selectedLocation?.city || 'Coastal Sector',
-        intent: res.query_intent || 'DECISION',
-        agentCount: res.agents_consulted_count || res.agents_consulted?.length || 4,
-        summary: res.primary_answer || res.summary || '',
+        locationName: resolvedLocName,
+        intent: response.query_intent || 'DECISION',
+        agentCount: response.agents_consulted_count || response.agents_consulted?.length || 6,
+        summary: response.summary || response.primary_answer || 'Decision completed.',
       };
 
-      setConversationHistory((prev) => {
-        // Filter out any older entry with identical query text to prevent duplicates
-        const filtered = prev.filter((t) => t.query.toLowerCase() !== cleanQuery.toLowerCase());
-        return [newTurn, ...filtered.slice(0, 7)];
-      });
+      setConversationHistory((prev) => [
+        newTurn,
+        ...prev.filter((t) => t.query.toLowerCase() !== cleanQuery.toLowerCase()).slice(0, 9),
+      ]);
     } catch (err: any) {
-      console.error('Decision pipeline error:', err);
-      setErrorMsg(err.message || 'Failed to retrieve multi-agent decision intelligence.');
+      console.error('Ask OCEANIS Orchestration Error:', err);
+      // Ensure stale result is NEVER shown if query fails
+      setCurrentAnalysisResult(null);
+      setErrorMsg(
+        err?.response?.data?.detail ||
+          err?.message ||
+          'Failed to execute multi-agent marine decision query. Please check your connection and retry.'
+      );
     } finally {
       setIsLoading(false);
-      setVoiceState('IDLE');
     }
   };
 
-  /**
-   * Explicitly restores a historical turn's intelligence state
-   */
+  // Restore previous turn from conversational history
   const restoreHistoricalTurn = (turn: ConversationTurn) => {
     setCurrentQuery(turn.query);
     setQueryInput(turn.query);
-    setDecisionData(turn.response);
-    setWhatIfResult(turn.response.what_if_comparison || null);
+    setCurrentAnalysisResult(turn.response);
     setErrorMsg(null);
+    setWhatIfResult(null);
   };
 
+  // What-If Simulation execution
   const handleRunWhatIf = async () => {
-    if (!decisionData || !whatIfTime) return;
+    if (!decisionData) return;
     setIsSimulatingWhatIf(true);
     try {
+      const lat = decisionData.location?.latitude || selectedLocation?.lat || 13.0827;
+      const lon = decisionData.location?.longitude || selectedLocation?.lon || 80.2707;
+      const locName = decisionData.location?.name || selectedLocation?.city || selectedLocation?.name || 'Sector';
+
       const res = await runWhatIfSimulation({
-        query: currentQuery || queryInput || 'What if departure is modified?',
-        latitude: decisionData.location?.latitude,
-        longitude: decisionData.location?.longitude,
+        query: currentQuery || `Fishing safety at ${locName}`,
         what_if_time: whatIfTime,
-        what_if_location_name: decisionData.location?.name,
+        latitude: lat,
+        longitude: lon,
+        what_if_location_name: locName,
       });
       setWhatIfResult(res);
     } catch (err: any) {
@@ -337,18 +362,91 @@ export const AskOceanisPage: React.FC = () => {
     return true;
   });
 
-  // Dynamic context-aware follow up suggestions for the current query and intent
-  const dynamicFollowUps =
-    synthesized?.followUpSuggestions && synthesized.followUpSuggestions.length > 0
-      ? synthesized.followUpSuggestions
-      : getDynamicFollowUpSuggestions(
-          decisionData?.location?.name || selectedLocation?.city || 'this sector',
-          language,
-          queryIntent
-        );
+  // Dynamic context-aware follow up suggestions strictly bound to current query result, location, and intent
+  const dynamicFollowUps = useMemo(() => {
+    if (!currentAnalysisResult) return [];
+    if (synthesized?.followUpSuggestions && synthesized.followUpSuggestions.length > 0) {
+      return synthesized.followUpSuggestions;
+    }
+    const loc = currentAnalysisResult.location?.name || selectedLocation?.city || selectedLocation?.name || 'this sector';
+    return getDynamicFollowUpSuggestions(
+      loc,
+      language,
+      currentAnalysisResult.query_intent || 'DECISION'
+    );
+  }, [currentAnalysisResult, synthesized, selectedLocation, language]);
 
   // Past turns for conversational history (excluding the current active turn from the top)
   const pastHistoryTurns = conversationHistory.filter((t) => t.query.toLowerCase() !== currentQuery.toLowerCase());
+
+  // Dynamic context for suggested initial queries (Zero Hardcoding)
+  const activeLocName = selectedLocation?.city || selectedLocation?.name;
+
+  const placeholderText = activeLocName
+    ? t('ask.input_placeholder_loc', `e.g., "What are current ocean conditions for ${activeLocName}?" or "Can I go fishing tomorrow morning?"`)
+    : t('ask.input_placeholder_gen', 'e.g., "What are current ocean conditions?" or "Can I go fishing tomorrow morning?"');
+
+  const suggestedQueries = [
+    {
+      icon: (
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="chip-svg">
+          <path d="M2 6c.6.5 1.2 1 2.5 1C7 7 7 5 9.5 5c2.6 0 2.4 2 5 2 2.5 0 2.5-2 5-2 1.3 0 1.9.5 2.5 1" />
+          <path d="M2 12c.6.5 1.2 1 2.5 1 2.5 0 2.5-2 5-2 2.6 0 2.4 2 5 2 2.5 0 2.5-2 5-2 1.3 0 1.9.5 2.5 1" />
+          <path d="M2 18c.6.5 1.2 1 2.5 1 2.5 0 2.5-2 5-2 2.6 0 2.4 2 5 2 2.5 0 2.5-2 5-2 1.3 0 1.9.5 2.5 1" />
+        </svg>
+      ),
+      label: activeLocName
+        ? t('ask.chip_conditions_loc', `Current conditions near ${activeLocName}`)
+        : t('ask.chip_conditions_gen', 'Current ocean conditions'),
+      query: activeLocName
+        ? `What are the current ocean conditions for ${activeLocName}?`
+        : 'What are the current ocean conditions?',
+    },
+    {
+      icon: (
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="chip-svg">
+          <circle cx="12" cy="12" r="10" />
+          <polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76" />
+        </svg>
+      ),
+      label: activeLocName
+        ? t('ask.chip_fishing_loc', `Fishing conditions near ${activeLocName}`)
+        : t('ask.chip_fishing_gen', 'Fishing conditions'),
+      query: activeLocName
+        ? `Can I go fishing tomorrow morning from ${activeLocName}?`
+        : 'Can I go fishing tomorrow morning?',
+    },
+    {
+      icon: (
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="chip-svg chip-warning-svg">
+          <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
+          <line x1="12" y1="9" x2="12" y2="13" />
+          <line x1="12" y1="17" x2="12.01" y2="17" />
+        </svg>
+      ),
+      label: activeLocName
+        ? t('ask.chip_warning_loc', `Marine warnings & safety near ${activeLocName}`)
+        : t('ask.chip_warning_gen', 'Marine warnings and safety'),
+      query: activeLocName
+        ? `Is there any active marine warning near ${activeLocName}?`
+        : 'Are there any active marine warnings?',
+    },
+    {
+      icon: (
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="chip-svg">
+          <circle cx="12" cy="12" r="10" />
+          <line x1="2" y1="12" x2="22" y2="12" />
+          <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1 4-10z" />
+        </svg>
+      ),
+      label: activeLocName
+        ? t('ask.chip_sat_loc', `Satellite SST & chlorophyll near ${activeLocName}`)
+        : t('ask.chip_sat_gen', 'Satellite SST and chlorophyll'),
+      query: activeLocName
+        ? `Show satellite SST and Chlorophyll near ${activeLocName}`
+        : 'Show satellite SST and chlorophyll',
+    },
+  ];
 
   return (
     <div className="ask-oceanis-container">
@@ -368,24 +466,32 @@ export const AskOceanisPage: React.FC = () => {
 
       {/* 2. Natural Language Query Card */}
       <div className="query-card-container">
-        <div className="query-input-header">
-          <div className="input-label-group">
-            <span className="query-label">{t('ask.input_label', 'Enter Operational or Decision Query')}:</span>
-            <span className="query-helper-text">
+        <div className="query-card-header">
+          <div className="query-card-title-group">
+            <h2 className="query-card-title">
+              {t('ask.input_label', 'Enter Operational or Decision Query')}:
+            </h2>
+            <p className="query-card-subtitle">
               Type or speak any maritime inquiry for any Indian coastal sector or your selected location.
-            </span>
+            </p>
           </div>
 
           {/* Voice Language Preference Selector */}
-          <div className="voice-controls-header">
-            <label htmlFor="voiceLangSelect" className="voice-lang-label">
-              🎙️ Voice Language:
+          <div className="voice-language-bar">
+            <label htmlFor="voiceLangSelect" className="voice-language-label">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="voice-lang-mic-icon" aria-hidden="true">
+                <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z" />
+                <path d="M19 10v2a7 7 0 0 1-14 0v-2" />
+                <line x1="12" y1="19" x2="12" y2="23" />
+                <line x1="8" y1="23" x2="16" y2="23" />
+              </svg>
+              <span>Voice Language:</span>
             </label>
             <select
               id="voiceLangSelect"
               value={voiceLanguage}
               onChange={(e) => setVoiceLanguage(e.target.value)}
-              className="voice-lang-select"
+              className="voice-language-select"
             >
               <option value="auto">Auto ({language.toUpperCase()})</option>
               <option value="en-IN">English (India)</option>
@@ -406,41 +512,53 @@ export const AskOceanisPage: React.FC = () => {
             e.preventDefault();
             executeDecisionQuery(queryInput);
           }}
-          className="query-form"
+          className="query-input-form"
         >
-          <div className="query-input-wrapper">
-            <input
-              type="text"
-              className="query-text-input"
-              value={queryInput}
-              onChange={(e) => setQueryInput(e.target.value)}
-              placeholder={t(
-                'ask.input_placeholder',
-                `e.g., "What are current ocean conditions for ${selectedLocation?.city || 'Chennai'}?" or "Can I go fishing tomorrow morning?"`
-              )}
-              disabled={isLoading}
-            />
+          <div className="query-input-row">
+            <div className="query-input-wrapper">
+              <input
+                type="text"
+                className={`query-text-input ${voiceState === 'LISTENING' ? 'input-listening' : ''}`}
+                value={queryInput}
+                onChange={(e) => setQueryInput(e.target.value)}
+                placeholder={placeholderText}
+                disabled={isLoading}
+              />
 
-            {/* Voice Input Microphone Button */}
-            <button
-              type="button"
-              className={`btn-mic-toggle ${voiceState === 'LISTENING' ? 'mic-listening' : ''}`}
-              onClick={handleVoiceToggle}
-              title={voiceState === 'LISTENING' ? 'Stop listening' : 'Speak your query via voice'}
-              disabled={isLoading}
-            >
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="mic-icon">
-                <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z" />
-                <path d="M19 10v2a7 7 0 0 1-14 0v-2" />
-                <line x1="12" y1="19" x2="12" y2="23" />
-                <line x1="8" y1="23" x2="16" y2="23" />
-              </svg>
-            </button>
+              {/* Voice Input Microphone Button cleanly placed at the right of the input */}
+              <button
+                type="button"
+                className={`query-mic-btn ${voiceState === 'LISTENING' ? 'mic-listening' : ''}`}
+                onClick={handleVoiceToggle}
+                title={voiceState === 'LISTENING' ? 'Stop listening' : 'Speak your query via voice'}
+                disabled={isLoading}
+                aria-label="Toggle voice input"
+              >
+                {voiceState === 'LISTENING' ? (
+                  <span className="mic-pulse-wrapper">
+                    <span className="mic-pulse-circle" />
+                    <svg viewBox="0 0 24 24" fill="currentColor" className="mic-svg">
+                      <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z" />
+                      <path d="M19 10v2a7 7 0 0 1-14 0v-2" />
+                      <line x1="12" y1="19" x2="12" y2="23" stroke="currentColor" strokeWidth="2" />
+                      <line x1="8" y1="23" x2="16" y2="23" stroke="currentColor" strokeWidth="2" />
+                    </svg>
+                  </span>
+                ) : (
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="mic-svg">
+                    <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z" />
+                    <path d="M19 10v2a7 7 0 0 1-14 0v-2" />
+                    <line x1="12" y1="19" x2="12" y2="23" />
+                    <line x1="8" y1="23" x2="16" y2="23" />
+                  </svg>
+                )}
+              </button>
+            </div>
 
-            {/* Submit Analyze Button */}
+            {/* Submit Analyze Button clearly beside input */}
             <button
               type="submit"
-              className="btn-submit-query"
+              className="query-submit-btn"
               disabled={isLoading || !queryInput.trim()}
             >
               {isLoading ? (
@@ -451,7 +569,7 @@ export const AskOceanisPage: React.FC = () => {
               ) : (
                 <>
                   <span>{t('ask.analyze_btn', 'Analyze Query')}</span>
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="arrow-icon">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="btn-arrow-svg">
                     <line x1="5" y1="12" x2="19" y2="12" />
                     <polyline points="12 5 19 12 12 19" />
                   </svg>
@@ -464,7 +582,9 @@ export const AskOceanisPage: React.FC = () => {
         {/* Voice Feedback Alerts */}
         {voiceState === 'LISTENING' && (
           <div className="voice-feedback-banner listening-pulse">
-            <span className="pulse-indicator" />
+            <div className="voice-wave-animation">
+              <span /><span /><span /><span /><span />
+            </div>
             <span>Listening... Speak naturally in {voiceLanguage === 'auto' ? language.toUpperCase() : voiceLanguage}</span>
           </div>
         )}
@@ -475,55 +595,25 @@ export const AskOceanisPage: React.FC = () => {
           </div>
         )}
 
-        {/* Initial Prompt Chips (Zero Hardcoding - Built from dynamic context) */}
+        {/* Suggested Inquiries (Zero Hardcoding - Built dynamically from LocationContext or generic) */}
         {!decisionData && !isLoading && (
-          <div className="sample-prompts-tray">
-            <span className="sample-prompts-label">{t('ask.sample_label', 'Suggested Inquiries')}:</span>
-            <div className="sample-chips-row">
-              <button
-                type="button"
-                className="sample-chip"
-                onClick={() => {
-                  const q = `What are the current ocean conditions for ${selectedLocation?.city || 'Chennai'}?`;
-                  setQueryInput(q);
-                  executeDecisionQuery(q);
-                }}
-              >
-                🌊 {t('ask.chip_conditions', `Current conditions near ${selectedLocation?.city || 'Selected Sector'}`)}
-              </button>
-              <button
-                type="button"
-                className="sample-chip"
-                onClick={() => {
-                  const q = `Can I go fishing tomorrow morning from ${selectedLocation?.city || 'Mumbai'}?`;
-                  setQueryInput(q);
-                  executeDecisionQuery(q);
-                }}
-              >
-                🎣 {t('ask.chip_fishing', `Fishing decision for tomorrow morning`)}
-              </button>
-              <button
-                type="button"
-                className="sample-chip"
-                onClick={() => {
-                  const q = `Is there any active marine warning near ${selectedLocation?.city || 'Kochi'}?`;
-                  setQueryInput(q);
-                  executeDecisionQuery(q);
-                }}
-              >
-                ⚠️ {t('ask.chip_warning', `Marine warnings & safety advisory`)}
-              </button>
-              <button
-                type="button"
-                className="sample-chip"
-                onClick={() => {
-                  const q = `Show satellite SST and Chlorophyll near ${selectedLocation?.city || 'Kakinada'}`;
-                  setQueryInput(q);
-                  executeDecisionQuery(q);
-                }}
-              >
-                🛰️ {t('ask.chip_sat', `Satellite SST & Chlorophyll`)}
-              </button>
+          <div className="suggested-inquiries-container">
+            <span className="suggested-inquiries-label">{t('ask.sample_label', 'Suggested Inquiries')}:</span>
+            <div className="suggested-chips-grid">
+              {suggestedQueries.map((item, idx) => (
+                <button
+                  key={idx}
+                  type="button"
+                  className="suggested-query-chip"
+                  onClick={() => {
+                    setQueryInput(item.query);
+                    executeDecisionQuery(item.query);
+                  }}
+                >
+                  <span className="chip-icon">{item.icon}</span>
+                  <span className="chip-text">{item.label}</span>
+                </button>
+              ))}
             </div>
           </div>
         )}

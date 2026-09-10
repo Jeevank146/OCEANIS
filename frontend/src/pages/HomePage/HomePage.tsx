@@ -38,7 +38,7 @@ export const HomePage: React.FC = () => {
     isValidating,
     validateAndSetQuery,
     validateAndSetCoordinates,
-    useCurrentLocation,
+    useCurrentLocation: requestCurrentLocation,
     validationError,
     clearValidationError,
   } = useLocationContext();
@@ -211,7 +211,7 @@ export const HomePage: React.FC = () => {
     clearValidationError();
     setIsGeoLocating(true);
     try {
-      await useCurrentLocation();
+      await requestCurrentLocation();
     } catch (err: any) {
       setGpsNotice(err.message || 'GPS location denied or unavailable.');
     } finally {

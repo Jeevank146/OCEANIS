@@ -164,7 +164,7 @@ export const AgentsPage: React.FC = () => {
   };
 
   return (
-    <div className="ocean-page-container">
+    <div className="ocean-page-container agents-page-root">
       {/* Header Banner */}
       <header className="page-header-banner">
         <div className="page-header-main">
@@ -182,7 +182,7 @@ export const AgentsPage: React.FC = () => {
           </p>
         </div>
         <div className="page-header-actions">
-          <div className="coverage-pill" style={{ background: 'rgba(8, 42, 67, 0.7)', border: '1px solid rgba(22, 184, 216, 0.3)', padding: '6px 12px', borderRadius: '20px', color: '#16B8D8', fontSize: '0.8125rem', fontWeight: 600 }}>
+          <div className="coverage-pill">
             📍 {t('agents.operational_coverage', 'Coverage')}: {locName}
           </div>
           <Link to="/ask" className="btn-page-action primary">

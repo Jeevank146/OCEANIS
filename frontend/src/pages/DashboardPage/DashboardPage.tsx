@@ -209,6 +209,7 @@ export const DashboardPage: React.FC = () => {
               <span className="dash-area-tag">OPERATIONAL COMMAND CENTER</span>
             </div>
             <h1 className="dash-primary-heading">Marine Intelligence Dashboard</h1>
+            <p className="dash-primary-description">Monitor the selected operating area, review safety conditions, and open detailed intelligence workspaces.</p>
           </div>
 
           {/* Center/Right: Location Badge & Status Cluster */}
@@ -301,6 +302,60 @@ export const DashboardPage: React.FC = () => {
       {/* MAIN DASHBOARD CONTENT AREA */}
       <main className="dash-main-body">
         <div className="dash-container">
+
+          {/* High-priority operational overview */}
+          <section className="dashboard-overview" aria-labelledby="dashboard-overview-title">
+            <div className="dashboard-overview-heading">
+              <div>
+                <span className="dash-kicker-tag">AT-A-GLANCE OPERATIONAL PICTURE</span>
+                <h2 id="dashboard-overview-title" className="dash-section-title">Operational Overview</h2>
+                <p className="dash-section-sub">Current conditions and direct access to the most-used OCEANIS workspaces.</p>
+              </div>
+              <span className="overview-location-label">{locName}</span>
+            </div>
+
+            <div className="dashboard-summary-grid">
+              <Link to="/safety" className="dashboard-summary-card status-advisory">
+                <span className="summary-card-label">Active Alerts</span>
+                <strong className="summary-card-value">{safetyAdvisories.length} monitored</strong>
+                <span className="summary-card-detail">Review marine safety notices</span>
+              </Link>
+              <Link to="/fishing" className="dashboard-summary-card status-positive">
+                <span className="summary-card-label">PFZ Advisories</span>
+                <strong className="summary-card-value">3 active zones</strong>
+                <span className="summary-card-detail">12–28 NM east-southeast</span>
+              </Link>
+              <Link to="/marine-conditions" className="dashboard-summary-card status-info">
+                <span className="summary-card-label">Ocean Conditions</span>
+                <strong className="summary-card-value">{seaStateVal}</strong>
+                <span className="summary-card-detail">Wave height {waveHeightVal}</span>
+              </Link>
+              <Link to="/marine-conditions" className="dashboard-summary-card status-info">
+                <span className="summary-card-label">Latest Forecast</span>
+                <strong className="summary-card-value">Sea-state outlook</strong>
+                <span className="summary-card-detail">Current baseline: {waveHeightVal} waves</span>
+              </Link>
+              <Link to="/data-sources" className="dashboard-summary-card status-positive">
+                <span className="summary-card-label">Data Feeds</span>
+                <strong className="summary-card-value">4 providers listed</strong>
+                <span className="summary-card-detail">View provenance and feed status</span>
+              </Link>
+              <Link to="/reports" className="dashboard-summary-card status-neutral">
+                <span className="summary-card-label">Reports</span>
+                <strong className="summary-card-value">4 templates</strong>
+                <span className="summary-card-detail">Generate an operational dossier</span>
+              </Link>
+            </div>
+
+            <nav className="dashboard-quick-actions" aria-label="Dashboard quick actions">
+              <span className="quick-actions-label">Quick actions</span>
+              <Link to="/fishing">View PFZ Intelligence</Link>
+              <Link to="/marine-conditions">View Ocean Forecast</Link>
+              <Link to="/safety">Review Alerts</Link>
+              <Link to="/maps">Open Marine Map</Link>
+              <Link to="/reports">Generate Report</Link>
+            </nav>
+          </section>
           
           {/* =========================================================================
               SECTION 1: REAL-TIME MARINE CONDITIONS (6 COMPACT CARDS HORIZONTAL GRID)
@@ -315,7 +370,9 @@ export const DashboardPage: React.FC = () => {
                 </p>
               </div>
               <div className="dash-header-actions">
-                <span className="badge-live-stream">● Live Stream</span>
+                <span className={`badge-live-stream ${isLoadingConditions ? 'is-updating' : ''}`} aria-live="polite">
+                  {isLoadingConditions ? 'Updating data…' : liveConditions?.isAvailable ? 'Live data' : 'Latest available'}
+                </span>
               </div>
             </div>
 
@@ -570,7 +627,7 @@ export const DashboardPage: React.FC = () => {
                   Multi-agent consensus fusing meteorology, hydrodynamics, geofencing & real-time risk engines.
                 </p>
               </div>
-              <Link to="/chat" className="dash-action-link">
+              <Link to="/ask" className="dash-action-link">
                 <span>Ask OCEANIS AI</span>
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                   <line x1="5" y1="12" x2="19" y2="12" />

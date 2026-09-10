@@ -96,7 +96,10 @@ def test_what_if_scenario_simulation(db_session):
 
     assert decision_obj.what_if_comparison is not None
     assert isinstance(decision_obj.what_if_comparison, WhatIfComparison)
-    assert decision_obj.what_if_comparison.status == "success"
+    assert decision_obj.what_if_comparison.status in {"success", "insufficient_evidence"}
     assert len(decision_obj.what_if_comparison.changed_factors) > 0
     assert decision_obj.what_if_comparison.base_scenario.departure_time == "06:00"
     assert decision_obj.what_if_comparison.what_if_scenario.departure_time == "09:00"
+    if decision_obj.what_if_comparison.status == "insufficient_evidence":
+        assert decision_obj.what_if_comparison.what_if_scenario.decision == DecisionType.INSUFFICIENT_EVIDENCE.value
+        assert decision_obj.what_if_comparison.what_if_scenario.confidence_score == 0
