@@ -1,4 +1,3 @@
-@'
 # OCEANIS — Ocean Intelligence & Decision System
 
 > **Turning Ocean Data into Intelligent Decisions.**
